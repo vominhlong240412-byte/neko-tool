@@ -3,90 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko System - Login</title>
+    <title>Neko Cloud - Share Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; overflow: hidden; }
-        .cyber-card { background: #111; border: 1px solid #222; box-shadow: 0 0 50px rgba(124, 58, 237, 0.1); }
-        .input-focus:focus { border-color: #7c3aed; box-shadow: 0 0 15px rgba(124, 58, 237, 0.3); outline: none; }
+        body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .cyber-panel { background: #111; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .neon-border { border-bottom: 2px solid #7c3aed; }
+        .link-card { background: #161616; border-left: 4px solid #7c3aed; transition: 0.3s; }
+        .link-card:hover { background: #1c1c1c; transform: translateX(5px); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
-    <div class="w-full max-w-sm cyber-card rounded-[2rem] p-8 text-center relative overflow-hidden">
-        <div class="absolute -top-10 -right-10 w-32 h-32 bg-purple-600/10 rounded-full blur-3xl"></div>
-        
-        <h1 class="text-3xl font-black mb-2 italic text-white">NEKO <span class="text-purple-600">HUB</span></h1>
-        <p class="text-[10px] text-zinc-600 uppercase tracking-[5px] mb-8">Authentication Required</p>
+<body class="p-4 md:p-10">
 
-        <div class="space-y-4">
-            <div class="text-left">
-                <label class="text-[10px] font-bold text-zinc-500 ml-2 uppercase">Vui lòng nhập Key:</label>
-                <input type="text" id="input-key" placeholder="NEKO_XXXXX" 
-                    class="w-full bg-black border border-zinc-800 p-4 rounded-2xl mt-1 input-focus text-purple-400 font-mono font-bold transition-all text-center">
-            </div>
-
-            <button onclick="checkKey()" id="btn-login" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-lg shadow-purple-900/20">
-                ĐĂNG NHẬP
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-black italic text-purple-500 tracking-tighter">NEKO <span class="text-white">CLOUD</span></h1>
+            <button onclick="toggleUpload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-bold transition-all">
+                <i class="fa-solid fa-plus mr-2"></i> ĐĂNG FILE
             </button>
-
-            <div class="pt-4">
-                <p class="text-xs text-zinc-500">Chưa có mã? 
-                    <a href="laykey.html" class="text-purple-500 font-bold hover:underline">Lấy Key tại đây</a>
-                </p>
-            </div>
         </div>
 
-        <p class="mt-8 text-[9px] text-zinc-800 font-bold uppercase tracking-widest">© 2026 Neko Security</p>
+        <div id="upload-form" class="hidden cyber-panel rounded-3xl p-6 mb-10 animate-fade-in-down">
+            <h2 class="text-xl font-bold mb-4 text-purple-400">Tải lên File/Link mới</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="file-name" placeholder="Tên file hoặc nội dung..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
+                <input type="text" id="file-url" placeholder="Dán URL link vào đây..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
+            </div>
+            <button onclick="uploadLink()" class="w-full mt-4 bg-white text-black font-black py-3 rounded-xl hover:bg-purple-500 hover:text-white transition-all">
+                XÁC NHẬN UPLOAD
+            </button>
+        </div>
+
+        <div class="space-y-4" id="link-container">
+            <p class="text-center text-zinc-600 animate-pulse">Đang tải danh sách file...</p>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, increment } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Sử dụng link Asia chuẩn của bạn
-        const firebaseConfig = { 
-            databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
-        };
-
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.checkKey = async function() {
-            const inputKey = document.getElementById('input-key').value.trim();
-            const btn = document.getElementById('btn-login');
+        // Hiển thị/Ẩn form
+        window.toggleUpload = () => {
+            const form = document.getElementById('upload-form');
+            form.classList.toggle('hidden');
+        };
 
-            if (!inputKey) {
-                alert("Bạn chưa nhập Key!");
+        // Hàm Upload
+        window.uploadLink = async () => {
+            const name = document.getElementById('file-name').value;
+            const url = document.getElementById('file-url').value;
+
+            if (!name || !url) return alert("Vui lòng nhập đủ tên và link!");
+
+            const newLinkRef = push(ref(db, 'SharedLinks'));
+            await set(newLinkRef, {
+                name: name,
+                url: url,
+                views: 0,
+                clicks: 0,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('file-name').value = "";
+            document.getElementById('file-url').value = "";
+            toggleUpload();
+            alert("Đăng link thành công!");
+        };
+
+        // Lắng nghe dữ liệu và hiển thị
+        const container = document.getElementById('link-container');
+        onValue(ref(db, 'SharedLinks'), (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = "";
+            
+            if (!data) {
+                container.innerHTML = `<div class="text-center text-zinc-700 py-20">Chưa có file nào được chia sẻ.</div>`;
                 return;
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> ĐANG KIỂM TRA...';
-            btn.disabled = true;
-
-            try {
-                // Tìm Key trong nhánh ActiveKeys trên Firebase
-                const snapshot = await get(ref(db, 'ActiveKeys/' + inputKey));
+            Object.keys(data).reverse().forEach(id => {
+                const item = data[id];
+                const card = document.createElement('div');
+                card.className = "link-card p-5 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4";
+                card.innerHTML = `
+                    <div class="flex-1">
+                        <h3 class="font-bold text-lg text-white mb-1">${item.name}</h3>
+                        <div class="flex gap-4 text-[10px] text-zinc-500 uppercase font-bold">
+                            <span><i class="fa-solid fa-eye text-purple-500"></i> ${item.views || 0} Xem</span>
+                            <span><i class="fa-solid fa-mouse-pointer text-purple-500"></i> ${item.clicks || 0} Click</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="handleAction('${id}', '${item.url}', 'click')" class="bg-zinc-800 hover:bg-purple-600 text-white px-6 py-2 rounded-xl font-bold transition-all">
+                            TẢI XUỐNG
+                        </button>
+                        <button onclick="deleteLink('${id}')" class="bg-red-900/20 text-red-500 w-10 h-10 rounded-xl hover:bg-red-600 hover:text-white transition-all">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
                 
-                if (snapshot.exists()) {
-                    btn.innerHTML = 'HỢP LỆ! ĐANG VÀO...';
-                    btn.style.background = "#22c55e"; // Đổi sang màu xanh lá
-                    
-                    // Sau 1 giây sẽ chuyển hướng vào giao diện chính của Tool
-                    setTimeout(() => {
-                        alert("Đăng nhập thành công!");
-                        // Bạn thay 'main.html' bằng tên file giao diện chính của bạn nhé
-                        // window.location.href = 'main.html'; 
-                    }, 1000);
-                } else {
-                    alert("Key không tồn tại hoặc đã hết hạn!");
-                    btn.innerHTML = 'ĐĂNG NHẬP';
-                    btn.disabled = false;
-                }
-            } catch (e) {
-                alert("Lỗi kết nối: " + e.message);
-                btn.innerHTML = 'ĐĂNG NHẬP';
-                btn.disabled = false;
+                // Tăng lượt Xem khi card xuất hiện (View)
+                update(ref(db, `SharedLinks/${id}`), { views: increment(1) });
+                
+                container.appendChild(card);
+            });
+        });
+
+        // Xử lý khi bấm nút Tải xuống (Click)
+        window.handleAction = async (id, url) => {
+            await update(ref(db, `SharedLinks/${id}`), { clicks: increment(1) });
+            window.open(url, '_blank');
+        };
+
+        // Xóa Link
+        window.deleteLink = (id) => {
+            if (confirm("Bạn có chắc chắn muốn xóa link này không?")) {
+                remove(ref(db, `SharedLinks/${id}`));
             }
         };
     </script>
