@@ -3,74 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEKO SYSTEM | MASTER COMMAND CENTER</title>
+    <title>QUẢN TRỊ VIÊN | NEKO CLOUD SYSTEM</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Be+Vietnam+Pro:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
         :root {
             --p: #bc13fe;
+            --p-glow: rgba(188, 19, 254, 0.4);
             --bg: #020202;
             --card: #0a0a0a;
             --border: #1a1a1a;
+            --red: #ff003c;
+            --green: #00ff41;
         }
 
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair; }
+        
         body {
             background-color: var(--bg);
             color: var(--p);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Be Vietnam Pro', sans-serif;
             padding: 40px;
             overflow-x: hidden;
         }
 
-        /* CUSTOM SCROLLBAR */
-        ::-webkit-scrollbar { width: 4px; }
+        /* TÙY CHỈNH THANH CUỘN */
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--p); }
+        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
 
+        /* PANEL PHONG CÁCH CYBER */
         .panel {
             background: var(--card);
             border: 1px solid var(--border);
             padding: 30px;
             position: relative;
-            overflow: hidden;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .panel:hover {
+            border-color: var(--p);
+            box-shadow: 0 0 30px var(--p-glow);
         }
 
         .panel::before {
-            content: "";
+            content: "NODE_STATION";
             position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
+            top: 0; left: 0;
             background: var(--p);
+            color: #000;
+            font-size: 8px;
+            font-weight: 900;
+            padding: 2px 8px;
         }
 
+        /* INPUT */
         .cyber-input {
             width: 100%;
             background: #000;
             border: 1px solid var(--border);
             padding: 15px;
             color: #fff;
+            font-size: 13px;
             margin-bottom: 15px;
             outline: none;
+            border-left: 3px solid #111;
             transition: 0.3s;
         }
 
         .cyber-input:focus {
-            border-color: var(--p);
-            box-shadow: 0 0 15px rgba(188, 19, 254, 0.2);
+            border-left-color: var(--p);
+            border-color: #222;
         }
 
+        /* BUTTON */
         .btn-action {
             background: transparent;
             border: 1px solid var(--p);
             color: var(--p);
-            padding: 10px 20px;
+            padding: 12px 20px;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: 11px;
+            font-family: 'Orbitron';
             cursor: pointer;
             transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
         }
 
         .btn-action:hover {
@@ -79,90 +100,167 @@
             box-shadow: 0 0 20px var(--p);
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-        th { background: #111; color: var(--p); padding: 15px; text-align: left; border-bottom: 2px solid var(--p); text-transform: uppercase; }
-        td { padding: 15px; border-bottom: 1px solid #111; color: #ccc; }
-        tr:hover { background: rgba(188, 19, 254, 0.02); }
+        .btn-red { border-color: var(--red); color: var(--red); }
+        .btn-red:hover { background: var(--red); color: #fff; box-shadow: 0 0 20px var(--red); }
 
-        .status-badge { padding: 2px 8px; border-radius: 2px; font-size: 9px; font-weight: 900; }
-        .bg-active { background: #00ff41; color: #000; }
-        .bg-banned { background: #ff003c; color: #fff; }
+        /* BẢNG DỮ LIỆU */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { 
+            background: #0d0d0d; 
+            color: var(--p); 
+            padding: 18px; 
+            text-align: left; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            border-bottom: 1px solid var(--p);
+        }
+        td { 
+            padding: 18px; 
+            border-bottom: 1px solid #111; 
+            color: #ccc; 
+            font-size: 12px;
+            font-family: 'monospace';
+        }
+        tr:hover { background: rgba(188, 19, 254, 0.03); }
 
-        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
-        .toast { background: #000; border-left: 4px solid var(--p); padding: 15px 30px; margin-bottom: 10px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .status-badge {
+            padding: 3px 10px;
+            font-size: 9px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        .bg-success { background: var(--green); color: #000; }
+        .bg-danger { background: var(--red); color: #fff; }
+        .bg-warning { background: #ffae00; color: #000; }
+
+        /* NOTIFICATION TOAST */
+        #toast-container { position: fixed; top: 30px; right: 30px; z-index: 9999; }
+        .toast {
+            background: #000;
+            border-left: 4px solid var(--p);
+            padding: 20px 35px;
+            margin-bottom: 12px;
+            color: #fff;
+            font-size: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+
     </style>
 </head>
 <body>
+
     <div id="toast-container"></div>
 
-    <header class="flex justify-between items-end mb-12">
+    <header class="flex justify-between items-end mb-16 border-b border-zinc-900 pb-10">
         <div>
-            <h1 class="text-4xl font-black italic tracking-tighter text-white">COMMAND_CENTER</h1>
-            <p class="text-[10px] opacity-40 uppercase tracking-[8px] mt-2">Neko Cloud Management Infrastructure</p>
+            <h1 class="text-5xl font-black italic tracking-tighter text-white">BẢN ĐIỀU KHIỂN <span class="text-p">ADMIN</span></h1>
+            <p class="text-[10px] opacity-30 uppercase tracking-[8px] mt-4">Hệ thống quản lý Neko Cloud v8.0.26</p>
         </div>
         <div class="text-right">
-            <p id="clock" class="text-xl font-bold text-white"></p>
-            <p class="text-[9px] opacity-30">SYSTEM_UPTIME: STABLE</p>
+            <p id="clock" class="text-2xl font-bold text-white"></p>
+            <p class="text-[9px] opacity-30 uppercase font-black">Máy chủ: Trạng thái ổn định</p>
         </div>
     </header>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <div class="panel">
-            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">License Generator</h2>
+            <p class="text-[10px] opacity-40 uppercase mb-2">Tổng Người Dùng</p>
+            <p id="stat-users" class="text-3xl font-black text-white">0</p>
+        </div>
+        <div class="panel">
+            <p class="text-[10px] opacity-40 uppercase mb-2">Đang Chờ Duyệt Mail</p>
+            <p id="stat-pending" class="text-3xl font-black text-yellow-500">0</p>
+        </div>
+        <div class="panel">
+            <p class="text-[10px] opacity-40 uppercase mb-2">Tổng Key Đã Tạo</p>
+            <p id="stat-keys" class="text-3xl font-black text-p">0</p>
+        </div>
+        <div class="panel">
+            <p class="text-[10px] opacity-40 uppercase mb-2">Người Dùng Bị Khóa</p>
+            <p id="stat-banned" class="text-3xl font-black text-red-600">0</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-10 mb-12">
+        
+        <div class="panel">
+            <h2 class="text-sm font-black mb-8 uppercase border-b border-zinc-800 pb-4">Phát Hành License Key</h2>
             <div class="space-y-4">
-                <input type="text" id="key-input" placeholder="LICENSE_STRING" class="cyber-input">
-                <input type="text" id="exp-input" placeholder="EXPIRY (DD/MM/YYYY)" value="31/12/2026" class="cyber-input">
-                <button onclick="generateKey()" class="btn-action w-full">Commit License</button>
+                <div>
+                    <label class="text-[9px] uppercase opacity-40 mb-2 block">Mã Key Mới</label>
+                    <input type="text" id="key-input" placeholder="Ví dụ: NEKO-FREE-2026" class="cyber-input">
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase opacity-40 mb-2 block">Ngày Hết Hạn</label>
+                    <input type="text" id="exp-input" placeholder="31/12/2026" value="31/12/2026" class="cyber-input">
+                </div>
+                <button onclick="taoKeyMoi()" class="btn-action w-full">XÁC NHẬN PHÁT HÀNH KEY</button>
             </div>
             
-            <div class="mt-8">
-                <h3 class="text-[10px] opacity-30 mb-4">EXISTING_KEYS</h3>
-                <div id="key-list" class="h-40 overflow-y-auto space-y-2">
+            <div class="mt-10">
+                <h3 class="text-[10px] font-black opacity-30 mb-6 uppercase">Danh Sách Key Hiện Tại</h3>
+                <div id="key-list-box" class="h-48 overflow-y-auto space-y-3">
                     </div>
             </div>
         </div>
 
         <div class="panel">
-            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">Stream Configuration</h2>
-            <div class="space-y-4">
-                <select id="mod-target" class="cyber-input">
-                    <option value="Thuan">OPERATOR: Thuan</option>
-                    <option value="Loc">OPERATOR: Loc</option>
-                    <option value="Neko">OPERATOR: Neko</option>
-                    <option value="King">OPERATOR: King</option>
-                </select>
-                <input type="text" id="mod-url" placeholder="PAYLOAD_REDIRECT_URL" class="cyber-input">
-                <button onclick="updateMod()" class="btn-action w-full">Update Node</button>
+            <h2 class="text-sm font-black mb-8 uppercase border-b border-zinc-800 pb-4">Cấu Hình Node Moderator</h2>
+            <div class="space-y-5">
+                <div>
+                    <label class="text-[9px] uppercase opacity-40 mb-2 block">Chọn Node Operator</label>
+                    <select id="mod-name" class="cyber-input">
+                        <option value="Thuan">Operator: Thuan</option>
+                        <option value="Loc">Operator: Loc</option>
+                        <option value="Neko">Operator: Neko</option>
+                        <option value="King">Operator: King</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] uppercase opacity-40 mb-2 block">Link Chuyển Hướng (Redirect)</label>
+                    <input type="text" id="mod-url" placeholder="https://link-vượt.com" class="cyber-input">
+                </div>
+                <button onclick="capNhatMod()" class="btn-action w-full">CẬP NHẬT TRẠNG THÁI NODE</button>
             </div>
-            <div class="mt-8 p-4 bg-black/40 text-[10px] italic opacity-50">
-                Lưu ý: Thay đổi link tại đây sẽ cập nhật trực tiếp lên Sidebar của tất cả người dùng đang online.
+            <div class="mt-8 p-5 bg-black/50 text-[10px] leading-relaxed italic text-zinc-500 border border-zinc-900">
+                Lưu ý: Thay đổi link này sẽ ảnh hưởng trực tiếp đến nút bấm của Operator tương ứng trên giao diện người dùng.
             </div>
         </div>
 
         <div class="panel">
-            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">Neural Logs</h2>
-            <div id="log-box" class="h-[320px] overflow-y-auto space-y-2 font-mono text-[9px]">
-                <div class="text-zinc-600">[00:00:00] Initializing Log Stream...</div>
+            <h2 class="text-sm font-black mb-8 uppercase border-b border-zinc-800 pb-4">Nhật Ký Hệ Thống</h2>
+            <div id="system-logs" class="h-[380px] overflow-y-auto space-y-3 font-mono text-[10px]">
+                <div class="text-zinc-700">[00:00:00] Đang khởi động luồng dữ liệu...</div>
+                <div class="text-zinc-700">[00:00:01] Kết nối Firebase thành công.</div>
             </div>
         </div>
+
     </div>
 
     <div class="panel">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-sm font-black uppercase">Identity Database</h2>
-            <input type="text" id="user-search" oninput="renderUsers()" placeholder="Search Identity..." class="w-64 bg-black border border-zinc-800 p-2 text-[10px] outline-none">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
+            <div>
+                <h2 class="text-xl font-black uppercase italic">Cơ Sở Dữ Liệu Người Điều Hành</h2>
+                <p class="text-[9px] opacity-30 uppercase mt-1">Quản lý định danh và quyền truy cập chat</p>
+            </div>
+            <div class="w-full md:w-80">
+                <input type="text" id="search-user" oninput="taiDanhSachUser()" placeholder="Tìm kiếm tài khoản..." class="cyber-input !mb-0 text-xs">
+            </div>
         </div>
         
         <div class="overflow-x-auto">
             <table>
                 <thead>
                     <tr>
-                        <th>Operator_ID</th>
-                        <th>Cipher</th>
-                        <th>Reg_Date</th>
-                        <th>Verify</th>
-                        <th>Status</th>
-                        <th>Actions</th>
+                        <th>Tên Tài Khoản</th>
+                        <th>Email Yêu Cầu</th>
+                        <th>Ngày Đăng Ký</th>
+                        <th>Xác Minh Chat</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động Hệ Thống</th>
                     </tr>
                 </thead>
                 <tbody id="user-table-body">
@@ -173,27 +271,27 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue, set, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update, remove, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // UI HELPERS
-        const showToast = (msg) => {
+        // HÀM TRỢ GIÚP GIAO DIỆN
+        const hienThongBao = (msg) => {
             const container = document.getElementById('toast-container');
             const el = document.createElement('div');
             el.className = 'toast';
-            el.innerHTML = `> ${msg}`;
+            el.innerHTML = `> HỆ THỐNG: ${msg}`;
             container.appendChild(el);
-            setTimeout(() => el.remove(), 3000);
-            addLog(`Action Performed: ${msg}`);
+            setTimeout(() => el.remove(), 4000);
+            ghiLog(msg);
         };
 
-        const addLog = (msg) => {
-            const box = document.getElementById('log-box');
+        const ghiLog = (msg) => {
+            const box = document.getElementById('system-logs');
             const time = new Date().toLocaleTimeString();
-            box.innerHTML += `<div class="text-zinc-400">[${time}] ${msg}</div>`;
+            box.innerHTML += `<div class="text-zinc-500 animate-pulse">[${time}] ${msg}</div>`;
             box.scrollTop = box.scrollHeight;
         };
 
@@ -201,103 +299,129 @@
             document.getElementById('clock').innerText = new Date().toLocaleTimeString();
         }, 1000);
 
-        // DATA CORE
-        let allUsers = {};
-
-        // 1. Render Users
-        onValue(ref(db, 'Users'), (snap) => {
-            allUsers = snap.val() || {};
-            renderUsers();
-        });
-
-        window.renderUsers = () => {
-            const query = document.getElementById('user-search').value.toLowerCase();
+        // 1. TẢI DANH SÁCH USER VÀ THỐNG KÊ
+        let tatCaUser = {};
+        window.taiDanhSachUser = () => {
+            const query = document.getElementById('search-user').value.toLowerCase();
             const tbody = document.getElementById('user-table-body');
             tbody.innerHTML = "";
 
-            Object.keys(allUsers).forEach(uid => {
-                const u = allUsers[uid];
-                if(uid.toLowerCase().includes(query)) {
+            let countTotal = 0, countPending = 0, countBanned = 0;
+
+            Object.keys(tatCaUser).forEach(uid => {
+                const u = tatCaUser[uid];
+                countTotal++;
+                if(u.verify_status === 'Pending') countPending++;
+                if(u.banned) countBanned++;
+
+                if(uid.toLowerCase().includes(query) || (u.email_request && u.email_request.toLowerCase().includes(query))) {
                     tbody.innerHTML += `
                         <tr>
                             <td class="text-white font-bold">${uid}</td>
-                            <td class="font-mono">${u.pass}</td>
-                            <td class="opacity-40">${u.reg_date || 'N/A'}</td>
+                            <td class="italic ${u.email_request ? 'text-zinc-300' : 'text-zinc-700'}">
+                                ${u.email_request || 'Chưa gửi yêu cầu'}
+                            </td>
+                            <td class="opacity-30">${u.reg_date || 'N/A'}</td>
                             <td>
-                                <span onclick="toggleField('${uid}', 'verified', ${!u.verified})" class="cursor-pointer ${u.verified ? 'text-green-500' : 'text-zinc-600'}">
-                                    ${u.verified ? '● VERIFIED' : '○ UNVERIFIED'}
+                                <span class="status-badge ${u.verified ? 'bg-success' : 'bg-warning'}">
+                                    ${u.verified ? 'ĐÃ XÁC MINH' : 'CHỜ DUYỆT'}
                                 </span>
                             </td>
                             <td>
-                                <span class="status-badge ${u.banned ? 'bg-banned' : 'bg-active'}">
-                                    ${u.banned ? 'BANNED' : 'ACTIVE'}
+                                <span class="status-badge ${u.banned ? 'bg-danger' : 'bg-success'}">
+                                    ${u.banned ? 'BỊ KHÓA' : 'HOẠT ĐỘNG'}
                                 </span>
                             </td>
-                            <td class="space-x-2">
-                                <button onclick="toggleField('${uid}', 'banned', ${!u.banned})" class="btn-action">Ban/Unban</button>
-                                <button onclick="deleteNode('${uid}')" class="btn-action !border-red-900 !text-red-900">Purge</button>
+                            <td class="space-x-3">
+                                ${!u.verified ? `<button onclick="duyetChat('${uid}')" class="btn-action !py-1 !px-3">DUYỆT CHAT</button>` : ''}
+                                <button onclick="thayDoiTrangThai('${uid}', 'banned', ${!u.banned})" class="btn-action btn-red !py-1 !px-3">
+                                    ${u.banned ? 'MỞ KHÓA' : 'KHÓA ID'}
+                                </button>
+                                <button onclick="xoaTaiKhoan('${uid}')" class="btn-action !border-zinc-800 !text-zinc-600 !py-1 !px-3">XÓA</button>
                             </td>
                         </tr>
                     `;
                 }
             });
+
+            document.getElementById('stat-users').innerText = countTotal;
+            document.getElementById('stat-pending').innerText = countPending;
+            document.getElementById('stat-banned').innerText = countBanned;
         };
 
-        // 2. Manage Keys
+        onValue(ref(db, 'Users'), (snap) => {
+            tatCaUser = snap.val() || {};
+            taiDanhSachUser();
+        });
+
+        // 2. QUẢN LÝ KEY LICENSE
         onValue(ref(db, 'Keys'), (snap) => {
-            const box = document.getElementById('key-list');
+            const box = document.getElementById('key-list-box');
             box.innerHTML = "";
             const keys = snap.val() || {};
-            Object.keys(keys).forEach(k => {
+            document.getElementById('stat-keys').innerText = Object.keys(keys).length;
+
+            Object.keys(keys).reverse().forEach(k => {
                 box.innerHTML += `
-                    <div class="flex justify-between items-center bg-black p-3 border border-zinc-900">
-                        <div class="text-[10px]">
-                            <span class="text-white font-bold">${k}</span>
-                            <span class="opacity-30 block text-[8px]">${keys[k].expiry}</span>
+                    <div class="flex justify-between items-center bg-black p-4 border border-zinc-900 group hover:border-p transition-all">
+                        <div>
+                            <span class="text-white font-bold text-xs">${k}</span>
+                            <span class="text-[9px] text-zinc-600 block mt-1 uppercase">Hết hạn: ${keys[k].expiry}</span>
                         </div>
-                        <button onclick="removeKey('${k}')" class="text-red-500 text-[10px] hover:underline">Revoke</button>
+                        <button onclick="thuHoiKey('${k}')" class="text-red-500 text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-all">THU HỒI</button>
                     </div>
                 `;
             });
         });
 
-        // ACTIONS
-        window.generateKey = () => {
+        // CÁC HÀM XỬ LÝ SỰ KIỆN
+        window.taoKeyMoi = () => {
             const k = document.getElementById('key-input').value.trim();
             const e = document.getElementById('exp-input').value.trim();
-            if(!k) return;
-            set(ref(db, `Keys/${k}`), { status: "active", expiry: e });
-            showToast(`Key [${k}] has been deployed.`);
+            if(!k || !e) return hienThongBao("Vui lòng nhập đầy đủ tên Key và Ngày hết hạn.");
+            
+            set(ref(db, `Keys/${k}`), { expiry: e, status: "active" });
+            hienThongBao(`Đã phát hành License Key: ${k}`);
             document.getElementById('key-input').value = "";
         };
 
-        window.removeKey = (k) => {
-            if(confirm(`Revoke key ${k}?`)) {
+        window.thuHoiKey = (k) => {
+            if(confirm(`Bạn có chắc chắn muốn thu hồi Key: ${k}?`)) {
                 remove(ref(db, `Keys/${k}`));
-                showToast(`Key [${k}] revoked from system.`);
+                hienThongBao(`Đã thu hồi Key: ${k}`);
             }
         };
 
-        window.updateMod = () => {
-            const target = document.getElementById('mod-target').value;
+        window.capNhatMod = () => {
+            const name = document.getElementById('mod-name').value;
             const url = document.getElementById('mod-url').value.trim();
-            if(!url) return;
-            update(ref(db, 'ModLinks'), { [target]: url });
-            showToast(`Operator ${target} node updated.`);
+            if(!url) return hienThongBao("Link không được để trống.");
+            
+            update(ref(db, 'ModLinks'), { [name]: url });
+            hienThongBao(`Đã cập nhật Node Operator: ${name}`);
             document.getElementById('mod-url').value = "";
         };
 
-        window.toggleField = (uid, field, val) => {
-            update(ref(db, `Users/${uid}`), { [field]: val });
-            showToast(`Identity ${uid} updated: ${field} = ${val}`);
+        window.duyetChat = (uid) => {
+            update(ref(db, `Users/${uid}`), {
+                verified: true,
+                verify_status: "Verified"
+            });
+            hienThongBao(`Đã phê duyệt quyền Chat cho: ${uid}`);
         };
 
-        window.deleteNode = (uid) => {
-            if(confirm(`Permanent purge operator ${uid}?`)) {
+        window.thayDoiTrangThai = (uid, field, val) => {
+            update(ref(db, `Users/${uid}`), { [field]: val });
+            hienThongBao(`Đã cập nhật trạng thái ${field} cho ${uid}`);
+        };
+
+        window.xoaTaiKhoan = (uid) => {
+            if(confirm(`CẢNH BÁO: Bạn muốn xóa vĩnh viễn tài khoản ${uid}?`)) {
                 remove(ref(db, `Users/${uid}`));
-                showToast(`Identity ${uid} wiped from memory.`);
+                hienThongBao(`Đã xóa tài khoản: ${uid}`);
             }
         };
+
     </script>
 </body>
 </html>

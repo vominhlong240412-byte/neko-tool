@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEKO CLOUD | SUPREME KERNEL v8.0</title>
+    <title>QUẢN TRỊ VIÊN CẤP CAO | NEKO CLOUD</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:ital,wght@0,400;0,700;1,800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
 
     <style>
-        /* --- CORE VARIABLES --- */
+        /* --- ĐỊNH NGHĨA BIẾN HỆ THỐNG --- */
         :root {
             --p: #bc13fe;
             --p-glow: rgba(188, 19, 254, 0.5);
@@ -20,45 +19,36 @@
             --border: #1a1a1a;
             --cyan: #00f3ff;
             --red: #ff003c;
+            --green: #00ff41;
+            --yellow: #ffae00;
         }
 
-        /* --- RESET & BASE --- */
+        /* --- CẤU HÌNH CƠ BẢN --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             cursor: crosshair !important;
             user-select: none;
-            -webkit-user-drag: none;
         }
 
         body {
             background-color: var(--bg);
             color: var(--p);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Be Vietnam Pro', sans-serif;
+            line-height: 1.5;
             overflow-x: hidden;
-            line-height: 1.6;
         }
 
-        /* --- HYPER VISUALS --- */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-        }
-
-        #matrix-overlay {
+        /* --- HIỆU ỨNG THỊ GIÁC --- */
+        #bg-canvas {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            opacity: 0.1;
-            pointer-events: none;
+            opacity: 0.15;
         }
 
         .scanline {
@@ -67,102 +57,49 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                to bottom,
-                rgba(18, 16, 16, 0) 50%,
-                rgba(0, 0, 0, 0.25) 50%
-            ),
-            linear-gradient(
-                90deg,
-                rgba(255, 0, 0, 0.06),
-                rgba(0, 255, 0, 0.02),
-                rgba(0, 0, 255, 0.06)
-            );
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 50%);
+            background-size: 100% 4px;
             z-index: 10000;
-            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
         }
 
-        /* --- ANIMATIONS --- */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        .glitch-text {
-            position: relative;
-            display: inline-block;
-        }
-
-        .glitch-text::before,
-        .glitch-text::after {
-            content: attr(data-text);
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg);
-        }
-
-        .glitch-text:hover::before {
-            left: 2px;
-            text-shadow: -2px 0 var(--cyan);
-            clip: rect(44px, 450px, 56px, 0);
-            animation: glitch-anim 5s infinite linear alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% { clip: rect(31px, 9999px, 94px, 0); }
-            20% { clip: rect(62px, 9999px, 42px, 0); }
-            /* ... more keyframes in JS ... */
-        }
-
-        /* --- UI ELEMENTS --- */
+        /* --- THIẾT KẾ PANEL --- */
         .cyber-panel {
             background: var(--surface);
             border: 1px solid var(--border);
             position: relative;
-            box-shadow: 0 0 30px rgba(0,0,0,1);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: 0.4s;
         }
 
         .cyber-panel:hover {
             border-color: var(--p);
-            box-shadow: 0 0 40px rgba(188, 19, 254, 0.1);
+            box-shadow: 0 0 40px var(--p-glow);
         }
 
-        .cyber-panel::before {
-            content: "ID: " attr(data-id);
-            position: absolute;
-            top: -10px;
-            left: 10px;
-            background: var(--p);
-            color: #000;
-            font-size: 8px;
+        .panel-header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .panel-title {
+            font-family: 'Orbitron';
             font-weight: 900;
-            padding: 2px 6px;
-        }
-
-        .input-group {
-            position: relative;
-            margin-bottom: 25px;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 9px;
+            font-size: 12px;
+            letter-spacing: 3px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 8px;
-            opacity: 0.5;
         }
 
+        /* --- NHẬP LIỆU --- */
         .cyber-input {
             width: 100%;
             background: #000;
             border: 1px solid #1a1a1a;
-            padding: 20px;
+            padding: 15px 20px;
             color: #fff;
             font-family: 'JetBrains Mono';
             font-size: 13px;
@@ -173,88 +110,105 @@
 
         .cyber-input:focus {
             border-left-color: var(--p);
-            background: rgba(188, 19, 254, 0.03);
+            background: rgba(188, 19, 254, 0.05);
         }
 
+        /* --- NÚT BẤM --- */
         .btn-supreme {
-            width: 100%;
-            padding: 25px;
+            padding: 15px 25px;
             background: var(--p);
-            color: #fff;
-            font-family: 'Orbitron';
+            color: #000;
             font-weight: 900;
+            font-family: 'Orbitron';
             text-transform: uppercase;
-            letter-spacing: 5px;
-            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
-            transition: 0.4s;
-            position: relative;
+            font-size: 11px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            transition: 0.3s;
             border: none;
         }
 
         .btn-supreme:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 0 50px var(--p);
-            transform: translateY(-3px);
+            background: #fff;
+            box-shadow: 0 0 30px #fff;
+            transform: scale(1.05);
         }
 
-        .btn-supreme:active {
-            transform: scale(0.98);
+        .btn-red { background: var(--red); color: #fff; }
+        .btn-red:hover { background: #ff4d4d; box-shadow: 0 0 30px var(--red); }
+
+        /* --- BẢNG DỮ LIỆU --- */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        /* --- NOTIFICATION --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th {
+            background: #080808;
+            color: var(--p);
+            text-align: left;
+            padding: 20px;
+            text-transform: uppercase;
+            font-family: 'Orbitron';
+            font-size: 10px;
+            border-bottom: 2px solid var(--p);
+        }
+
+        td {
+            padding: 20px;
+            border-bottom: 1px solid #111;
+            color: #ccc;
+        }
+
+        tr:hover {
+            background: rgba(188, 19, 254, 0.03);
+        }
+
+        /* --- TRẠNG THÁI --- */
+        .badge {
+            padding: 4px 10px;
+            font-size: 9px;
+            font-weight: 900;
+            border-radius: 2px;
+            text-transform: uppercase;
+        }
+
+        .badge-pending { background: var(--yellow); color: #000; }
+        .badge-verified { background: var(--green); color: #000; }
+        .badge-banned { background: var(--red); color: #fff; }
+
+        /* --- THÔNG BÁO --- */
         #notify-area {
             position: fixed;
-            bottom: 40px;
-            right: 40px;
-            z-index: 10000;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
             width: 350px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
 
         .toast {
             background: rgba(5,5,5,0.95);
             border-left: 5px solid var(--p);
             padding: 20px;
+            margin-bottom: 10px;
             color: #fff;
             font-size: 11px;
             backdrop-filter: blur(10px);
-            animation: slide-in 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.8);
+            animation: slideIn 0.5s ease-out forwards;
         }
 
-        @keyframes slide-in {
+        @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* --- DASHBOARD --- */
-        .stat-box {
-            padding: 25px;
-            border-bottom: 2px solid #111;
-        }
-
-        .roblox-card {
-            background: #080808;
-            border: 1px solid #111;
-            padding: 15px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .avatar-frame {
-            width: 50px;
-            height: 50px;
-            border: 1px solid var(--p);
-            background: #000;
-            overflow: hidden;
-        }
-
         /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--p); }
 
@@ -262,547 +216,313 @@
 </head>
 <body>
 
-    <canvas id="particle-canvas"></canvas>
-    <canvas id="matrix-overlay"></canvas>
+    <canvas id="bg-canvas"></canvas>
     <div class="scanline"></div>
     <div id="notify-area"></div>
 
-    <div id="boot-wrapper" class="fixed inset-0 z-[100000] bg-black flex flex-col items-center justify-center p-10">
-        <div class="max-w-xl w-full">
-            <div id="boot-terminal" class="font-mono text-[10px] text-zinc-500 mb-8 h-64 overflow-hidden leading-relaxed">
+    <nav class="border-b border-zinc-900 bg-black/90 p-8 sticky top-0 z-[1000] backdrop-blur-xl">
+        <div class="max-w-[1800px] mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-10">
+                <h1 class="text-3xl font-black italic text-white tracking-tighter">BẢN ĐIỀU KHIỂN <span class="text-p">ADMIN</span></h1>
+                <div class="h-8 w-[1px] bg-zinc-800"></div>
+                <div class="hidden md:flex gap-8 text-[10px] font-black opacity-30 uppercase tracking-[4px]">
+                    <a href="#section-stats" class="hover:text-p transition-all">Thống_Kê</a>
+                    <a href="#section-users" class="hover:text-p transition-all">Người_Dùng</a>
+                    <a href="#section-keys" class="hover:text-p transition-all">Mã_License</a>
+                    <a href="#section-chat" class="hover:text-p transition-all">Quản_Lý_Chat</a>
                 </div>
-            <div class="relative h-1 w-full bg-zinc-900 overflow-hidden">
-                <div id="boot-progress" class="absolute top-0 left-0 h-full bg-p w-0 transition-all duration-300"></div>
             </div>
-            <div class="flex justify-between mt-4">
-                <span class="text-[9px] uppercase tracking-widest text-p">Kernel Loading...</span>
-                <span id="boot-percent" class="text-[9px] font-bold text-white">0%</span>
+            <div class="flex items-center gap-8">
+                <div class="text-right border-r border-zinc-800 pr-8">
+                    <p class="text-[8px] opacity-30 uppercase font-black">Thời gian máy chủ</p>
+                    <p id="server-time" class="text-lg font-black italic text-white tracking-widest">00:00:00</p>
+                </div>
+                <button onclick="location.reload()" class="btn-supreme !py-3 !px-6">LÀM MỚI</button>
             </div>
         </div>
-    </div>
+    </nav>
 
-    <section id="auth-gate" class="hidden min-h-screen flex items-center justify-center p-8">
-        <div class="cyber-panel w-full max-w-xl p-16" data-id="AUTH_MODULE_01">
-            <div class="mb-16">
-                <h1 id="gate-title" class="text-6xl font-black italic tracking-tighter text-white glitch-text" data-text="LOGIN">LOGIN</h1>
-                <p class="text-[10px] opacity-30 mt-4 uppercase tracking-[6px]">Identity Verification Required</p>
-            </div>
+    <main class="max-w-[1800px] mx-auto p-10 lg:p-16">
 
-            <div class="space-y-2">
-                <div class="input-group">
-                    <label>Operator Identifier</label>
-                    <input type="text" id="u-user" placeholder="ID_STATION_ALPHA" class="cyber-input">
-                </div>
-                <div class="input-group">
-                    <label>Security Cipher</label>
-                    <input type="password" id="u-pass" placeholder="••••••••••••" class="cyber-input">
-                </div>
-                <div id="license-gate" class="input-group">
-                    <label class="text-red-600 !opacity-100">Access License Key</label>
-                    <input type="text" id="u-key" placeholder="NEKO-XXXX-XXXX-XXXX" class="cyber-input !border-red-900 !text-red-500">
+        <div id="section-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div class="cyber-panel p-10">
+                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Tổng Operator</p>
+                <div class="flex items-end gap-4">
+                    <span id="stat-total-users" class="text-5xl font-black text-white italic">0</span>
+                    <span class="text-[10px] mb-2 text-p">IDENTITY</span>
                 </div>
             </div>
+            <div class="cyber-panel p-10">
+                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Chờ Duyệt Mail</p>
+                <div class="flex items-end gap-4">
+                    <span id="stat-pending-mail" class="text-5xl font-black text-yellow-500 italic">0</span>
+                    <span class="text-[10px] mb-2 text-yellow-500">REQUESTS</span>
+                </div>
+            </div>
+            <div class="cyber-panel p-10">
+                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Mã Key Hoạt Động</p>
+                <div class="flex items-end gap-4">
+                    <span id="stat-active-keys" class="text-5xl font-black text-cyan-400 italic">0</span>
+                    <span class="text-[10px] mb-2 text-cyan-400">LICENSE</span>
+                </div>
+            </div>
+            <div class="cyber-panel p-10">
+                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Lưu Lượng Dữ Liệu</p>
+                <div class="flex items-end gap-4">
+                    <span id="stat-total-links" class="text-5xl font-black text-green-500 italic">0</span>
+                    <span class="text-[10px] mb-2 text-green-500">PAYLOADS</span>
+                </div>
+            </div>
+        </div>
 
-            <button onclick="executeAuthentication()" id="gate-btn" class="btn-supreme mt-12">Access_Terminal</button>
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
             
-            <div class="flex justify-between items-center mt-12">
-                <span onclick="toggleAuthMode()" id="toggle-text" class="text-[10px] opacity-40 hover:opacity-100 cursor-pointer transition-all uppercase tracking-widest">>> Create New Node Profile</span>
-                <span class="text-[9px] opacity-20 font-black italic">v8.0.STABLE</span>
-            </div>
-        </div>
-    </section>
-
-    <main id="core-ui" class="hidden opacity-0">
-        <nav class="border-b border-zinc-900 bg-black/90 sticky top-0 z-[1000] backdrop-blur-xl">
-            <div class="max-w-[1920px] mx-auto px-10 py-8 flex justify-between items-center">
-                <div class="flex items-center gap-12">
-                    <div class="text-4xl font-black italic text-white tracking-tighter">NEKO <span class="text-p">CLOUD</span></div>
-                    <div class="hidden xl:flex gap-10 text-[10px] font-black opacity-30 uppercase tracking-[4px]">
-                        <a href="#" class="hover:text-p transition-all">Satellite_Link</a>
-                        <a href="#" class="hover:text-p transition-all">Database_Nodes</a>
-                        <a href="#" class="hover:text-p transition-all">Neural_Net</a>
-                    </div>
-                </div>
-                <div class="flex items-center gap-10">
-                    <div class="text-right border-r border-zinc-800 pr-10">
-                        <p class="text-[8px] opacity-30 uppercase font-black">Operator</p>
-                        <p id="display-user" class="text-lg font-black italic text-p uppercase tracking-widest"></p>
-                    </div>
-                    <button onclick="location.reload()" class="w-12 h-12 border border-zinc-800 flex items-center justify-center hover:bg-red-600 hover:text-white transition-all text-xl font-black">✕</button>
-                </div>
-            </div>
-        </nav>
-
-        <div class="max-w-[1920px] mx-auto p-10 lg:p-16">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-                <div class="cyber-panel p-10" data-id="STATS_01">
-                    <p class="text-[9px] font-black opacity-30 uppercase mb-4 tracking-widest">Uptime_Clock</p>
-                    <span id="system-clock" class="text-3xl font-black text-white italic">00:00:00</span>
-                </div>
-                <div class="cyber-panel p-10" data-id="STATS_02">
-                    <p class="text-[9px] font-black opacity-30 uppercase mb-4 tracking-widest">License_Expiry</p>
-                    <span id="exp-display" class="text-3xl font-black text-white italic">--/--/----</span>
-                </div>
-                <div class="cyber-panel p-10" data-id="STATS_03">
-                    <p class="text-[9px] font-black opacity-30 uppercase mb-4 tracking-widest">Active_Nodes</p>
-                    <span id="node-counter" class="text-3xl font-black text-white italic">0</span>
-                </div>
-                <div class="cyber-panel p-10" data-id="STATS_04">
-                    <p class="text-[9px] font-black opacity-30 uppercase mb-4 tracking-widest">Network_Latency</p>
-                    <span class="text-3xl font-black text-green-500 italic">24<span class="text-xs ml-2 opacity-50">MS</span></span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-12">
+            <div class="xl:col-span-8 space-y-10">
                 
-                <div class="xl:col-span-8 space-y-12">
-                    <div class="cyber-panel p-12" data-id="REPO_MODULE">
-                        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 mb-12">
-                            <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white">Cloud_Repository</h2>
-                            <button onclick="document.getElementById('injection-modal').classList.toggle('hidden')" class="px-10 py-4 bg-p text-white font-black italic text-xs clip-path-polygon">INJECT_NEW_PAYLOAD</button>
-                        </div>
-
-                        <div id="injection-modal" class="hidden mb-12 p-10 border-2 border-dashed border-p/30 bg-p/5">
-                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                                <input type="text" id="payload-url" placeholder="PAYLOAD_ENDPOINT_URL" class="cyber-input !mb-0">
-                                <input type="text" id="payload-info" placeholder="MODULE_MANIFEST_DESCRIPTION" class="cyber-input !mb-0">
-                            </div>
-                            <button onclick="commitPayload()" class="btn-supreme !py-5 text-xs">Commit_To_Database</button>
-                        </div>
-
-                        <div class="relative mb-12">
-                            <input type="text" id="repo-search" oninput="renderRepository()" placeholder="FILTER_RECORDS_BY_UID_OR_OWNER..." class="w-full bg-black border border-zinc-900 p-8 text-[11px] font-black uppercase tracking-[6px] outline-none focus:border-p">
-                        </div>
-
-                        <div id="repository-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            </div>
+                <div id="section-users" class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Cơ Sở Dữ Liệu Operator</span>
+                        <input type="text" id="user-search" oninput="renderUsers()" placeholder="TÌM KIẾM THEO TÊN HOẶC EMAIL..." class="w-64 bg-black border border-zinc-900 p-3 text-[10px] outline-none focus:border-p">
                     </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Định Danh</th>
+                                    <th>Email Yêu Cầu</th>
+                                    <th>Xác Minh Chat</th>
+                                    <th>Ngày Tham Gia</th>
+                                    <th>Trạng Thái</th>
+                                    <th class="text-right">Thao Tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                    <div class="cyber-panel p-12" data-id="API_MODULE">
-                        <h2 class="text-3xl font-black italic uppercase tracking-tighter text-white mb-10">Roblox_Analyzer</h2>
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <div class="lg:col-span-1 space-y-4">
-                                <input type="text" id="rbx-id" placeholder="USER_ACCOUNT_ID" class="cyber-input">
-                                <button onclick="checkRoblox()" class="btn-supreme !py-4 !text-[10px]">Execute_Scan</button>
+                <div id="section-chat" class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Giám Sát World Chat (Live)</span>
+                        <button onclick="clearAllChat()" class="text-[10px] text-red-500 font-black hover:underline">XOÁ TOÀN BỘ TIN NHẮN</button>
+                    </div>
+                    <div id="admin-chat-box" class="h-[500px] overflow-y-auto p-8 space-y-4 font-mono text-xs bg-black/40">
+                        </div>
+                </div>
+
+                <div class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Quản Lý Payload / Shared Links</span>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Chủ Sở Hữu</th>
+                                    <th>Nội Dung / Mô Tả</th>
+                                    <th>Thời Gian</th>
+                                    <th class="text-right">Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="link-table-body">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="xl:col-span-4 space-y-10">
+                
+                <div id="section-keys" class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Phát Hành License Key</span>
+                    </div>
+                    <div class="p-8 space-y-6">
+                        <div>
+                            <label class="text-[9px] uppercase font-black opacity-30 block mb-3">Tên Key (Mã Định Danh)</label>
+                            <div class="flex gap-4">
+                                <input type="text" id="k-name" placeholder="VD: NEKO-XXXX" class="cyber-input">
+                                <button onclick="randomKey()" class="bg-zinc-900 px-4 text-p border border-zinc-800 hover:bg-p hover:text-black transition-all">RAND</button>
                             </div>
-                            <div id="rbx-results" class="lg:col-span-2 min-h-[150px] border border-zinc-900 p-6 flex flex-col justify-center items-center">
-                                <p class="text-[10px] opacity-20 uppercase font-black">Waiting for input scan...</p>
-                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[9px] uppercase font-black opacity-30 block mb-3">Ngày Hết Hạn</label>
+                            <input type="text" id="k-exp" placeholder="31/12/2026" value="31/12/2026" class="cyber-input">
+                        </div>
+                        <button onclick="taoKey()" class="btn-supreme w-full !py-4">PHÁT HÀNH KEY MỚI</button>
+                        
+                        <div class="mt-10 border-t border-zinc-900 pt-8">
+                            <h3 class="text-[10px] font-black uppercase mb-6 opacity-40">Mã Key Đang Tồn Tại</h3>
+                            <div id="key-scroller" class="h-64 overflow-y-auto space-y-2 pr-2">
+                                </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="xl:col-span-4 space-y-12">
-                    <div class="cyber-panel h-[800px] flex flex-col" data-id="COMM_CENTER">
-                        <div class="p-8 border-b border-zinc-900 flex justify-between items-center bg-black/50">
-                            <span class="text-[11px] font-black italic uppercase text-white tracking-widest">Neural_Comm_Link</span>
-                            <span class="flex items-center gap-2">
-                                <span class="w-2 h-2 bg-red-600 rounded-full animate-ping"></span>
-                                <span class="text-[10px] font-bold">LIVE_FEED</span>
-                            </span>
-                        </div>
-                        <div id="chat-scroller" class="flex-1 overflow-y-auto p-8 space-y-6 font-mono text-[11px]">
-                            </div>
-                        <div id="chat-input-area" class="hidden p-8 border-t border-zinc-900 bg-black/50">
-                            <div class="flex gap-6">
-                                <input type="text" id="broadcast-msg" placeholder="Broadcast encrypted message..." class="flex-1 bg-transparent border-b border-zinc-800 py-3 outline-none focus:border-p text-sm">
-                                <button onclick="sendBroadcast()" class="text-p font-black italic hover:scale-110 transition-all">SEND</button>
-                            </div>
-                        </div>
+                <div class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Thông Báo Hệ Thống</span>
                     </div>
+                    <div class="p-8">
+                        <textarea id="global-notice" placeholder="Nhập thông báo gửi tới toàn bộ người dùng..." class="cyber-input h-32 resize-none !mb-6"></textarea>
+                        <button onclick="sendGlobalNotice()" class="btn-supreme w-full !py-4 bg-cyan-500">PHÁT THÔNG BÁO</button>
+                    </div>
+                </div>
 
-                    <div class="cyber-panel p-10" data-id="MOD_STATUS">
-                        <h3 class="text-[10px] font-black opacity-30 uppercase mb-8 tracking-[6px]">High_Authority_Nodes</h3>
-                        <div id="mod-status-grid" class="space-y-6">
-                            </div>
+                <div class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Cấu Hình Node Redirect</span>
                     </div>
+                    <div class="p-8 space-y-6">
+                        <select id="mod-select" class="cyber-input">
+                            <option value="Thuan">Operator: Thuan</option>
+                            <option value="Loc">Operator: Loc</option>
+                            <option value="Neko">Operator: Neko</option>
+                            <option value="King">Operator: King</option>
+                        </select>
+                        <input type="text" id="mod-link-url" placeholder="Link Bypass / Redirect..." class="cyber-input">
+                        <button onclick="updateModNode()" class="btn-supreme w-full !py-4 bg-green-600">LƯU CẤU HÌNH</button>
+                    </div>
+                </div>
+
+                <div class="cyber-panel">
+                    <div class="panel-header">
+                        <span class="panel-title">Nhật Ký Truy Truy Cập</span>
+                    </div>
+                    <div id="admin-logs" class="p-8 h-64 overflow-y-auto font-mono text-[10px] space-y-2 text-zinc-600">
+                        </div>
                 </div>
 
             </div>
         </div>
     </main>
 
-    <audio id="snd-success" src="https://www.soundjay.com/buttons/button-09.mp3"></audio>
-    <audio id="snd-fail" src="https://www.soundjay.com/buttons/button-10.mp3"></audio>
-
     <script type="module">
-        /* --- FIREBASE ENGINE --- */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, get, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
+        // Cấu hình Firebase (Sếp cần thay đúng URL của mình vào đây)
         const firebaseConfig = { 
             databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
         };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        /* --- GLOBAL STATE --- */
-        let isLogin = true;
-        let currentUser = null;
-        let uptimeSeconds = 0;
-
-        /* --- BACKGROUND PARTICLES --- */
-        const pCanvas = document.getElementById('particle-canvas');
-        const pCtx = pCanvas.getContext('2d');
-        pCanvas.width = window.innerWidth;
-        pCanvas.height = window.innerHeight;
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * pCanvas.width;
-                this.y = Math.random() * pCanvas.height;
-                this.size = Math.random() * 2;
-                this.speedX = Math.random() * 1 - 0.5;
-                this.speedY = Math.random() * 1 - 0.5;
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                if(this.x > pCanvas.width || this.x < 0) this.speedX *= -1;
-                if(this.y > pCanvas.height || this.y < 0) this.speedY *= -1;
-            }
-            draw() {
-                pCtx.fillStyle = '#bc13fe';
-                pCtx.beginPath();
-                pCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                pCtx.fill();
-            }
-        }
-
-        const particleArray = Array.from({length: 100}, () => new Particle());
-        function animateParticles() {
-            pCtx.clearRect(0,0, pCanvas.width, pCanvas.height);
-            particleArray.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-
-        /* --- MATRIX EFFECT --- */
-        const mCanvas = document.getElementById('matrix-overlay');
-        const mCtx = mCanvas.getContext('2d');
-        mCanvas.width = window.innerWidth;
-        mCanvas.height = window.innerHeight;
-        const columns = mCanvas.width / 20;
-        const drops = Array(Math.floor(columns)).fill(1);
-
-        function drawMatrix() {
-            mCtx.fillStyle = 'rgba(0,0,0,0.05)';
-            mCtx.fillRect(0, 0, mCanvas.width, mCanvas.height);
-            mCtx.fillStyle = '#bc13fe';
-            mCtx.font = '15px monospace';
-            drops.forEach((y, i) => {
-                const text = String.fromCharCode(0x30A0 + Math.random() * 96);
-                mCtx.fillText(text, i * 20, y * 20);
-                if(y * 20 > mCanvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
-        }
-        setInterval(drawMatrix, 50);
-
-        /* --- BOOT SEQUENCE LOGIC --- */
-        const bootLogs = [
-            "Initializing Neko Kernel v8.0...",
-            "Loading Neural Link drivers...",
-            "Connecting to Firebase Data Stream...",
-            "Handshaking with satellite node 0xAF25...",
-            "Parsing Cipher Protocols...",
-            "Memory Check: OK",
-            "Security Level: SUPREME",
-            "Kernel Ready."
-        ];
-
-        window.addEventListener('load', () => {
-            const terminal = document.getElementById('boot-terminal');
-            let logIndex = 0;
-            let progress = 0;
-
-            const logInterval = setInterval(() => {
-                if(logIndex < bootLogs.length) {
-                    const line = document.createElement('div');
-                    line.textContent = `> ${bootLogs[logIndex]}`;
-                    terminal.appendChild(line);
-                    terminal.scrollTop = terminal.scrollHeight;
-                    logIndex++;
-                }
-            }, 400);
-
-            const prgInterval = setInterval(() => {
-                progress += Math.random() * 10;
-                if(progress >= 100) {
-                    progress = 100;
-                    clearInterval(logInterval);
-                    clearInterval(prgInterval);
-                    setTimeout(finalizeBoot, 500);
-                }
-                document.getElementById('boot-progress').style.width = progress + "%";
-                document.getElementById('boot-percent').textContent = Math.floor(progress) + "%";
-            }, 150);
-        });
-
-        function finalizeBoot() {
-            gsap.to("#boot-wrapper", {
-                opacity: 0,
-                duration: 1,
-                onComplete: () => {
-                    document.getElementById('boot-wrapper').style.display = 'none';
-                    document.getElementById('auth-gate').classList.remove('hidden');
-                    gsap.from("#auth-gate", { scale: 0.9, opacity: 0, duration: 1 });
-                    notify("SYSTEM", "Handshake established. Waiting for ID.");
-                }
-            });
-        }
-
-        /* --- SYSTEM NOTIFICATIONS --- */
-        window.notify = (title, msg) => {
+        /* --- HỆ THỐNG HIỂU THỊ THÔNG BÁO --- */
+        window.toast = (msg) => {
             const area = document.getElementById('notify-area');
-            const toast = document.createElement('div');
-            toast.className = 'toast';
-            toast.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <span class="font-black italic text-p">[${title}]</span>
-                    <span class="opacity-20 text-[8px]">${new Date().toLocaleTimeString()}</span>
-                </div>
-                <div class="text-zinc-400 leading-relaxed">${msg}</div>
-            `;
-            area.appendChild(toast);
-            setTimeout(() => {
-                toast.style.transform = 'translateX(50px)';
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 500);
-            }, 6000);
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.innerHTML = `> HỆ THỐNG: ${msg}`;
+            area.appendChild(el);
+            setTimeout(() => el.remove(), 5000);
+            logSystem(msg);
         };
 
-        /* --- AUTHENTICATION MODULE --- */
-        window.toggleAuthMode = () => {
-            isLogin = !isLogin;
-            document.getElementById('gate-title').textContent = isLogin ? "LOGIN" : "REGISTER";
-            document.getElementById('gate-title').setAttribute('data-text', isLogin ? "LOGIN" : "REGISTER");
-            document.getElementById('gate-btn').textContent = isLogin ? "Access_Terminal" : "Register_Node";
-            document.getElementById('license-gate').style.display = isLogin ? "block" : "none";
-            document.getElementById('toggle-text').textContent = isLogin ? ">> Create New Node Profile" : ">> Return to Identity Check";
-        };
+        function logSystem(msg) {
+            const l = document.getElementById('admin-logs');
+            l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+            l.scrollTop = l.scrollHeight;
+        }
 
-        window.executeAuthentication = async () => {
-            const user = document.getElementById('u-user').value.trim();
-            const pass = document.getElementById('u-pass').value.trim();
-            const key = document.getElementById('u-key').value.trim();
+        /* --- ĐỒ HỌA NỀN --- */
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            if(!user || !pass) return notify("ERROR", "Credentials cannot be null.");
-
-            if(isLogin) {
-                notify("AUTH", "Decrypting identity...");
-                const uSnap = await get(ref(db, `Users/${user}`));
-                if(!uSnap.exists()) return (document.getElementById('snd-fail').play(), notify("DENIED", "Operator ID not found in database."));
-                
-                const uData = uSnap.val();
-                if(String(uData.pass) !== String(pass)) return (document.getElementById('snd-fail').play(), notify("DENIED", "Security cipher mismatch."));
-                if(uData.banned) return notify("SECURITY", "This node has been blacklisted.");
-
-                const kSnap = await get(ref(db, `Keys/${key}`));
-                if(!kSnap.exists()) return notify("LICENSE", "Invalid Access License Key.");
-
-                // AUTH SUCCESS
-                document.getElementById('snd-success').play();
-                currentUser = user;
-                launchKernel(user, kSnap.val().expiry, uData.verified);
-            } else {
-                notify("REG", "Generating new node...");
-                const check = await get(ref(db, `Users/${user}`));
-                if(check.exists()) return notify("CONFLICT", "Identity ID already claimed.");
-
-                await set(ref(db, `Users/${user}`), {
-                    pass: pass,
-                    verified: false,
-                    banned: false,
-                    reg_date: new Date().toLocaleString(),
-                    role: "user"
-                });
-                notify("SUCCESS", "Node created. Please perform identity check.");
-                toggleAuthMode();
+        function drawHex() {
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+            ctx.strokeStyle = '#bc13fe';
+            ctx.lineWidth = 0.5;
+            const size = 50;
+            for(let y=0; y<canvas.height + size; y+=size*1.5) {
+                for(let x=0; x<canvas.width + size; x+=size*1.73) {
+                    drawHexagon(x + (y%(size*3) ? size*0.86 : 0), y, size);
+                }
             }
-        };
+        }
+        function drawHexagon(x, y, s) {
+            ctx.beginPath();
+            for(let i=0; i<6; i++) {
+                ctx.lineTo(x + s * Math.cos(i * Math.PI/3), y + s * Math.sin(i * Math.PI/3));
+            }
+            ctx.closePath();
+            ctx.stroke();
+        }
+        drawHex();
 
-        /* --- KERNEL LAUNCH --- */
-        function launchKernel(user, expiry, verified) {
-            gsap.to("#auth-gate", {
-                opacity: 0, 
-                y: -20, 
-                duration: 0.5, 
-                onComplete: () => {
-                    document.getElementById('auth-gate').style.display = 'none';
-                    document.getElementById('core-ui').classList.remove('hidden');
-                    gsap.to("#core-ui", { opacity: 1, duration: 1 });
-                    
-                    document.getElementById('display-user').innerText = user;
-                    document.getElementById('exp-display').innerText = expiry;
-                    if(verified) document.getElementById('chat-input-area').classList.remove('hidden');
+        /* --- SERVER CLOCK --- */
+        setInterval(() => {
+            document.getElementById('server-time').innerText = new Date().toLocaleTimeString();
+        }, 1000);
 
-                    initClock();
-                    renderRepository();
-                    initChatStream();
-                    initModNodes();
-                    notify("KERNEL", `Welcome back, Operator ${user}. Network stable.`);
+        /* --- QUẢN LÝ NGƯỜI DÙNG (USERS) --- */
+        let cacheUsers = {};
+        function renderUsers() {
+            const tbody = document.getElementById('user-table-body');
+            const search = document.getElementById('user-search').value.toLowerCase();
+            tbody.innerHTML = "";
+            
+            let stats = { total: 0, pending: 0, banned: 0 };
+
+            Object.keys(cacheUsers).forEach(id => {
+                const u = cacheUsers[id];
+                stats.total++;
+                if(u.verify_status === 'Pending') stats.pending++;
+                if(u.banned) stats.banned++;
+
+                if(id.toLowerCase().includes(search) || (u.email_request && u.email_request.toLowerCase().includes(search))) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td><span class="text-white font-bold">${id}</span></td>
+                            <td><span class="italic text-zinc-500">${u.email_request || '---'}</span></td>
+                            <td>
+                                <span class="badge ${u.verified ? 'badge-verified' : 'badge-pending'}">
+                                    ${u.verified ? 'ĐÃ XÁC MINH' : 'CHỜ DUYỆT'}
+                                </span>
+                            </td>
+                            <td class="opacity-30 text-[10px]">${u.reg_date || 'N/A'}</td>
+                            <td>
+                                <span class="badge ${u.banned ? 'badge-banned' : 'badge-verified'}">
+                                    ${u.banned ? 'BỊ KHÓA' : 'HOẠT ĐỘNG'}
+                                </span>
+                            </td>
+                            <td class="text-right space-x-2">
+                                ${!u.verified ? `<button onclick="duyetMail('${id}')" class="btn-supreme !py-1 !px-3 !text-[9px]">DUYỆT</button>` : ''}
+                                <button onclick="toggleBan('${id}', ${!u.banned})" class="btn-supreme btn-red !py-1 !px-3 !text-[9px]">
+                                    ${u.banned ? 'MỞ KHÓA' : 'BAN'}
+                                </button>
+                                <button onclick="deleteUser('${id}')" class="text-zinc-600 hover:text-white transition-all text-[15px]">✕</button>
+                            </td>
+                        </tr>
+                    `;
                 }
             });
+
+            document.getElementById('stat-total-users').innerText = stats.total;
+            document.getElementById('stat-pending-mail').innerText = stats.pending;
+            document.getElementById('stat-banned').innerText = stats.banned;
         }
 
-        /* --- REALTIME REPOSITORY --- */
-        window.renderRepository = () => {
-            const query = document.getElementById('repo-search').value.toLowerCase();
-            onValue(ref(db, 'SharedLinks'), (snap) => {
-                const grid = document.getElementById('repository-grid');
-                grid.innerHTML = "";
-                const data = snap.val();
-                if(!data) return;
-
-                const keys = Object.keys(data).reverse();
-                document.getElementById('node-counter').innerText = keys.length;
-
-                keys.forEach(id => {
-                    const item = data[id];
-                    if(item.owner.toLowerCase().includes(query) || (item.info && item.info.toLowerCase().includes(query))) {
-                        grid.innerHTML += `
-                            <div class="cyber-panel p-8" data-id="RECORD_${id.substring(1,6)}">
-                                <div class="flex justify-between items-start mb-6">
-                                    <span class="text-[9px] bg-p text-black px-2 py-0.5 font-black uppercase">${item.owner}</span>
-                                    <span class="text-[9px] opacity-20 font-mono">${item.time || 'N/A'}</span>
-                                </div>
-                                <h3 class="text-white text-xs font-bold mb-8 h-10 line-clamp-2 leading-relaxed">
-                                    ${item.info || 'No description provided for this payload.'}
-                                </h3>
-                                <div class="flex gap-4">
-                                    <button onclick="window.open('${item.url}')" class="flex-1 py-3 border border-p/40 text-p text-[10px] font-black italic hover:bg-p hover:text-black transition-all">CONNECT_LINK</button>
-                                    <button onclick="copyToClipboard('${item.url}')" class="px-4 border border-zinc-800 text-zinc-500 hover:text-white transition-all text-[10px]">❐</button>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-            });
-        };
-
-        window.commitPayload = async () => {
-            const url = document.getElementById('payload-url').value.trim();
-            const info = document.getElementById('payload-info').value.trim();
-            if(!url) return notify("WARN", "Injection URL cannot be empty.");
-
-            await push(ref(db, 'SharedLinks'), {
-                url: url,
-                info: info,
-                owner: currentUser,
-                time: new Date().toLocaleDateString()
-            });
-            
-            document.getElementById('injection-modal').classList.add('hidden');
-            document.getElementById('payload-url').value = "";
-            document.getElementById('payload-info').value = "";
-            notify("DATABASE", "Payload committed to cloud successfully.");
-        };
-
-        /* --- ROBLOX SCANNER --- */
-        window.checkRoblox = async () => {
-            const id = document.getElementById('rbx-id').value.trim();
-            if(!id) return;
-            const resBox = document.getElementById('rbx-results');
-            resBox.innerHTML = `<div class="animate-pulse text-p text-[10px]">Scanning Roblox Neural Net...</div>`;
-            
-            try {
-                const response = await fetch(`https://users.roblox.com/v1/users/${id}`);
-                const data = await response.json();
-                if(data.errors) throw new Error("User not found");
-
-                resBox.innerHTML = `
-                    <div class="w-full flex items-center gap-6">
-                        <div class="avatar-frame"><img src="https://www.roblox.com/headshot-thumbnail/image?userId=${id}&width=420&height=420&format=png"></div>
-                        <div class="flex-1">
-                            <p class="text-white font-black italic text-xl">${data.displayName}</p>
-                            <p class="text-p opacity-50 text-[10px]">@${data.name}</p>
-                            <div class="mt-4 flex gap-4">
-                                <span class="text-[9px] border border-zinc-800 px-2 py-1 uppercase">ID: ${id}</span>
-                                <span class="text-[9px] border border-zinc-800 px-2 py-1 uppercase">Verified: ${data.hasVerifiedBadge}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                notify("API", `Scan complete for ${data.name}`);
-            } catch (err) {
-                resBox.innerHTML = `<p class="text-red-500 text-[10px] uppercase font-black italic">Search Error: Data Encrypted or Missing</p>`;
-            }
-        };
-
-        /* --- CHAT STREAM --- */
-        function initChatStream() {
-            onValue(ref(db, 'WorldChat'), (snap) => {
-                const scroller = document.getElementById('chat-scroller');
-                scroller.innerHTML = "";
-                const messages = snap.val();
-                if(!messages) return;
-
-                Object.values(messages).slice(-50).forEach(m => {
-                    const isSelf = m.u === currentUser;
-                    scroller.innerHTML += `
-                        <div class="${isSelf ? 'text-right' : 'text-left'}">
-                            <span class="${isSelf ? 'text-cyan-500' : 'text-p'} font-black italic uppercase text-[9px]">[${m.u}]</span>
-                            <p class="text-white opacity-80 mt-1">${m.msg}</p>
-                        </div>
-                    `;
-                });
-                scroller.scrollTop = scroller.scrollHeight;
-            });
-        }
-
-        window.sendBroadcast = () => {
-            const input = document.getElementById('broadcast-msg');
-            const msg = input.value.trim();
-            if(!msg) return;
-            push(ref(db, 'WorldChat'), { u: currentUser, msg: msg });
-            input.value = "";
-        };
-
-        /* --- MOD NODES --- */
-        function initModNodes() {
-            onValue(ref(db, 'ModLinks'), (snap) => {
-                const grid = document.getElementById('mod-status-grid');
-                grid.innerHTML = "";
-                const mods = snap.val() || {};
-                ["Thuan", "Loc", "Neko", "King"].forEach(name => {
-                    const url = mods[name];
-                    grid.innerHTML += `
-                        <div class="flex justify-between items-center p-5 border border-zinc-900 bg-black/40">
-                            <span class="text-[11px] font-bold text-white uppercase tracking-widest">${name}</span>
-                            ${url ? 
-                                `<button onclick="window.open('${url}')" class="text-[9px] bg-cyan-600 text-black px-3 py-1 font-black">LINK_ACTIVE</button>` : 
-                                `<span class="text-[9px] opacity-20 font-black uppercase">Offline</span>`
-                            }
-                        </div>
-                    `;
-                });
-            });
-        }
-
-        /* --- UTILITIES --- */
-        function initClock() {
-            setInterval(() => {
-                uptimeSeconds++;
-                const h = Math.floor(uptimeSeconds / 3600).toString().padStart(2, '0');
-                const m = Math.floor((uptimeSeconds % 3600) / 60).toString().padStart(2, '0');
-                const s = (uptimeSeconds % 60).toString().padStart(2, '0');
-                document.getElementById('system-clock').innerText = `${h}:${m}:${s}`;
-            }, 1000);
-        }
-
-        window.copyToClipboard = (text) => {
-            navigator.clipboard.writeText(text);
-            notify("CLIPBOARD", "Endpoint URL copied to buffer.");
-        };
-
-        window.addEventListener('resize', () => {
-            pCanvas.width = window.innerWidth;
-            pCanvas.height = window.innerHeight;
-            mCanvas.width = window.innerWidth;
-            mCanvas.height = window.innerHeight;
+        onValue(ref(db, 'Users'), snap => {
+            cacheUsers = snap.val() || {};
+            renderUsers();
         });
 
-    </script>
-</body>
-</html>
+        window.duyetMail = (id) => {
+            update(ref(db, `Users/${id}`), { verified: true, verify_status: "Verified" });
+            toast(`Đã cấp quyền chat cho Operator: ${id}`);
+        };
+
+        window.toggleBan = (id, val) => {
+            update(ref(db, `Users/${id}`), { banned: val });
+            toast(`${val ? 'Đã khóa' : 'Đã mở khóa'} Operator: ${id}`);
+        };
+
+        window.deleteUser = (id) => {
+            if(confirm(`Hành động này sẽ xóa vĩnh viễn Operator ${id}. Tiếp tục?`)) {
+                remove(ref(db, `Users/${id}`));
+                toast(`Đ
