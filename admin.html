@@ -2,61 +2,62 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Root Admin</title>
+    <title>Neko Root Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
 </head>
-<body class="p-6 md:p-10 max-w-4xl mx-auto">
-    <h1 class="text-2xl font-black mb-8 border-b border-emerald-900 pb-4 uppercase">Root Control</h1>
-    
-    <div class="bg-zinc-900 p-6 rounded-2xl mb-8 border border-emerald-900">
-        <h2 class="text-[10px] font-bold mb-4 uppercase">Tạo Key Truy Cập</h2>
-        <div class="flex gap-2 mb-4">
-            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
-            <input type="text" id="k-exp" placeholder="Hạn dùng (vd: 24h)" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
+<body class="p-4 md:p-10 max-w-5xl mx-auto">
+    <h1 class="text-2xl font-black mb-8 border-b border-emerald-900 pb-4 uppercase">Admin Manager</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-emerald-900">
+            <h2 class="text-xs font-bold mb-4 uppercase">Tạo Key & Hạn Dùng</h2>
+            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black p-3 rounded-lg border border-emerald-800 w-full mb-3 outline-none">
+            <input type="text" id="k-exp" placeholder="Hạn dùng (vd: 29/04/2026)" class="bg-black p-3 rounded-lg border border-emerald-800 w-full mb-3 outline-none">
+            <button onclick="genK()" class="w-full bg-emerald-500 text-black py-3 rounded-lg font-bold">LƯU KEY</button>
         </div>
-        <button onclick="genKey()" class="w-full bg-emerald-500 text-black py-3 rounded-lg font-bold">LƯU KEY</button>
+
+        <div class="bg-zinc-900 p-6 rounded-2xl border border-red-900">
+            <h2 class="text-xs font-bold mb-4 uppercase text-red-500">Ban / Unban User</h2>
+            <input type="text" id="u-target" placeholder="Nhập Username..." class="bg-black p-3 rounded-lg border border-red-800 w-full mb-3 outline-none text-red-500">
+            <div class="flex gap-2">
+                <button onclick="ban(true)" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold">BAN USER</button>
+                <button onclick="ban(false)" class="flex-1 border border-white text-white py-3 rounded-lg font-bold">UNBAN</button>
+            </div>
+        </div>
     </div>
 
-    <div class="bg-zinc-900 p-6 rounded-2xl mb-8 border border-emerald-900">
-        <h2 class="text-[10px] font-bold mb-4 uppercase">Cập nhật Link Rút Gọn (Link4m)</h2>
-        <div class="flex gap-2">
-            <input type="text" id="l4m" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
-            <button onclick="upL()" class="bg-white text-black px-6 rounded-lg font-bold">LƯU</button>
-        </div>
-    </div>
-
-    <div id="admin-list" class="space-y-2"></div>
+    <h2 class="text-sm font-bold mb-4 uppercase">Danh sách Báo cáo từ User</h2>
+    <div id="report-list" class="space-y-3"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(config);
         const db = getDatabase(app);
 
-        window.genKey = () => {
-            const id = document.getElementById('k-id').value;
-            const exp = document.getElementById('k-exp').value;
-            if(id) set(ref(db, `Keys/${id}`), { status: "active", expiry: exp }).then(() => alert("Xong!"));
+        window.genK = () => {
+            const id = document.getElementById('k-id').value, exp = document.getElementById('k-exp').value;
+            if(id) set(ref(db, `Keys/${id}`), { status: "active", expiry: exp, hwid: "" }).then(() => alert("Key đã được tạo!"));
         };
 
-        window.upL = () => {
-            const url = document.getElementById('l4m').value;
-            if(url) set(ref(db, 'Config/MissionLink'), url).then(() => alert("Đã lưu link vượt!"));
+        window.ban = (st) => {
+            const u = document.getElementById('u-target').value;
+            if(u) update(ref(db, `Users/${u}`), { banned: st }).then(() => alert("Đã cập nhật trạng thái Ban!"));
         };
 
-        onValue(ref(db, 'SharedLinks'), (snap) => {
-            const list = document.getElementById('admin-list'); list.innerHTML = "";
+        onValue(ref(db, 'Reports'), (snap) => {
+            const list = document.getElementById('report-list'); list.innerHTML = "";
             const data = snap.val(); if(!data) return;
             Object.keys(data).forEach(id => {
-                list.innerHTML += `<div class="bg-zinc-950 p-4 rounded-xl flex justify-between border border-emerald-950">
-                    <span class="text-[10px] truncate w-2/3">${data[id].url}</span>
-                    <button onclick="del('${id}')" class="text-red-500 font-bold">XÓA</button>
+                const r = data[id];
+                list.innerHTML += `<div class="bg-zinc-900 p-4 rounded-xl border border-red-950 flex justify-between items-center">
+                    <span class="text-[10px]"><b class="text-red-500">${r.target}</b> bị báo cáo bởi <b>${r.reporter}</b>: ${r.reason}</span>
+                    <button onclick="remove(ref(db, 'Reports/${id}'))" class="text-[9px] underline">XÓA REPORT</button>
                 </div>`;
             });
         });
-        window.del = (id) => remove(ref(db, `SharedLinks/${id}`));
     </script>
 </body>
 </html>

@@ -1,36 +1,27 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Get Key</title>
+    <meta charset="UTF-8"><title>Mission</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
-    <div class="border border-emerald-500 p-10 rounded-3xl text-center max-w-sm w-full">
-        <h2 class="text-xl font-black mb-6 uppercase">Hệ thống Key</h2>
-        <div id="step-1">
-            <button onclick="start()" class="w-full bg-emerald-500 text-black py-4 rounded-xl font-bold">VƯỢT LINK LẤY KEY</button>
-        </div>
-        <div id="step-2" class="hidden">
-            <div id="timer" class="text-6xl font-black my-6">10</div>
-            <p class="text-[10px]">Đang kiểm tra nhiệm vụ...</p>
-        </div>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="border border-emerald-500 p-10 rounded-3xl text-center">
+        <h2 class="text-xl font-black mb-6 uppercase">Key System</h2>
+        <button onclick="start()" class="bg-emerald-500 text-black px-10 py-4 rounded-xl font-bold uppercase">Bắt đầu nhiệm vụ</button>
+        <div id="t" class="text-5xl font-black mt-6 hidden">10</div>
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        const app = initializeApp({ databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" });
-        const db = getDatabase(app);
-
+        const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
         window.start = async () => {
-            const snap = await get(ref(db, 'Config/MissionLink'));
-            if(snap.exists()){
-                window.open(snap.val(), '_blank');
-                document.getElementById('step-1').classList.add('hidden');
-                document.getElementById('step-2').classList.remove('hidden');
+            const s = await get(ref(db, 'Config/MissionLink'));
+            if(s.exists()){ 
+                window.open(s.val(), '_blank');
+                document.getElementById('t').classList.remove('hidden');
                 let c = 10;
-                setInterval(() => { if(c > 0) { c--; document.getElementById('timer').innerText = c; } else { location.reload(); } }, 1000);
+                setInterval(() => { c--; document.getElementById('t').innerText = c; if(c<=0) location.reload(); }, 1000);
             }
         };
     </script>
