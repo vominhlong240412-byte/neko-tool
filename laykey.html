@@ -7,34 +7,42 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #0a0a0a; color: #fff; }
-        .cyber-card { background: #151515; border: 1px solid #333; box-shadow: 0 0 20px rgba(139, 92, 246, 0.1); }
+        body { background: #0a0a0a; color: #fff; font-family: sans-serif; }
+        .cyber-card { background: #151515; border: 1px solid #333; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
+        .btn-gradient { background: linear-gradient(90deg, #7c3aed, #a855f7); transition: 0.3s; }
+        .btn-gradient:active { transform: scale(0.95); }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-md cyber-card rounded-3xl p-8 text-center border-t-4 border-t-purple-600">
-        <h1 class="text-4xl font-black mb-1 tracking-tighter text-purple-500">NEKO</h1>
-        <p class="text-zinc-500 text-[10px] mb-8 uppercase tracking-[5px]">Secure Key System</p>
+    <div class="w-full max-w-md cyber-card rounded-[2.5rem] p-10 text-center border-t-4 border-t-purple-600">
+        <div class="mb-6 inline-flex w-20 h-20 bg-purple-600 rounded-3xl items-center justify-center shadow-lg shadow-purple-900/50">
+            <i class="fa-solid fa-cat text-4xl text-white"></i>
+        </div>
+        <h1 class="text-4xl font-black mb-1 tracking-tighter text-white italic">NEKO <span class="text-purple-500">SYSTEM</span></h1>
+        <p class="text-zinc-500 text-[10px] mb-10 uppercase tracking-[6px]">Secure Key Generation</p>
 
-        <div class="bg-zinc-900/50 rounded-2xl p-6 border border-zinc-800 mb-6">
-            <button id="btn-get" onclick="generateKey()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
-                <i class="fa-solid fa-key"></i> LẤY KEY NGAY
+        <div class="bg-zinc-900/50 rounded-3xl p-6 border border-zinc-800 mb-8">
+            <button id="btn-get" onclick="generateKey()" class="w-full btn-gradient text-white font-black py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 text-lg">
+                <i class="fa-solid fa-bolt"></i> LẤY KEY NGAY
             </button>
 
-            <div id="result-box" class="hidden mt-6 pt-6 border-t border-zinc-800 animate-bounce">
-                <p class="text-zinc-500 text-[10px] mb-2 uppercase">Key của bạn là:</p>
-                <div class="bg-black p-4 rounded-lg border border-purple-500/30 flex items-center justify-between">
-                    <code id="key-display" class="text-purple-400 font-mono font-bold text-xl tracking-wider"></code>
+            <div id="result-box" class="hidden mt-8 pt-8 border-t border-zinc-800 animate-pulse">
+                <p class="text-zinc-500 text-[10px] mb-3 uppercase font-bold">Key của bạn là:</p>
+                <div class="bg-black p-5 rounded-2xl border border-purple-500/50 flex items-center justify-between">
+                    <code id="key-display" class="text-purple-400 font-mono font-bold text-2xl tracking-widest"></code>
+                    <button onclick="copyKey()" class="text-zinc-500 hover:text-white"><i class="fa-regular fa-copy text-xl"></i></button>
                 </div>
+                <p class="mt-4 text-xs text-zinc-600 italic">* Key có hiệu lực trong 24h</p>
             </div>
         </div>
+        <p class="text-zinc-800 text-[10px] font-bold uppercase">© 2026 Developed by Byte</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // LINK CỦA BẠN ĐÃ ĐƯỢC TÍCH HỢP Ở ĐÂY
+        // TÍCH HỢP LINK ASIA-SOUTHEAST1 CỦA BẠN
         const firebaseConfig = { 
             databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
         };
@@ -44,24 +52,32 @@
 
         window.generateKey = async function() {
             const btn = document.getElementById('btn-get');
-            btn.innerHTML = 'ĐANG TẠO...';
+            const resBox = document.getElementById('result-box');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> ĐANG TẠO...';
             btn.disabled = true;
 
             const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
             try {
                 await set(ref(db, 'ActiveKeys/' + finalKey), {
+                    key: finalKey,
                     status: "active",
                     created: Date.now()
                 });
-                document.getElementById('result-box').classList.remove('hidden');
+                resBox.classList.remove('hidden');
                 document.getElementById('key-display').innerText = finalKey;
-                btn.innerHTML = 'THÀNH CÔNG';
+                btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> THÀNH CÔNG';
             } catch (e) {
-                alert("Lỗi: " + e.message);
+                alert("Lỗi kết nối Firebase: " + e.message);
                 btn.disabled = false;
                 btn.innerHTML = 'THỬ LẠI';
             }
+        };
+
+        window.copyKey = function() {
+            const key = document.getElementById('key-display').innerText;
+            navigator.clipboard.writeText(key);
+            alert("Đã copy key!");
         };
     </script>
 </body>
