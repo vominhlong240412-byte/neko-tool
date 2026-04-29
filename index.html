@@ -9,21 +9,24 @@
     <style>
         :root { --neon: #00ff41; --cyan: #00f3ff; --red: #ff003c; --bg: #030303; }
         body { background: var(--bg); color: var(--neon); font-family: 'Fira Code', monospace; overflow-x: hidden; }
-        #matrix { position: fixed; top:0; left:0; z-index:-1; opacity: 0.2; }
+        #matrix { position: fixed; top:0; left:0; z-index:-1; opacity: 0.15; }
         #sidebar { 
             position: fixed; top: 0; left: -300px; width: 280px; height: 100%; 
-            background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(20px);
+            background: rgba(5, 5, 5, 0.98); backdrop-filter: blur(20px);
             border-right: 1px solid var(--neon); z-index: 2000; transition: 0.5s cubic-bezier(0.85, 0, 0.15, 1);
         }
         #sidebar.active { left: 0; }
         .menu-item { border-bottom: 1px solid rgba(0, 255, 65, 0.1); padding: 15px 20px; transition: 0.3s; cursor: pointer; }
         .menu-item:hover { background: rgba(0, 255, 65, 0.1); color: white; }
-        .cyber-card { background: rgba(15, 15, 15, 0.8); border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 20px; position: relative; overflow: hidden; }
-        .btn-hyper { border: 1px solid var(--neon); color: var(--neon); font-weight: 800; transition: 0.3s; text-transform: uppercase; border-radius: 12px; }
+        .cyber-card { background: rgba(15, 15, 15, 0.9); border: 1px solid rgba(0, 255, 65, 0.2); border-radius: 20px; position: relative; overflow: hidden; }
+        .btn-hyper { border: 1px solid var(--neon); color: var(--neon); font-weight: 800; transition: 0.3s; text-transform: uppercase; border-radius: 12px; background: transparent; }
         .btn-hyper:hover { background: var(--neon); color: black; box-shadow: 0 0 20px var(--neon); }
         .input-cyber { background: #000; border: 1px solid #1a1a1a; color: var(--cyan); border-radius: 12px; outline: none; }
         .mod-none { color: var(--red); font-style: italic; font-size: 10px; animation: pulse 1.5s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        /* Hiệu ứng Scanner cho Mail */
+        .scan-line { width: 100%; height: 2px; background: var(--cyan); position: absolute; top: 0; left: 0; animation: scan 2s linear infinite; opacity: 0.5; box-shadow: 0 0 10px var(--cyan); }
+        @keyframes scan { 0% { top: 0%; } 100% { top: 100%; } }
     </style>
 </head>
 <body>
@@ -53,60 +56,68 @@
         </div>
         <div class="flex gap-2">
             <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="btn-hyper px-4 py-2 text-[10px]">Đăng Link</button>
-            <button onclick="location.reload()" class="text-red-500 text-[10px] font-bold border border-red-500 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition-all">DISCONNECT</button>
+            <button onclick="location.reload()" class="text-red-500 text-[10px] font-bold border border-red-500 px-4 py-2 rounded-lg">DISCONNECT</button>
         </div>
     </header>
 
     <div id="auth-screen" class="fixed inset-0 z-[3000] bg-black flex items-center justify-center p-6">
-        <div class="cyber-card p-10 w-full max-w-md text-center border-t-4 border-t-neon shadow-2xl shadow-emerald-500/20">
-            <h2 class="text-2xl font-black mb-8 italic tracking-widest text-white">ENCRYPTED ACCESS</h2>
+        <div class="cyber-card p-10 w-full max-w-md text-center border-t-4 border-t-neon">
+            <h2 class="text-2xl font-black mb-8 italic tracking-widest text-white">ENCRYPTED LOGIN</h2>
             <div class="space-y-4 mb-8">
-                <input type="text" id="u-user" placeholder="USERNAME" class="input-cyber w-full p-4 text-center text-sm font-bold">
-                <input type="password" id="u-pass" placeholder="PASSWORD" class="input-cyber w-full p-4 text-center text-sm font-bold">
-                <input type="text" id="u-key" placeholder="SECRET ACCESS KEY" class="input-cyber w-full p-4 text-center text-red-500 font-bold border-red-900/50">
+                <input type="text" id="u-user" placeholder="USERNAME" class="input-cyber w-full p-4 text-center">
+                <input type="password" id="u-pass" placeholder="PASSWORD" class="input-cyber w-full p-4 text-center">
+                <input type="text" id="u-key" placeholder="SECRET ACCESS KEY" class="input-cyber w-full p-4 text-center text-red-500">
             </div>
-            <button onclick="handleAuth()" class="w-full btn-hyper py-4 rounded-xl text-lg">INITIALIZE LOGIN</button>
-            <p onclick="toggleMode()" id="mode-text" class="mt-6 text-[10px] cursor-pointer opacity-50 hover:opacity-100 uppercase tracking-widest">New operator? Register here</p>
+            <button onclick="handleAuth()" class="w-full btn-hyper py-4 rounded-xl text-lg">INITIALIZE</button>
+            <p onclick="toggleMode()" id="mode-text" class="mt-6 text-[10px] cursor-pointer opacity-50 uppercase tracking-widest">Register here</p>
         </div>
     </div>
 
     <main id="main-content" class="hidden max-w-7xl mx-auto mt-8 px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div class="cyber-card p-4 border-l-4 border-l-cyan-500 flex justify-between items-center">
-                <span class="text-[10px] font-bold uppercase opacity-60">Status: <span class="text-cyan-400">Secured</span></span>
-                <span class="text-[10px] text-white font-black">VPBANK: 0867799161</span>
+                <span class="text-[10px] font-bold">DONATE: VPBANK 0867799161</span>
+                <span class="text-[10px] text-cyan-400 animate-pulse italic">FIREWALL_ACTIVE</span>
             </div>
             <div class="cyber-card p-4 border-l-4 border-l-red-500 flex justify-between items-center">
-                <span class="text-[10px] font-bold uppercase opacity-60">License Expiry:</span>
+                <span class="text-[10px] font-bold">LICENSE:</span>
                 <span id="key-expiry-display" class="text-[10px] font-black text-white bg-red-600/20 px-3 py-1 rounded-full border border-red-500/50">--/--/----</span>
             </div>
         </div>
 
-        <div id="up-form" class="hidden cyber-card p-6 mb-8 border-neon bg-emerald-500/5">
-            <h3 class="text-[10px] font-bold mb-4 opacity-50 uppercase tracking-widest">_Push_New_Data_Node</h3>
+        <div id="up-form" class="hidden cyber-card p-6 mb-8 border-neon">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <input type="text" id="f-url" placeholder="Source URL (Link file...)" class="input-cyber p-4 text-xs">
-                <input type="text" id="f-info" placeholder="Data Description..." class="input-cyber p-4 text-xs">
+                <input type="text" id="f-url" placeholder="Source Link..." class="input-cyber p-4 text-xs">
+                <input type="text" id="f-info" placeholder="Description..." class="input-cyber p-4 text-xs">
             </div>
-            <button onclick="postLink()" class="w-full btn-hyper py-3">Execute Upload</button>
+            <button onclick="postLink()" class="w-full btn-hyper py-3">Push Data</button>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2">
-                <div class="relative mb-6">
-                    <input type="text" id="search" oninput="loadData()" placeholder="SEARCHING CLOUD DATABASE..." class="input-cyber w-full p-5 pl-12 uppercase text-xs font-bold tracking-widest">
-                    <span class="absolute left-4 top-5 opacity-30">🔍</span>
-                </div>
+                <input type="text" id="search" oninput="loadData()" placeholder="SEARCHING CLOUD DATABASE..." class="input-cyber w-full p-5 mb-6 text-xs font-bold tracking-widest">
                 <div id="list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
 
-            <div class="cyber-card h-[600px] flex flex-col border-zinc-800 shadow-2xl">
-                <div class="p-4 border-b border-zinc-800 text-xs font-black uppercase tracking-widest bg-white/5 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-neon rounded-full animate-pulse"></span> Encrypted_Chat_Room
+            <div class="cyber-card h-[620px] flex flex-col border-zinc-800">
+                <div class="p-4 border-b border-zinc-800 text-xs font-black bg-white/5">💬 ENCRYPTED CHAT</div>
+                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 text-[10px]"></div>
+                
+                <div id="verify-section" class="hidden p-5 bg-cyan-950/20 border-t border-cyan-900/50 relative overflow-hidden">
+                    <div class="scan-line"></div>
+                    <p class="text-[9px] font-bold text-cyan-400 mb-3 italic">IDENTITY VERIFICATION REQUIRED</p>
+                    <input type="email" id="email-val" placeholder="Nhập Email để nhận OTP..." class="input-cyber w-full p-3 text-[10px] mb-3 border-cyan-900">
+                    
+                    <button onclick="requestOTP()" id="btn-otp" class="w-full btn-hyper border-cyan-500 text-cyan-400 py-2 rounded-lg text-[10px] mb-3">Yêu cầu cấp OTP</button>
+                    
+                    <div class="flex gap-2">
+                        <input type="text" id="otp-val" placeholder="Nhập mã OTP..." class="input-cyber flex-1 p-2 text-[10px] text-center tracking-[5px] font-black">
+                        <button onclick="verifyOTP()" class="bg-cyan-500 text-black px-4 rounded-lg font-black text-[10px] hover:bg-white transition-all">VERIFY</button>
+                    </div>
                 </div>
-                <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 text-[10px] scrollbar-hide"></div>
-                <div id="chat-input-section" class="hidden p-4 border-t border-zinc-800 bg-black/50">
-                    <input type="text" id="chat-msg" placeholder="Send secret message..." class="input-cyber w-full p-4 text-[10px]">
+
+                <div id="chat-input-section" class="hidden p-4 border-t border-zinc-800">
+                    <input type="text" id="chat-msg" placeholder="Write message to world..." class="input-cyber w-full p-4 text-[10px]">
                 </div>
             </div>
         </div>
@@ -117,7 +128,7 @@
         import { getDatabase, ref, set, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
 
-        // MATRIX EFFECT
+        // MATRIX
         const c = document.getElementById("matrix"), ctx = c.getContext("2d");
         c.width = window.innerWidth; c.height = window.innerHeight;
         const drops = Array(Math.floor(c.width/20)).fill(1);
@@ -134,7 +145,7 @@
 
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
 
-        // AUTO SCAN 404 & DELETE
+        // AUTO SCAN 404
         async function checkLinks(data) {
             for (let id in data) {
                 try {
@@ -144,70 +155,96 @@
             }
         }
 
-        let curU = "", isLog = true;
+        let curU = "";
         const getHWID = () => navigator.userAgent.length + screen.width;
-
-        window.toggleMode = () => {
-            isLog = !isLog;
-            document.getElementById('mode-text').innerText = isLog ? "New operator? Register here" : "Return to Login";
-        };
 
         window.handleAuth = async () => {
             const u = document.getElementById('u-user').value, p = document.getElementById('u-pass').value, k = document.getElementById('u-key').value;
             if(!u || !p) return;
-            if(isLog) {
-                const uS = await get(ref(db, `Users/${u}`));
-                const kS = await get(ref(db, `Keys/${k}`));
-                if(!uS.exists() || uS.val().pass !== p) return alert("Sai thông tin đăng nhập!");
-                if(uS.val().banned) return alert("Tài khoản đã bị khóa!");
-                if(!kS.exists()) return alert("Key không tồn tại!");
-                
-                // HWID LOCK LOGIC
-                if(kS.val().hwid && kS.val().hwid !== getHWID()) {
-                    return alert("LỖI: Key này đã được đăng ký cho thiết bị khác. Liên hệ Admin để Reset!");
-                }
-                
-                if(!kS.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: getHWID() });
-                
-                curU = u;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('key-expiry-display').innerText = kS.val().expiry;
-                if(uS.val().verified) document.getElementById('chat-input-section').classList.remove('hidden');
-                loadData(); loadChat();
+            const uS = await get(ref(db, `Users/${u}`));
+            const kS = await get(ref(db, `Keys/${k}`));
+            
+            if(!uS.exists() || uS.val().pass !== p || uS.val().banned) return alert("Hacker Error: Access Denied!");
+            if(!kS.exists() || (kS.val().hwid && kS.val().hwid !== getHWID())) return alert("Key Error: HWID Mismatch!");
+            
+            if(!kS.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: getHWID() });
+            
+            curU = u;
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-content').classList.remove('hidden');
+            document.getElementById('key-expiry-display').innerText = kS.val().expiry;
+            
+            // XỬ LÝ PHẦN MAIL KHI ĐĂNG NHẬP
+            checkEmailStatus(u);
+            
+            loadData(); loadChat();
+        };
+
+        // --- LOGIC MAIL NÂNG CẤP ---
+        async function checkEmailStatus(u) {
+            const uS = await get(ref(db, `Users/${u}`));
+            if(uS.val().verified) {
+                document.getElementById('chat-input-section').classList.remove('hidden');
+                document.getElementById('verify-section').classList.add('hidden');
             } else {
-                await set(ref(db, `Users/${u}`), { pass: p, banned: false, verified: false });
-                alert("Đăng ký thành công!"); toggleMode();
+                document.getElementById('verify-section').classList.remove('hidden');
+                // Kiểm tra xem đã gửi OTP chưa
+                const mS = await get(ref(db, `MailConfirm/${u}`));
+                if(mS.exists()) {
+                    const mailInp = document.getElementById('email-val');
+                    mailInp.value = mS.val().email;
+                    mailInp.disabled = true;
+                    mailInp.classList.add('opacity-30');
+                    document.getElementById('btn-otp').innerHTML = "Đang chờ Admin duyệt OTP...";
+                    document.getElementById('btn-otp').disabled = true;
+                }
+            }
+        }
+
+        window.requestOTP = async () => {
+            const email = document.getElementById('email-val').value;
+            if(!email.includes("@")) return alert("Vui lòng nhập Email hợp lệ!");
+            
+            const otp = Math.floor(100000 + Math.random()*900000);
+            await set(ref(db, `MailConfirm/${curU}`), { 
+                email, 
+                otp, 
+                timestamp: Date.now() 
+            });
+            alert("Đã gửi yêu cầu! Mã OTP sẽ được Admin cập nhật. Email này sẽ được khóa trong 7 ngày để xác thực.");
+            location.reload();
+        };
+
+        window.verifyOTP = async () => {
+            const code = document.getElementById('otp-val').value;
+            const s = await get(ref(db, `MailConfirm/${curU}`));
+            if(s.exists() && s.val().otp == code) {
+                await update(ref(db, `Users/${curU}`), { verified: true });
+                alert("XÁC THỰC THÀNH CÔNG! Chào mừng Hacker.");
+                location.reload();
+            } else {
+                alert("Mã OTP không chính xác!");
             }
         };
 
+        // --- CÁC LOGIC KHÁC GIỮ NGUYÊN ---
         window.postLink = async () => {
             const url = document.getElementById('f-url').value, info = document.getElementById('f-info').value;
-            if(url) {
-                await push(ref(db, 'SharedLinks'), { url, info, owner: curU, time: new Date().toLocaleDateString('vi-VN') });
-                document.getElementById('up-form').classList.add('hidden');
-                document.getElementById('f-url').value = ""; document.getElementById('f-info').value = "";
-            }
+            if(url) await push(ref(db, 'SharedLinks'), { url, info, owner: curU, time: new Date().toLocaleDateString('vi-VN') });
+            document.getElementById('up-form').classList.add('hidden');
         };
 
         window.loadData = () => {
-            const term = document.getElementById('search').value.toLowerCase();
             onValue(ref(db, 'SharedLinks'), (s) => {
                 const l = document.getElementById('list'); l.innerHTML = "";
                 const data = s.val(); if(!data) return;
                 checkLinks(data);
                 Object.keys(data).reverse().forEach(id => {
-                    const item = data[id];
-                    if(item.url.toLowerCase().includes(term) || item.owner.toLowerCase().includes(term)) {
-                        l.innerHTML += `<div class="cyber-card p-5 border-zinc-800 group hover:border-neon transition-all">
-                            <div class="flex justify-between items-start mb-4 text-[8px] font-black uppercase">
-                                <span class="bg-neon text-black px-2 py-0.5 rounded">${item.owner}</span>
-                                <span class="text-gray-600">${item.time}</span>
-                            </div>
-                            <p class="text-[10px] text-white font-bold mb-6 line-clamp-2 italic">${item.info || item.url}</p>
-                            <button onclick="window.open('${item.url}')" class="w-full btn-hyper py-2 text-[10px]">ACCESS DATA</button>
-                        </div>`;
-                    }
+                    l.innerHTML += `<div class="cyber-card p-5 border-zinc-800">
+                        <p class="text-[8px] text-neon uppercase font-bold">${data[id].owner}</p>
+                        <p class="text-[10px] text-white my-3 line-clamp-1 italic">${data[id].info || data[id].url}</p>
+                        <button onclick="window.open('${data[id].url}')" class="w-full btn-hyper py-2 text-[10px] rounded-lg">CONNECT_NODE</button>
+                    </div>`;
                 });
             });
         };
@@ -216,8 +253,8 @@
             onValue(ref(db, 'WorldChat'), (s) => {
                 const b = document.getElementById('chat-box'); b.innerHTML = "";
                 const data = s.val(); if(!data) return;
-                Object.values(data).slice(-30).forEach(m => {
-                    b.innerHTML += `<div><b class="text-neon uppercase">[${m.u}]:</b> <span class="text-white ml-2">${m.msg}</span></div>`;
+                Object.values(data).slice(-25).forEach(m => {
+                    b.innerHTML += `<div><b class="text-neon">[${m.u}]:</b> <span class="text-white">${m.msg}</span></div>`;
                 });
                 b.scrollTop = b.scrollHeight;
             });
