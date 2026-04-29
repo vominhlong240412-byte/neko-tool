@@ -3,82 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko Hub - Get Key</title>
+    <title>Neko - Verify System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background: #0a0a0a; color: #fff; font-family: sans-serif; }
-        .cyber-card { background: #151515; border: 1px solid #333; box-shadow: 0 0 30px rgba(139, 92, 246, 0.15); }
-        .btn-gradient { background: linear-gradient(90deg, #7c3aed, #a855f7); transition: 0.3s; }
-        .btn-gradient:active { transform: scale(0.95); }
+        .cyber-card { background: #111; border: 1px solid #222; box-shadow: 0 0 40px rgba(139, 92, 246, 0.1); }
+        .progress-bar { transition: width 1s linear; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-md cyber-card rounded-[2.5rem] p-10 text-center border-t-4 border-t-purple-600">
-        <div class="mb-6 inline-flex w-20 h-20 bg-purple-600 rounded-3xl items-center justify-center shadow-lg shadow-purple-900/50">
-            <i class="fa-solid fa-cat text-4xl text-white"></i>
-        </div>
-        <h1 class="text-4xl font-black mb-1 tracking-tighter text-white italic">NEKO <span class="text-purple-500">SYSTEM</span></h1>
-        <p class="text-zinc-500 text-[10px] mb-10 uppercase tracking-[6px]">Secure Key Generation</p>
+    <div class="w-full max-w-md cyber-card rounded-[2.5rem] p-8 text-center border-t-4 border-t-purple-600">
+        <h1 class="text-3xl font-black mb-1 italic text-white">NEKO <span class="text-purple-500">VERIFY</span></h1>
+        <p id="step-label" class="text-[10px] text-zinc-500 uppercase tracking-[4px] mb-8">Tiến trình: 0/5 Đợt</p>
 
-        <div class="bg-zinc-900/50 rounded-3xl p-6 border border-zinc-800 mb-8">
-            <button id="btn-get" onclick="generateKey()" class="w-full btn-gradient text-white font-black py-5 rounded-2xl shadow-lg flex items-center justify-center gap-3 text-lg">
-                <i class="fa-solid fa-bolt"></i> LẤY KEY NGAY
-            </button>
-
-            <div id="result-box" class="hidden mt-8 pt-8 border-t border-zinc-800 animate-pulse">
-                <p class="text-zinc-500 text-[10px] mb-3 uppercase font-bold">Key của bạn là:</p>
-                <div class="bg-black p-5 rounded-2xl border border-purple-500/50 flex items-center justify-between">
-                    <code id="key-display" class="text-purple-400 font-mono font-bold text-2xl tracking-widest"></code>
-                    <button onclick="copyKey()" class="text-zinc-500 hover:text-white"><i class="fa-regular fa-copy text-xl"></i></button>
+        <div id="verify-area" class="bg-zinc-900/50 rounded-3xl p-6 border border-zinc-800 mb-6">
+            <div id="timer-box">
+                <div class="relative w-24 h-24 mx-auto mb-4">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <path class="text-zinc-800" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path id="circle-progress" class="text-purple-600" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div id="countdown" class="absolute inset-0 flex items-center justify-center font-bold text-2xl">120</div>
                 </div>
-                <p class="mt-4 text-xs text-zinc-600 italic">* Key có hiệu lực trong 24h</p>
+                <p class="text-sm text-zinc-400">Vui lòng đợi hệ thống kiểm tra...</p>
             </div>
+
+            <div id="captcha-box" class="hidden">
+                <p class="text-sm font-bold mb-4">Xác nhận bạn không phải Robot</p>
+                <div class="bg-black p-4 rounded-xl mb-4 text-2xl font-mono tracking-[10px] italic text-purple-400 select-none" id="captcha-text"></div>
+                <input type="text" id="captcha-input" placeholder="Nhập mã trên" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center mb-4 focus:border-purple-600 outline-none">
+                <button onclick="verifyCaptcha()" class="w-full bg-purple-600 py-3 rounded-xl font-bold">TIẾP TỤC</button>
+            </div>
+
+            <button id="final-btn" onclick="generateKey()" class="hidden w-full bg-green-600 py-4 rounded-2xl font-black text-lg">NHẬN KEY NGAY</button>
         </div>
-        <p class="text-zinc-800 text-[10px] font-bold uppercase">© 2026 Developed by Byte</p>
+
+        <div id="result-box" class="hidden animate-bounce bg-black p-5 rounded-2xl border border-purple-500/50">
+             <code id="key-display" class="text-purple-400 font-mono font-bold text-2xl tracking-widest"></code>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // TÍCH HỢP LINK ASIA-SOUTHEAST1 CỦA BẠN
-        const firebaseConfig = { 
-            databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
-        };
-
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.generateKey = async function() {
-            const btn = document.getElementById('btn-get');
-            const resBox = document.getElementById('result-box');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> ĐANG TẠO...';
-            btn.disabled = true;
+        let currentStep = 1;
+        const totalSteps = 5;
+        let timeLeft = 120;
+        let timer;
 
-            const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+        function startTimer() {
+            document.getElementById('timer-box').classList.remove('hidden');
+            document.getElementById('captcha-box').classList.add('hidden');
+            document.getElementById('step-label').innerText = `Tiến trình: ${currentStep}/${totalSteps} Đợt`;
+            
+            timeLeft = 120;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('countdown').innerText = timeLeft;
+                const percent = ((120 - timeLeft) / 120) * 100;
+                document.getElementById('circle-progress').setAttribute('stroke-dasharray', `${percent}, 100`);
 
-            try {
-                await set(ref(db, 'ActiveKeys/' + finalKey), {
-                    key: finalKey,
-                    status: "active",
-                    created: Date.now()
-                });
-                resBox.classList.remove('hidden');
-                document.getElementById('key-display').innerText = finalKey;
-                btn.innerHTML = '<i class="fa-solid fa-check text-xl"></i> THÀNH CÔNG';
-            } catch (e) {
-                alert("Lỗi kết nối Firebase: " + e.message);
-                btn.disabled = false;
-                btn.innerHTML = 'THỬ LẠI';
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showCaptcha();
+                }
+            }, 1000);
+        }
+
+        function showCaptcha() {
+            document.getElementById('timer-box').classList.add('hidden');
+            document.getElementById('captcha-box').classList.remove('hidden');
+            const code = Math.random().toString(36).substring(2, 7).toUpperCase();
+            document.getElementById('captcha-text').innerText = code;
+        }
+
+        window.verifyCaptcha = function() {
+            const input = document.getElementById('captcha-input').value.toUpperCase();
+            const target = document.getElementById('captcha-text').innerText;
+            if (input === target) {
+                document.getElementById('captcha-input').value = "";
+                if (currentStep < totalSteps) {
+                    currentStep++;
+                    startTimer();
+                } else {
+                    document.getElementById('captcha-box').classList.add('hidden');
+                    document.getElementById('final-btn').classList.remove('hidden');
+                    document.getElementById('step-label').innerText = "Hoàn tất kiểm tra!";
+                }
+            } else {
+                alert("Mã captcha không đúng!");
             }
-        };
+        }
 
-        window.copyKey = function() {
-            const key = document.getElementById('key-display').innerText;
-            navigator.clipboard.writeText(key);
-            alert("Đã copy key!");
-        };
+        window.generateKey = async function() {
+            const btn = document.getElementById('final-btn');
+            btn.innerHTML = 'ĐANG TẠO...';
+            const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
+            try {
+                await set(ref(db, 'ActiveKeys/' + finalKey), { status: "active", created: Date.now() });
+                document.getElementById('result-box').classList.remove('hidden');
+                document.getElementById('key-display').innerText = finalKey;
+                btn.classList.add('hidden');
+            } catch (e) { alert(e.message); }
+        }
+
+        startTimer();
     </script>
 </body>
 </html>
