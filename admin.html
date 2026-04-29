@@ -2,18 +2,27 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Root Manager</title>
+    <title>Root Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
 </head>
-<body class="p-10 max-w-4xl mx-auto">
-    <h1 class="text-2xl font-black mb-10 border-b border-emerald-900 pb-4">ROOT@CONTROL</h1>
+<body class="p-6 md:p-10 max-w-4xl mx-auto">
+    <h1 class="text-2xl font-black mb-8 border-b border-emerald-900 pb-4 uppercase">Root Control</h1>
     
-    <div class="bg-zinc-900 p-6 rounded-2xl mb-10 border border-emerald-900">
-        <h2 class="text-xs font-bold mb-4 uppercase">Cập nhật Link Nhiệm Vụ (Link4m)</h2>
+    <div class="bg-zinc-900 p-6 rounded-2xl mb-8 border border-emerald-900">
+        <h2 class="text-[10px] font-bold mb-4 uppercase">Tạo Key Truy Cập</h2>
+        <div class="flex gap-2 mb-4">
+            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
+            <input type="text" id="k-exp" placeholder="Hạn dùng (vd: 24h)" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
+        </div>
+        <button onclick="genKey()" class="w-full bg-emerald-500 text-black py-3 rounded-lg font-bold">LƯU KEY</button>
+    </div>
+
+    <div class="bg-zinc-900 p-6 rounded-2xl mb-8 border border-emerald-900">
+        <h2 class="text-[10px] font-bold mb-4 uppercase">Cập nhật Link Rút Gọn (Link4m)</h2>
         <div class="flex gap-2">
-            <input type="text" id="l4m" placeholder="Dán link rút gọn vào đây..." class="bg-black p-3 rounded-xl border border-emerald-900 flex-1 outline-none">
-            <button onclick="upL()" class="bg-emerald-500 text-black px-6 rounded-xl font-bold">LƯU LINK</button>
+            <input type="text" id="l4m" class="bg-black p-3 rounded-lg border border-emerald-800 flex-1 outline-none">
+            <button onclick="upL()" class="bg-white text-black px-6 rounded-lg font-bold">LƯU</button>
         </div>
     </div>
 
@@ -26,24 +35,28 @@
         const app = initializeApp(config);
         const db = getDatabase(app);
 
+        window.genKey = () => {
+            const id = document.getElementById('k-id').value;
+            const exp = document.getElementById('k-exp').value;
+            if(id) set(ref(db, `Keys/${id}`), { status: "active", expiry: exp }).then(() => alert("Xong!"));
+        };
+
         window.upL = () => {
             const url = document.getElementById('l4m').value;
-            if(url) set(ref(db, 'Config/MissionLink'), url).then(() => alert("Đã cập nhật!"));
+            if(url) set(ref(db, 'Config/MissionLink'), url).then(() => alert("Đã lưu link vượt!"));
         };
 
         onValue(ref(db, 'SharedLinks'), (snap) => {
-            const data = snap.val();
             const list = document.getElementById('admin-list'); list.innerHTML = "";
-            if(!data) return;
+            const data = snap.val(); if(!data) return;
             Object.keys(data).forEach(id => {
-                list.innerHTML += `
-                    <div class="bg-zinc-900 p-4 rounded-xl flex justify-between items-center border border-emerald-950">
-                        <span class="text-xs text-white uppercase">${data[id].name}</span>
-                        <button onclick="del('${id}')" class="text-red-500 font-bold border border-red-900 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-all text-xs uppercase">Xóa</button>
-                    </div>`;
+                list.innerHTML += `<div class="bg-zinc-950 p-4 rounded-xl flex justify-between border border-emerald-950">
+                    <span class="text-[10px] truncate w-2/3">${data[id].url}</span>
+                    <button onclick="del('${id}')" class="text-red-500 font-bold">XÓA</button>
+                </div>`;
             });
         });
-        window.del = (id) => { if(confirm("XÓA?")) remove(ref(db, `SharedLinks/${id}`)); };
+        window.del = (id) => remove(ref(db, `SharedLinks/${id}`));
     </script>
 </body>
 </html>
