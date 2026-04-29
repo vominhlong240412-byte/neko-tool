@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neko - Admin Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'Courier New', Courier, monospace; }
+        .admin-card { border: 1px solid #00ff41; box-shadow: 0 0 15px rgba(0, 255, 65, 0.2); background: rgba(0,0,0,0.9); }
+        input { background: #000 !important; border: 1px solid #00ff41 !important; color: #00ff41 !important; }
+        .btn-admin { background: #00ff41; color: #000; font-weight: bold; transition: 0.3s; }
+        .btn-admin:hover { box-shadow: 0 0 20px #00ff41; }
+    </style>
+</head>
+<body class="p-4 sm:p-10">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-2xl font-black mb-8"><i class="fa-solid fa-terminal"></i> NEKO_ADMIN_SYSTEM >_</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="admin-card rounded-xl p-6">
+                <h2 class="text-lg mb-4 border-b border-green-900 pb-2 uppercase">Tạo Key Thủ Công</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs uppercase">Tên Key (Ví dụ: NEKO_VIP):</label>
+                        <input type="text" id="new-key-name" placeholder="Để trống nếu muốn tạo ngẫu nhiên" class="w-full p-3 rounded mt-1 outline-none">
+                    </div>
+                    <button onclick="createManualKey()" class="w-full btn-admin py-3 rounded uppercase">Xác nhận tạo</button>
+                </div>
+            </div>
+
+            <div class="admin-card rounded-xl p-6 flex flex-col justify-center items-center">
+                <p class="text-xs uppercase mb-2">Tổng số Key hoạt động</p>
+                <div id="total-keys" class="text-6xl font-black">0</div>
+            </div>
+        </div>
+
+        <div class="admin-card rounded-xl mt-8 overflow-hidden">
+            <div class="p-4 bg-green-900/20 border-b border-green-900 flex justify-between items-center">
+                <span class="uppercase text-sm">Danh sách mã trên Database</span>
+                <button onclick="location.reload()" class="text-xs hover:underline text-white">[REFRESH]</button>
+            </div>
+            <div id="key-list" class="divide-y divide-green-900/30 max-h-[400px] overflow-y-auto">
+                <p class="p-10 text-center animate-pulse">ĐANG TRUY XUẤT DATABASE...</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Lấy danh sách key và hiển thị
+        const keyListDiv = document.getElementById('key-list');
+        const totalDisplay = document.getElementById('total-keys');
+
+        onValue(ref(db, 'ActiveKeys'), (snapshot) => {
+            const data = snapshot.val();
+            keyListDiv.innerHTML = "";
+            
+            if (!data) {
+                totalDisplay.innerText = "0";
+                keyListDiv.innerHTML = '<p class="p-10 text-center text-green-900">DATABASE TRỐNG</p>';
+                return;
+            }
+
+            const keys = Object.keys(data);
+            totalDisplay.innerText = keys.length;
+
+            keys.forEach(id => {
+                const row = document.createElement('div');
+                row.className = "p-4 flex justify-between items-center hover:bg-green-900/10";
+                row.innerHTML = `
+                    <div class="font-mono">
+                        <span class="text-white">${id}</span>
+                        <span class="text-[10px] block text-green-900 italic">Created: ${new Date(data[id].created).toLocaleString()}</span>
+                    </div>
+                    <button onclick="deleteKey('${id}')" class="text-red-500 hover:text-white transition-colors">
+                        <i class="fa-solid fa-trash-can"></i> [DELETE]
+                    </button>
+                `;
+                keyListDiv.appendChild(row);
+            });
+        });
+
+        // Hàm tạo key admin
+        window.createManualKey = async function() {
+            let keyName = document.getElementById('new-key-name').value.trim();
+            if (!keyName) {
+                keyName = "NEKO_ADMIN_" + Math.random().toString(36).substring(2, 6).toUpperCase();
+            }
+
+            try {
+                await set(ref(db, 'ActiveKeys/' + keyName), {
+                    status: "active",
+                    created: Date.now(),
+                    type: "admin_created"
+                });
+                alert("Đã tạo thành công: " + keyName);
+                document.getElementById('new-key-name').value = "";
+            } catch (e) {
+                alert("Lỗi: " + e.message);
+            }
+        };
+
+        // Hàm xóa key
+        window.deleteKey = async function(id) {
+            if (confirm("Xác nhận xóa mã: " + id + "?\nNgười dùng sẽ bị văng ra khỏi Tool.")) {
+                try {
+                    await remove(ref(db, 'ActiveKeys/' + id));
+                } catch (e) {
+                    alert("Lỗi khi xóa: " + e.message);
+                }
+            }
+        };
+    </script>
+</body>
+</html>
