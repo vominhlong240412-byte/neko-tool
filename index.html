@@ -2,114 +2,104 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Neko Cloud - Home</title>
+    <title>Neko Node - System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #020617; color: #10b981; font-family: 'JetBrains Mono', monospace; }
-        .cyber-card { border: 1px solid rgba(16, 185, 129, 0.2); background: rgba(15, 23, 42, 0.5); transition: 0.3s; }
-        .input-hacker { bg-black border border-emerald-900/50 p-3 rounded-xl outline-none focus:border-emerald-500 text-emerald-400; }
+        body { background: #020617; color: #10b981; font-family: 'JetBrains Mono', monospace; overflow-x: hidden; }
+        .matrix-card { background: rgba(15, 23, 42, 0.8); border: 1px solid #10b981; box-shadow: 0 0 15px rgba(16, 185, 129, 0.1); }
+        .input-hacker { background: #000; border: 1px solid #064e3b; color: #10b981; padding: 12px; border-radius: 12px; outline: none; }
+        .input-hacker:focus { border-color: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.3); }
     </style>
 </head>
 <body class="p-4 md:p-10">
-    <div class="max-w-5xl mx-auto">
+
+    <div id="login-screen" class="fixed inset-0 z-50 bg-black flex items-center justify-center p-6">
+        <div class="matrix-card p-10 rounded-3xl w-full max-w-md text-center">
+            <h1 class="text-3xl font-black mb-8 italic uppercase text-white">Neko <span class="text-emerald-500">Access</span></h1>
+            <input type="text" id="passkey" placeholder="NHẬP ACCESS KEY..." class="w-full input-hacker text-center text-xl mb-6">
+            <button onclick="checkAuth()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl hover:bg-white transition-all">XÁC MINH DANH TÍNH</button>
+            <div id="login-msg" class="mt-4 text-xs font-bold text-red-500 uppercase"></div>
+            <a href="laykey.html" class="inline-block mt-6 text-[10px] underline opacity-50">Chưa có Key? Lấy tại đây</a>
+        </div>
+    </div>
+
+    <div id="main-content" class="hidden max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-black italic text-emerald-500 uppercase">Neko Node</h1>
-            <div id="user-status" class="text-[10px] uppercase font-bold text-emerald-700">Trạng thái: Chưa kích hoạt</div>
+            <h1 class="text-4xl font-black italic text-emerald-500">NEKO <span class="text-white">NODE</span></h1>
+            <button onclick="document.getElementById('upload-form').classList.toggle('hidden')" class="bg-white text-black px-6 py-2 rounded-xl font-bold hover:bg-emerald-500 transition-all">ĐĂNG FILE</button>
         </div>
 
-        <div class="relative mb-8">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-emerald-900"></i>
-            <input type="text" id="search-input" oninput="searchFile()" placeholder="Tìm kiếm file trên hệ thống..." 
-                class="w-full bg-black border border-emerald-900/30 pl-12 py-3 rounded-2xl outline-none focus:border-emerald-500">
-        </div>
+        <input type="text" id="search" oninput="loadData()" placeholder="TÌM KIẾM FILE..." class="w-full input-hacker mb-10">
 
-        <div id="key-section" class="cyber-card p-6 rounded-2xl mb-8">
-            <h3 class="text-sm font-bold mb-4 uppercase">Nhập Key để mở khóa chức năng Đăng File</h3>
-            <div class="flex gap-2">
-                <input type="text" id="active-key" placeholder="Passkey..." class="flex-1 bg-black border border-emerald-900/50 p-3 rounded-xl outline-none focus:border-emerald-500">
-                <button onclick="unlock()" class="bg-emerald-500 text-black px-6 font-bold rounded-xl hover:bg-white transition-all">MỞ KHÓA</button>
-            </div>
-            <p id="key-msg" class="text-[10px] mt-2 font-bold uppercase"></p>
-        </div>
-
-        <div id="upload-form" class="hidden cyber-card p-6 rounded-2xl mb-8 border-emerald-500">
-            <h2 class="text-lg font-bold mb-4 text-white">ĐĂNG TẢI NODE MỚI</h2>
+        <div id="upload-form" class="hidden matrix-card p-8 rounded-3xl mb-10 border-dashed">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="f-name" placeholder="Tên file..." class="bg-black border border-emerald-900/50 p-3 rounded-xl outline-none focus:border-emerald-500">
-                <input type="text" id="f-domain" placeholder="Tên miền (vd: link.net)" class="bg-black border border-emerald-900/50 p-3 rounded-xl outline-none focus:border-emerald-500">
-                <input type="text" id="f-url" placeholder="Link trực tiếp (No rác)..." class="bg-black border border-emerald-900/50 p-3 rounded-xl outline-none focus:border-emerald-500">
+                <input type="text" id="n" placeholder="Tên tệp..." class="input-hacker">
+                <input type="text" id="d" placeholder="Tên miền (vd: site.vn)" class="input-hacker">
+                <input type="text" id="u" placeholder="Link (Cấm link rác)..." class="input-hacker">
             </div>
-            <button onclick="upload()" class="w-full mt-4 bg-emerald-500 text-black font-black py-3 rounded-xl hover:bg-white transition-all">XÁC NHẬN ĐĂNG</button>
+            <button onclick="postLink()" class="w-full mt-4 bg-emerald-500 text-black font-black py-3 rounded-xl">XÁC NHẬN ĐĂNG</button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="link-container"></div>
+        <div id="list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, push, onValue, update, increment, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        const app = initializeApp(firebaseConfig);
+        const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(config);
         const db = getDatabase(app);
 
-        // Mở khóa bằng key
-        window.unlock = async () => {
-            const k = document.getElementById('active-key').value;
-            const msg = document.getElementById('key-msg');
-            const snapshot = await get(ref(db, `Keys/${k}`));
-            
-            if (snapshot.exists()) {
-                document.getElementById('upload-form').classList.remove('hidden');
-                document.getElementById('key-section').classList.add('hidden');
-                document.getElementById('user-status').innerText = `Hạn dùng: ${snapshot.val().expiry}`;
-                msg.innerText = "";
+        // Hàm Login
+        window.checkAuth = async () => {
+            const k = document.getElementById('passkey').value;
+            const snap = await get(ref(db, `Keys/${k}`));
+            if (snap.exists()) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                loadData();
             } else {
-                msg.innerText = "Lỗi: Key không hợp lệ!";
-                msg.className = "text-[10px] mt-2 font-bold text-red-500 uppercase";
+                document.getElementById('login-msg').innerText = "KEY SAI HOẶC HẾT HẠN!";
             }
         };
 
-        // Đăng link + Chặn rác
-        window.upload = async () => {
-            const n = document.getElementById('f-name').value;
-            const d = document.getElementById('f-domain').value;
-            const u = document.getElementById('f-url').value;
+        // Đăng link (Không kick ra màn hình login)
+        window.postLink = async () => {
+            const name = document.getElementById('n').value, dom = document.getElementById('d').value, url = document.getElementById('u').value;
             const banned = ["link4m", "layma.net", "funlink", "yeumoney"];
+            if (banned.some(b => url.includes(b))) return alert("Link rác bị cấm!");
+            if (!name || !url) return;
 
-            if (banned.some(b => u.includes(b))) return alert("Link rác bị cấm!");
-            
-            await push(ref(db, 'SharedLinks'), { name: n, domain: d, url: u, views: 0, clicks: 0 });
-            location.reload();
+            await push(ref(db, 'SharedLinks'), { name, domain: dom, url, views: 0, clicks: 0 });
+            document.getElementById('upload-form').classList.add('hidden'); // Chỉ ẩn form, không load lại trang
+            document.getElementById('n').value = ''; document.getElementById('d').value = ''; document.getElementById('u').value = '';
         };
 
-        // Tìm kiếm & Hiển thị
-        onValue(ref(db, 'SharedLinks'), (snapshot) => {
-            window.allData = snapshot.val() || {};
-            searchFile();
-        });
-
-        window.searchFile = () => {
-            const term = document.getElementById('search-input').value.toLowerCase();
-            const container = document.getElementById('link-container');
-            container.innerHTML = "";
-            
-            Object.keys(window.allData).reverse().forEach(id => {
-                const item = window.allData[id];
-                if (item.name.toLowerCase().includes(term)) {
-                    container.innerHTML += `
-                        <div class="cyber-card p-5 rounded-xl border-l-4 border-emerald-500">
-                            <div class="flex justify-between mb-2">
-                                <span class="font-bold text-white uppercase">${item.name}</span>
-                                <span class="text-[9px] text-emerald-500">${item.domain}</span>
+        // Load & Tìm kiếm
+        window.loadData = () => {
+            const term = document.getElementById('search').value.toLowerCase();
+            onValue(ref(db, 'SharedLinks'), (snap) => {
+                const data = snap.val();
+                const list = document.getElementById('list');
+                list.innerHTML = "";
+                if (!data) return;
+                Object.keys(data).reverse().forEach(id => {
+                    const item = data[id];
+                    if (item.name.toLowerCase().includes(term)) {
+                        list.innerHTML += `
+                            <div class="matrix-card p-6 rounded-2xl">
+                                <div class="flex justify-between items-start mb-4">
+                                    <h3 class="font-bold text-white uppercase">${item.name}</h3>
+                                    <span class="text-[9px] text-emerald-500 font-bold border border-emerald-900 px-2 rounded">${item.domain}</span>
+                                </div>
+                                <div class="text-[10px] opacity-40 mb-4 uppercase">${item.views} View | ${item.clicks} Click</div>
+                                <button onclick="go('${id}','${item.url}')" class="w-full bg-emerald-950/50 border border-emerald-500 py-2 rounded-xl text-xs font-bold hover:bg-emerald-500 hover:text-black transition-all">TRUY CẬP</button>
                             </div>
-                            <div class="text-[10px] mb-4 opacity-50 uppercase">${item.views} Xem - ${item.clicks} Click</div>
-                            <button onclick="go('${id}','${item.url}')" class="w-full bg-emerald-900/30 border border-emerald-500 py-2 rounded-lg font-bold hover:bg-emerald-500 hover:text-black transition-all">TRUY CẬP</button>
-                        </div>
-                    `;
-                }
+                        `;
+                    }
+                });
             });
         };
 
