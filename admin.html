@@ -2,53 +2,48 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Root Admin</title>
+    <title>Root Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
 </head>
-<body class="p-10">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-2xl font-black mb-10 border-b border-emerald-900 pb-4">MANAGER_SYSTEM</h1>
-        
-        <div class="bg-zinc-900 p-6 rounded-2xl mb-10 border border-emerald-900">
-            <input type="text" id="kn" placeholder="Tên Key..." class="bg-black p-3 rounded-lg border border-emerald-900 mr-2 outline-none">
-            <button onclick="addK()" class="bg-emerald-500 text-black px-6 py-3 rounded-lg font-bold">TẠO KEY</button>
+<body class="p-10 max-w-4xl mx-auto">
+    <h1 class="text-2xl font-black mb-10 border-b border-emerald-900 pb-4">ROOT@CONTROL</h1>
+    
+    <div class="bg-zinc-900 p-6 rounded-2xl mb-10 border border-emerald-900">
+        <h2 class="text-xs font-bold mb-4 uppercase">Cập nhật Link Nhiệm Vụ (Link4m)</h2>
+        <div class="flex gap-2">
+            <input type="text" id="l4m" placeholder="Dán link rút gọn vào đây..." class="bg-black p-3 rounded-xl border border-emerald-900 flex-1 outline-none">
+            <button onclick="upL()" class="bg-emerald-500 text-black px-6 rounded-xl font-bold">LƯU LINK</button>
         </div>
-
-        <div id="admin-list" class="space-y-2"></div>
     </div>
+
+    <div id="admin-list" class="space-y-2"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
         const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(config);
         const db = getDatabase(app);
 
-        window.addK = () => {
-            const k = document.getElementById('kn').value;
-            if(!k) return;
-            set(ref(db, `Keys/${k}`), { status: "active" });
-            alert("Đã tạo!");
+        window.upL = () => {
+            const url = document.getElementById('l4m').value;
+            if(url) set(ref(db, 'Config/MissionLink'), url).then(() => alert("Đã cập nhật!"));
         };
 
         onValue(ref(db, 'SharedLinks'), (snap) => {
             const data = snap.val();
-            const list = document.getElementById('admin-list');
-            list.innerHTML = "";
+            const list = document.getElementById('admin-list'); list.innerHTML = "";
             if(!data) return;
             Object.keys(data).forEach(id => {
                 list.innerHTML += `
                     <div class="bg-zinc-900 p-4 rounded-xl flex justify-between items-center border border-emerald-950">
-                        <span class="text-sm font-bold text-white">${data[id].name}</span>
-                        <button onclick="del('${id}')" class="text-red-500 font-bold border border-red-900 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-all text-xs">REMOVE</button>
-                    </div>
-                `;
+                        <span class="text-xs text-white uppercase">${data[id].name}</span>
+                        <button onclick="del('${id}')" class="text-red-500 font-bold border border-red-900 px-4 py-1 rounded hover:bg-red-500 hover:text-white transition-all text-xs uppercase">Xóa</button>
+                    </div>`;
             });
         });
-
-        window.del = (id) => { if(confirm("XÓA FILE?")) remove(ref(db, `SharedLinks/${id}`)); };
+        window.del = (id) => { if(confirm("XÓA?")) remove(ref(db, `SharedLinks/${id}`)); };
     </script>
 </body>
 </html>
