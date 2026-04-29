@@ -3,43 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko - Verify System</title>
+    <title>Neko - Get Key Fast</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background: #0a0a0a; color: #fff; font-family: sans-serif; }
-        .cyber-card { background: #111; border: 1px solid #222; box-shadow: 0 0 40px rgba(139, 92, 246, 0.1); }
-        .progress-bar { transition: width 1s linear; }
+        .cyber-card { background: #111; border: 1px solid #222; box-shadow: 0 0 40px rgba(139, 92, 246, 0.15); }
+        .progress-circle { transition: stroke-dasharray 1s linear; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-md cyber-card rounded-[2.5rem] p-8 text-center border-t-4 border-t-purple-600">
-        <h1 class="text-3xl font-black mb-1 italic text-white">NEKO <span class="text-purple-500">VERIFY</span></h1>
-        <p id="step-label" class="text-[10px] text-zinc-500 uppercase tracking-[4px] mb-8">Tiến trình: 0/5 Đợt</p>
+        <h1 class="text-3xl font-black mb-1 italic text-white text-purple-500">NEKO GET KEY</h1>
+        <p id="step-label" class="text-[10px] text-zinc-500 uppercase tracking-[4px] mb-8">Hệ thống xác thực nhanh</p>
 
         <div id="verify-area" class="bg-zinc-900/50 rounded-3xl p-6 border border-zinc-800 mb-6">
-            <div id="timer-box">
+            
+            <button id="start-btn" onclick="startMission()" class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-2xl font-black text-lg transition-all active:scale-95">
+                <i class="fa-solid fa-play mr-2"></i> BẮT ĐẦU NHIỆM VỤ
+            </button>
+
+            <div id="timer-box" class="hidden">
                 <div class="relative w-24 h-24 mx-auto mb-4">
                     <svg class="w-full h-full" viewBox="0 0 36 36">
                         <path class="text-zinc-800" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path id="circle-progress" class="text-purple-600" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path id="circle-progress" class="text-purple-600 progress-circle" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                     </svg>
-                    <div id="countdown" class="absolute inset-0 flex items-center justify-center font-bold text-2xl">120</div>
+                    <div id="countdown" class="absolute inset-0 flex items-center justify-center font-bold text-2xl text-purple-400">10</div>
                 </div>
-                <p class="text-sm text-zinc-400">Vui lòng đợi hệ thống kiểm tra...</p>
+                <p id="timer-msg" class="text-sm text-zinc-400">Đang chuẩn bị đợt 1...</p>
             </div>
 
             <div id="captcha-box" class="hidden">
-                <p class="text-sm font-bold mb-4">Xác nhận bạn không phải Robot</p>
-                <div class="bg-black p-4 rounded-xl mb-4 text-2xl font-mono tracking-[10px] italic text-purple-400 select-none" id="captcha-text"></div>
-                <input type="text" id="captcha-input" placeholder="Nhập mã trên" class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center mb-4 focus:border-purple-600 outline-none">
-                <button onclick="verifyCaptcha()" class="w-full bg-purple-600 py-3 rounded-xl font-bold">TIẾP TỤC</button>
+                <p class="text-sm font-bold mb-4 text-zinc-300">Nhập mã xác nhận để tiếp tục</p>
+                <div class="bg-black p-4 rounded-xl mb-4 text-2xl font-mono tracking-[10px] italic text-purple-400 select-none border border-purple-900/50" id="captcha-text"></div>
+                <input type="text" id="captcha-input" placeholder="Nhập mã..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center mb-4 focus:border-purple-600 outline-none text-white font-bold">
+                <button onclick="verifyCaptcha()" class="w-full bg-purple-600 py-3 rounded-xl font-black">XÁC NHẬN</button>
             </div>
 
-            <button id="final-btn" onclick="generateKey()" class="hidden w-full bg-green-600 py-4 rounded-2xl font-black text-lg">NHẬN KEY NGAY</button>
+            <button id="final-btn" onclick="generateKey()" class="hidden w-full bg-green-600 py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-900/20">
+                <i class="fa-solid fa-gift mr-2"></i> NHẬN KEY NGAY
+            </button>
         </div>
 
-        <div id="result-box" class="hidden animate-bounce bg-black p-5 rounded-2xl border border-purple-500/50">
+        <div id="result-box" class="hidden bg-black p-5 rounded-2xl border border-purple-500/50 shadow-inner">
+             <p class="text-[10px] text-zinc-600 mb-2 uppercase">Key của bạn:</p>
              <code id="key-display" class="text-purple-400 font-mono font-bold text-2xl tracking-widest"></code>
         </div>
     </div>
@@ -53,20 +61,30 @@
         const db = getDatabase(app);
 
         let currentStep = 1;
-        const totalSteps = 5;
-        let timeLeft = 120;
+        const totalSteps = 2; // Chỉ 2 đợt
+        const timePerStep = 10; // Mỗi đợt 10s
+        let timeLeft = timePerStep;
         let timer;
+
+        window.startMission = function() {
+            document.getElementById('start-btn').classList.add('hidden');
+            startTimer();
+        }
 
         function startTimer() {
             document.getElementById('timer-box').classList.remove('hidden');
             document.getElementById('captcha-box').classList.add('hidden');
-            document.getElementById('step-label').innerText = `Tiến trình: ${currentStep}/${totalSteps} Đợt`;
+            document.getElementById('step-label').innerText = `Đang chạy đợt: ${currentStep}/${totalSteps}`;
+            document.getElementById('timer-msg').innerText = `Vui lòng đợi ${timePerStep} giây...`;
             
-            timeLeft = 120;
+            timeLeft = timePerStep;
+            document.getElementById('countdown').innerText = timeLeft;
+            document.getElementById('circle-progress').setAttribute('stroke-dasharray', `0, 100`);
+
             timer = setInterval(() => {
                 timeLeft--;
                 document.getElementById('countdown').innerText = timeLeft;
-                const percent = ((120 - timeLeft) / 120) * 100;
+                const percent = ((timePerStep - timeLeft) / timePerStep) * 100;
                 document.getElementById('circle-progress').setAttribute('stroke-dasharray', `${percent}, 100`);
 
                 if (timeLeft <= 0) {
@@ -94,26 +112,24 @@
                 } else {
                     document.getElementById('captcha-box').classList.add('hidden');
                     document.getElementById('final-btn').classList.remove('hidden');
-                    document.getElementById('step-label').innerText = "Hoàn tất kiểm tra!";
+                    document.getElementById('step-label').innerText = "Đã hoàn thành thử thách!";
                 }
             } else {
-                alert("Mã captcha không đúng!");
+                alert("Sai mã rồi bạn ơi!");
             }
         }
 
         window.generateKey = async function() {
             const btn = document.getElementById('final-btn');
-            btn.innerHTML = 'ĐANG TẠO...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> ĐANG XỬ LÝ...';
             const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
             try {
                 await set(ref(db, 'ActiveKeys/' + finalKey), { status: "active", created: Date.now() });
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('key-display').innerText = finalKey;
                 btn.classList.add('hidden');
-            } catch (e) { alert(e.message); }
+            } catch (e) { alert("Lỗi: " + e.message); }
         }
-
-        startTimer();
     </script>
 </body>
 </html>
