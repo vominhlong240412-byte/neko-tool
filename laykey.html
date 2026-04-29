@@ -17,16 +17,6 @@
         <p class="text-zinc-500 text-[10px] mb-8 uppercase tracking-[5px]">Secure Key System</p>
 
         <div class="bg-zinc-900/50 rounded-2xl p-6 border border-zinc-800 mb-6">
-            <div class="flex items-center gap-4 mb-6 text-left">
-                <div class="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-900/40">
-                    <i class="fa-solid fa-bolt text-2xl"></i>
-                </div>
-                <div>
-                    <h2 class="font-bold text-lg">Premium Access</h2>
-                    <p class="text-zinc-500 text-xs">Hiệu lực: 24 Giờ</p>
-                </div>
-            </div>
-
             <button id="btn-get" onclick="generateKey()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
                 <i class="fa-solid fa-key"></i> LẤY KEY NGAY
             </button>
@@ -35,24 +25,26 @@
                 <p class="text-zinc-500 text-[10px] mb-2 uppercase">Key của bạn là:</p>
                 <div class="bg-black p-4 rounded-lg border border-purple-500/30 flex items-center justify-between">
                     <code id="key-display" class="text-purple-400 font-mono font-bold text-xl tracking-wider"></code>
-                    <button onclick="copyKey()" class="text-zinc-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
                 </div>
             </div>
         </div>
-        <p class="text-zinc-700 text-[10px]">© 2026 NEKO HUB SYSTEM</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.firebaseio.com/" };
+        // LINK CỦA BẠN ĐÃ ĐƯỢC TÍCH HỢP Ở ĐÂY
+        const firebaseConfig = { 
+            databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
+        };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         window.generateKey = async function() {
             const btn = document.getElementById('btn-get');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> ĐANG TẠO...';
+            btn.innerHTML = 'ĐANG TẠO...';
             btn.disabled = true;
 
             const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -64,18 +56,12 @@
                 });
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('key-display').innerText = finalKey;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> THÀNH CÔNG';
+                btn.innerHTML = 'THÀNH CÔNG';
             } catch (e) {
                 alert("Lỗi: " + e.message);
                 btn.disabled = false;
                 btn.innerHTML = 'THỬ LẠI';
             }
-        };
-
-        window.copyKey = function() {
-            const key = document.getElementById('key-display').innerText;
-            navigator.clipboard.writeText(key);
-            alert("Đã copy mã!");
         };
     </script>
 </body>
