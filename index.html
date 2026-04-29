@@ -3,689 +3,570 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEKO CLOUD - HYPER OPERATOR ULTIMATE EDITION</title>
+    <title>NEKO CLOUD - HYPER OPERATOR SUPREMACY</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,400;0,800;1,400&display=swap" rel="stylesheet">
     
     <style>
-        /* --- CORE CSS VARIABLES --- */
+        /* --- CORE CONFIGURATION --- */
         :root {
-            --neon: #00ff41;
-            --cyan: #00f3ff;
-            --red: #ff003c;
-            --purple: #bc13fe;
-            --bg: #020202;
-            --card-bg: rgba(5, 5, 5, 0.95);
-            --border: rgba(0, 255, 65, 0.3);
+            --neon: #00ff41; --cyan: #00f3ff; --red: #ff003c; --purple: #bc13fe;
+            --bg: #010101; --card-bg: rgba(3, 3, 3, 0.98); --border: rgba(0, 255, 65, 0.3);
+            --glitch-speed: 0.3s;
         }
 
-        /* --- GLOBAL RESET & SCROLLBAR --- */
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            cursor: crosshair !important;
-            selection-background: var(--neon);
-            selection-color: #000;
-        }
-
-        ::-webkit-scrollbar { width: 4px; height: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 10px; box-shadow: 0 0 10px var(--neon); }
-
-        body {
-            background: var(--bg);
-            color: var(--neon);
-            font-family: 'Fira Code', monospace;
-            overflow-x: hidden;
-            line-height: 1.5;
-        }
-
-        /* --- OVERLAY EFFECTS (HIỆU ỨNG NỀN) --- */
-        #matrix {
-            position: fixed; top: 0; left: 0; z-index: -1;
-            opacity: 0.2; filter: blur(0.5px);
-        }
-
+        /* --- ADVANCED RESET --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair !important; }
+        body { background: var(--bg); color: var(--neon); font-family: 'Fira Code', monospace; overflow-x: hidden; scroll-behavior: smooth; }
+        
+        /* --- HYPER EFFECTS OVERLAY --- */
+        #matrix { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.25; filter: contrast(120%); }
+        
         .scanlines {
-            position: fixed; inset: 0; z-index: 9999;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-            background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
+            position: fixed; inset: 0; z-index: 9999; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
         }
 
-        .noise {
-            position: fixed; inset: 0; z-index: 9998;
-            background-image: url('https://media.giphy.com/media/oEI9uWUicGLeE/giphy.gif');
-            opacity: 0.03; pointer-events: none;
+        .crt-flicker {
+            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
+            background: rgba(18, 16, 16, 0.02); opacity: 0.1;
+            animation: flicker 0.1s infinite;
         }
 
-        /* --- LANGUAGE SELECTOR (MÀN HÌNH ĐẦU TIÊN) --- */
+        @keyframes flicker {
+            0% { opacity: 0.1; } 50% { opacity: 0.15; } 100% { opacity: 0.1; }
+        }
+
+        /* --- LANGUAGE SELECTOR SCREEN --- */
         #lang-screen {
-            position: fixed; inset: 0; z-index: 10000;
-            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+            position: fixed; inset: 0; z-index: 10000; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+            perspective: 1000px;
         }
 
-        .lang-card {
-            background: rgba(10, 10, 10, 0.8);
-            border: 1px solid var(--neon);
-            padding: 50px; border-radius: 2px;
-            text-align: center; position: relative;
-            box-shadow: 0 0 50px rgba(0, 255, 65, 0.1);
+        .lang-container {
+            transform-style: preserve-3d; animation: float 6s ease-in-out infinite;
         }
+
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotateX(0deg); } 50% { transform: translateY(-20px) rotateX(5deg); } }
 
         .lang-btn {
-            width: 300px; padding: 20px; margin: 15px;
-            background: transparent; border: 1px solid var(--neon);
-            color: var(--neon); font-family: 'Orbitron'; font-weight: 900;
-            letter-spacing: 5px; transition: 0.4s;
-            position: relative; overflow: hidden;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            width: 320px; padding: 25px; margin: 15px; border: 2px solid var(--neon);
+            background: rgba(0, 255, 65, 0.02); color: #fff; font-family: 'Orbitron';
+            font-weight: 900; letter-spacing: 6px; transition: 0.5s;
+            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
         }
 
         .lang-btn:hover {
-            background: var(--neon); color: #000;
-            box-shadow: 0 0 40px var(--neon); transform: scale(1.05);
+            background: var(--neon); color: #000; box-shadow: 0 0 50px var(--neon);
+            transform: translateZ(50px) scale(1.1);
         }
 
-        /* --- SIDEBAR MENU --- */
+        /* --- SIDEBAR SYSTEM --- */
         #sidebar {
-            position: fixed; top: 0; left: -340px; width: 320px; height: 100%;
-            background: rgba(2, 2, 2, 0.98); border-right: 2px solid var(--neon);
-            z-index: 9000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px);
+            position: fixed; top: 0; left: -360px; width: 340px; height: 100%;
+            background: rgba(0, 0, 0, 0.98); border-right: 3px solid var(--neon);
+            z-index: 9000; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 20px 0 50px rgba(0,0,0,0.9);
         }
 
         #sidebar.active { left: 0; }
 
-        .sidebar-header {
-            padding: 30px; border-bottom: 1px solid rgba(0, 255, 65, 0.2);
-            background: linear-gradient(to right, rgba(0, 255, 65, 0.1), transparent);
-        }
-
         .menu-item {
-            padding: 20px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+            padding: 22px 30px; border-bottom: 1px solid rgba(0, 255, 65, 0.1);
+            transition: 0.4s; display: flex; align-items: center; justify-content: space-between;
         }
 
-        .menu-item:hover {
-            background: rgba(0, 255, 65, 0.08);
-            padding-left: 40px; border-right: 4px solid var(--neon);
+        .menu-item:hover { background: rgba(0, 255, 65, 0.12); border-left: 8px solid var(--neon); padding-left: 40px; }
+
+        .mod-status-btn {
+            background: var(--neon); color: #000; padding: 5px 12px; font-[10px] font-black;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); animation: pulse 1.5s infinite;
         }
 
-        .new-key-box {
-            margin: 15px; padding: 20px;
-            border: 2px solid var(--cyan);
-            background: rgba(0, 243, 255, 0.05);
-            text-align: center; transition: 0.3s;
-        }
-        .new-key-box:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
-
-        /* --- AUTH SCREEN --- */
+        /* --- AUTHENTICATION LAYER --- */
         #auth-screen {
-            position: fixed; inset: 0; z-index: 8000;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex; items-center; justify-content: center; p-4;
+            position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.97);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .auth-card {
-            width: 100%; max-w: 500px; background: var(--card-bg);
-            border: 1px solid var(--neon); padding: 40px;
-            position: relative; box-shadow: 0 0 100px rgba(0, 255, 65, 0.15);
+        .auth-panel {
+            width: 100%; max-w: 550px; background: #050505; border: 2px solid var(--neon);
+            padding: 50px; position: relative; overflow: hidden;
         }
 
         .cyber-input {
-            width: 100%; background: #000; border: 1px solid #1a1a1a;
-            padding: 15px; color: #fff; outline: none;
-            font-family: 'JetBrains Mono'; margin-bottom: 20px;
-            transition: 0.3s; border-left: 4px solid #1a1a1a;
+            width: 100%; background: #000; border: 1px solid #222; padding: 18px;
+            color: #fff; font-family: 'JetBrains Mono'; margin-bottom: 20px;
+            transition: 0.3s; border-left: 5px solid #222;
         }
 
-        .cyber-input:focus { border-color: var(--neon); border-left-color: var(--neon); background: rgba(0, 255, 65, 0.02); }
+        .cyber-input:focus { border-color: var(--cyan); border-left-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
 
-        .btn-auth {
-            width: 100%; padding: 20px; background: var(--neon);
-            color: #000; font-weight: 900; font-family: 'Orbitron';
-            text-transform: uppercase; letter-spacing: 3px;
-            transition: 0.3s; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
-        }
-
-        .btn-auth:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 255, 65, 0.3); }
-
-        /* --- DASHBOARD ELEMENTS --- */
+        /* --- DASHBOARD COMPONENTS --- */
         .cyber-card {
-            background: var(--card-bg); border: 1px solid var(--border);
-            padding: 25px; transition: 0.4s; position: relative;
-            overflow: hidden;
+            background: var(--card-bg); border: 1px solid var(--border); padding: 25px;
+            position: relative; transition: 0.5s;
         }
 
-        .cyber-card:hover {
-            border-color: var(--neon);
-            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
-            transform: translateY(-5px);
+        .cyber-card:hover { border-color: var(--neon); transform: scale(1.02); z-index: 10; }
+
+        /* --- LOG TERMINAL --- */
+        #terminal-logs {
+            position: fixed; bottom: 40px; right: 30px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 8px; pointer-events: none;
         }
 
-        .cyber-card::after {
-            content: ""; position: absolute; top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(0, 255, 65, 0.03), transparent);
-            transform: rotate(45deg); pointer-events: none;
+        .term-entry {
+            background: rgba(0, 0, 0, 0.95); border-right: 4px solid var(--neon);
+            padding: 12px 20px; color: #fff; font-size: 10px; width: 350px;
+            box-shadow: -10px 10px 20px rgba(0,0,0,0.8);
+            animation: slideInRight 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
 
-        .status-tag {
-            font-[10px] font-bold uppercase px-2 py-1 bg-zinc-900 border border-zinc-700;
-        }
+        @keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } }
 
-        /* --- NOTIFICATION LOGS --- */
-        #log-container {
-            position: fixed; bottom: 30px; right: 30px;
-            z-index: 9999; display: flex; flex-direction: column; gap: 10px;
-            pointer-events: none;
-        }
-
-        .log-entry {
-            background: rgba(0, 0, 0, 0.9); border-left: 4px solid var(--neon);
-            padding: 15px 25px; color: #fff; font-size: 11px;
-            min-width: 300px; animation: logSlide 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        @keyframes logSlide {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* --- GLITCH EFFECT --- */
-        .glitch-text { position: relative; animation: textGlitch 2s infinite; }
-        @keyframes textGlitch {
-            0% { transform: translate(0); }
-            20% { transform: translate(-2px, 2px); }
-            40% { transform: translate(-2px, -2px); }
-            60% { transform: translate(2px, 2px); }
-            80% { transform: translate(2px, -2px); }
-            100% { transform: translate(0); }
-        }
-
-        /* --- MOD STATUS --- */
-        .mod-btn {
-            background: var(--neon); color: #000; padding: 4px 10px;
-            font-size: 9px; font-weight: 900; animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }
+        /* --- SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); }
 
     </style>
 </head>
 <body>
     <div class="scanlines"></div>
-    <div class="noise"></div>
+    <div class="crt-flicker"></div>
     <canvas id="matrix"></canvas>
-    <div id="log-container"></div>
+    <div id="terminal-logs"></div>
 
     <div id="lang-screen">
-        <div class="lang-card">
-            <h1 class="text-5xl font-black italic mb-2 glitch-text">NEKO <span class="text-white">SYSTEM</span></h1>
-            <p class="text-[10px] tracking-[10px] mb-12 opacity-50">CHOOSE YOUR INTERFACE</p>
-            <div class="flex flex-col gap-4">
-                <button onclick="initSystem('vi')" class="lang-btn">VIETNAMESE</button>
-                <button onclick="initSystem('en')" class="lang-btn">ENGLISH</button>
-            </div>
-            <div class="mt-12 text-[8px] text-zinc-600 italic">Waiting for operator input... [OS_READY]</div>
+        <div class="lang-container text-center">
+            <h1 class="text-6xl font-[900] italic mb-4 tracking-tighter text-white">NEKO <span class="text-neon">SYSTEM</span></h1>
+            <div class="h-1 w-full bg-gradient-to-r from-transparent via-neon to-transparent mb-12"></div>
+            <button onclick="bootSystem('vi')" class="lang-btn block">VIETNAMESE_ENV</button>
+            <button onclick="bootSystem('en')" class="lang-btn block">ENGLISH_ENV</button>
+            <div class="mt-16 text-[9px] tracking-[8px] opacity-30 animate-pulse">ESTABLISHING_CORE_HANDSHAKE...</div>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="sidebar-header">
-            <h2 class="text-2xl font-black italic tracking-tighter" id="side-title">CORE CONTROL</h2>
-            <p class="text-[9px] text-neon opacity-40">SYSTEM_OPERATOR_V4.0</p>
+        <div class="p-8 border-b border-zinc-800 bg-zinc-900/20">
+            <h2 id="sd-title" class="text-2xl font-black italic">ROOT_MENU</h2>
+            <p class="text-[8px] text-cyan-500 font-bold mt-1 uppercase tracking-widest">Access_Level: Authorized</p>
         </div>
-        
-        <div class="p-2">
-            <div class="new-key-box cursor-pointer" onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')">
-                <p class="text-[9px] font-bold">LICENSE_HUB</p>
-                <p class="font-black italic text-lg">NEW KEY (GET FREE)</p>
+
+        <div class="p-2 space-y-1">
+            <div class="m-3 p-5 border-2 border-cyan-600 bg-cyan-900/10 cursor-pointer hover:bg-cyan-600 hover:text-black transition-all group" 
+                 onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')">
+                <p class="text-[9px] font-black opacity-60">LICENSE_GEN_v4</p>
+                <h3 class="text-xl font-black italic group-hover:scale-105 transition-all">GET NEW KEY</h3>
             </div>
 
-            <div class="px-6 py-4 text-[10px] font-bold opacity-30 uppercase border-b border-zinc-800">Moderator Access</div>
+            <div class="px-6 py-4 text-[10px] font-black opacity-30 uppercase">Moderator Gateways</div>
             
-            <div id="mod-links-area">
+            <div id="mod-container" class="space-y-1">
                 <div class="menu-item">
-                    <span class="font-bold">THUẬN MOD</span>
-                    <div id="mod-Thuan"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                    <span class="font-bold tracking-widest uppercase">Thuận Mod</span>
+                    <div id="m-Thuan" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold">Lộc Mod</span>
-                    <div id="mod-Loc"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                    <span class="font-bold tracking-widest uppercase">Lộc Mod</span>
+                    <div id="m-Loc" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold">NEKO</span>
-                    <div id="mod-Neko"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                    <span class="font-bold tracking-widest uppercase">NEKO</span>
+                    <div id="m-Neko" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold">KING OF CHEAT</span>
-                    <div id="mod-King"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                    <span class="font-bold tracking-widest uppercase">KING OF CHEAT</span>
+                    <div id="m-King" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
                 </div>
             </div>
 
-            <div class="mt-20 p-6">
-                <button onclick="location.reload()" class="w-full py-3 border border-red-600 text-red-600 text-[10px] font-bold hover:bg-red-600 hover:text-white transition-all">SYSTEM_TERMINATE</button>
+            <div id="admin-tools" class="hidden mt-10 px-4">
+                <div class="p-4 bg-red-950/20 border border-red-900">
+                    <p class="text-[10px] font-black text-red-500 mb-2 italic">ADMIN_QUICK_PROVISION</p>
+                    <input type="text" id="aq-user" placeholder="Target User" class="w-full bg-black border border-red-900 p-2 text-[10px] mb-2">
+                    <input type="text" id="aq-key" placeholder="Target Key" class="w-full bg-black border border-red-900 p-2 text-[10px] mb-2">
+                    <button onclick="quickAuthCreate()" class="w-full py-2 bg-red-600 text-white font-black text-[9px]">EXECUTE_CREATION</button>
+                </div>
             </div>
+        </div>
+
+        <div class="absolute bottom-0 w-full p-6 border-t border-zinc-900">
+            <button onclick="location.reload()" class="w-full py-4 bg-zinc-900 text-zinc-500 font-bold text-[10px] hover:text-red-500">TERMINATE_SESSION</button>
         </div>
     </div>
 
     <div id="auth-screen" class="hidden">
-        <div class="auth-card">
-            <div class="absolute top-0 left-0 w-10 h-1 border-t-4 border-l-4 border-neon"></div>
-            <div class="absolute bottom-0 right-0 w-10 h-1 border-b-4 border-r-4 border-neon"></div>
-            
-            <div class="text-center mb-10">
-                <h2 id="auth-header" class="text-4xl font-black italic tracking-widest text-white mb-2">LOGIN</h2>
-                <div class="h-1 w-20 bg-neon mx-auto"></div>
+        <div class="auth-panel">
+            <div class="absolute top-0 right-0 p-4 opacity-20 font-black text-[10px]">SECURE_SOCKET_v4.2</div>
+            <div class="mb-10 text-center">
+                <h2 id="auth-h" class="text-5xl font-black italic text-white tracking-widest mb-2">LOGIN</h2>
+                <div class="flex justify-center gap-1"><div class="h-1 w-8 bg-neon"></div><div class="h-1 w-2 bg-neon"></div></div>
             </div>
 
             <div class="space-y-4">
-                <input type="text" id="u-user" placeholder="OPERATOR_NAME" class="cyber-input">
+                <input type="text" id="u-user" placeholder="OPERATOR_IDENTITY" class="cyber-input">
                 <input type="password" id="u-pass" placeholder="SECURITY_CIPHER" class="cyber-input">
-                <div id="key-gate">
-                    <input type="text" id="u-key" placeholder="ACCESS_LICENSE_KEY" class="cyber-input !border-red-900 !text-red-500">
+                <div id="key-wrapper">
+                    <input type="text" id="u-key" placeholder="ACCESS_LICENSE_KEY" class="cyber-input !border-red-900 !text-red-500 font-black">
                 </div>
             </div>
 
-            <button onclick="handleAuth()" id="auth-btn" class="btn-auth mt-6">Initialize_Login</button>
-            
-            <div class="mt-8 text-center">
-                <p onclick="toggleAuthMode()" id="auth-toggle-text" class="text-[10px] cursor-pointer hover:text-white transition-all uppercase tracking-[3px]">>>> Create New Operator Profile</p>
+            <button onclick="execAuth()" id="auth-btn" class="w-full py-6 bg-neon text-black font-black italic text-xl mt-6 hover:bg-white transition-all shadow-[0_0_30px_rgba(0,255,65,0.3)]">
+                INITIALIZE_PROTOCOL
+            </button>
+
+            <div class="mt-10 text-center">
+                <p id="auth-tog" onclick="toggleAuth()" class="text-[10px] font-bold opacity-40 hover:opacity-100 cursor-pointer transition-all uppercase tracking-[4px]">
+                    >>> Request New Operator Credentials
+                </p>
             </div>
         </div>
     </div>
 
-    <main id="main-content" class="hidden max-w-[1500px] mx-auto p-6 md:p-10">
-        <header class="flex justify-between items-center mb-12 border-b border-zinc-900 pb-8">
+    <main id="main-content" class="hidden max-w-[1600px] mx-auto p-4 md:p-12 pb-32">
+        <header class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
             <div class="flex items-center gap-8">
-                <button onclick="document.getElementById('sidebar').classList.add('active')" class="text-3xl hover:text-white transition-all">☰</button>
+                <button onclick="document.getElementById('sidebar').classList.add('active')" class="text-4xl hover:text-white transition-all">☰</button>
                 <div>
-                    <h1 class="text-3xl font-black italic text-white tracking-tighter">NEKO <span class="text-neon">CLOUD</span></h1>
-                    <p class="text-[8px] tracking-[5px] opacity-40">SECURE_DATA_EXCHANGE_NODE</p>
+                    <h1 class="text-4xl font-black italic text-white leading-none">NEKO <span class="text-neon uppercase">Cloud</span></h1>
+                    <p class="text-[9px] tracking-[6px] opacity-40 mt-2 font-bold uppercase">Multi-threaded Data Stream Access</p>
                 </div>
             </div>
-            <div class="flex gap-4">
-                <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="btn-hyper px-8 py-3">UPLOAD_DATA</button>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:block text-right">
+                    <p class="text-[8px] opacity-40 font-bold uppercase">Current Operator:</p>
+                    <p id="cur-op-name" class="text-xs font-black text-neon italic tracking-widest">---</p>
+                </div>
+                <button onclick="document.getElementById('up-box').classList.toggle('hidden')" class="px-10 py-4 bg-transparent border-2 border-neon text-neon font-black italic hover:bg-neon hover:text-black transition-all">UPLOAD_PAYLOAD</button>
             </div>
         </header>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div class="cyber-card border-l-4 border-l-blue-500">
-                <p class="text-[10px] font-bold opacity-30 mb-2">CONNECTION_STATUS</p>
-                <p class="text-xl font-black text-blue-400">ENCRYPTED_ACTIVE</p>
+            <div class="cyber-card border-l-[6px] border-l-blue-600">
+                <p class="text-[10px] font-black opacity-30 mb-2">DB_SYNC_STATUS</p>
+                <div class="flex items-center gap-2"><div class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div><p class="text-xl font-black text-white italic uppercase tracking-tighter">Connected</p></div>
             </div>
-            <div class="cyber-card border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold opacity-30 mb-2">OPERATOR_CREDITS</p>
-                <p class="text-xl font-black text-white">0867799161 <span class="text-[10px]">(VPBANK)</span></p>
+            <div class="cyber-card border-l-[6px] border-l-purple-600">
+                <p class="text-[10px] font-black opacity-30 mb-2">LICENSE_EXPIRY</p>
+                <p id="key-exp" class="text-2xl font-black text-purple-500 italic">--/--/----</p>
             </div>
-            <div class="cyber-card border-l-4 border-l-purple-500">
-                <p class="text-[10px] font-bold opacity-30 mb-2" id="expiry-label">LICENSE_EXPIRY</p>
-                <p id="key-expiry-display" class="text-xl font-black text-purple-400">--/--/----</p>
+            <div class="cyber-card border-l-[6px] border-l-emerald-600">
+                <p class="text-[10px] font-black opacity-30 mb-2">SUPPORT_DONATE</p>
+                <p class="text-xl font-black text-white italic">0867799161</p>
             </div>
-            <div class="cyber-card border-l-4 border-l-orange-500">
-                <p class="text-[10px] font-bold opacity-30 mb-2">CLOUD_NODES</p>
-                <p id="node-count" class="text-xl font-black text-orange-400 italic">SCANNING...</p>
+            <div class="cyber-card border-l-[6px] border-l-orange-600">
+                <p class="text-[10px] font-black opacity-30 mb-2">NETWORK_NODES</p>
+                <p id="node-val" class="text-2xl font-black text-orange-500 italic">SCANNING...</p>
             </div>
         </div>
 
-        <div id="up-form" class="hidden cyber-card mb-12 border-neon border-dashed bg-emerald-500/5">
+        <div id="up-box" class="hidden cyber-card mb-12 border-dashed border-neon bg-emerald-950/10">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                 <div>
-                    <label class="text-[10px] font-bold opacity-40 uppercase block mb-2">Resource URL:</label>
-                    <input type="text" id="f-url" class="cyber-input !mb-0" placeholder="https://cdn.node.io/data...">
+                    <label class="text-[10px] font-black opacity-50 block mb-2 uppercase">Payload URI:</label>
+                    <input type="text" id="f-url" class="cyber-input !mb-0" placeholder="https://external-resource.cdn/data">
                 </div>
                 <div>
-                    <label class="text-[10px] font-bold opacity-40 uppercase block mb-2">Module Description:</label>
-                    <input type="text" id="f-info" class="cyber-input !mb-0" placeholder="Aimbot Config / Skin Data...">
+                    <label class="text-[10px] font-black opacity-50 block mb-2 uppercase">Module Metadata:</label>
+                    <input type="text" id="f-info" class="cyber-input !mb-0" placeholder="Input target description...">
                 </div>
             </div>
-            <button onclick="postLink()" class="w-full btn-auth !bg-transparent !border-neon !text-neon hover:!bg-neon hover:!text-black">Confirm_Upload_Sequence</button>
+            <button onclick="commitPayload()" class="w-full py-5 border-2 border-neon text-neon font-black italic text-lg hover:bg-neon hover:text-black transition-all uppercase">Start_Injection_Sequence</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <div class="lg:col-span-2">
-                <div class="relative mb-8">
-                    <input type="text" id="search" oninput="loadData()" placeholder="FILTER_DATABASE_FOR_MODULES..." class="w-full bg-zinc-950 border border-zinc-800 p-6 text-xs font-black uppercase tracking-[3px] outline-none focus:border-neon">
-                    <div class="absolute right-6 top-6 text-neon text-[10px] animate-pulse">SEARCH_CORE_ON</div>
+                <div class="relative mb-10">
+                    <input type="text" id="search" oninput="fetchData()" placeholder="FILTER_DATABASE_MODULES..." class="w-full bg-black border border-zinc-800 p-8 text-sm font-black uppercase tracking-[5px] outline-none focus:border-neon transition-all">
+                    <div class="absolute right-8 top-8 text-[9px] font-black animate-pulse opacity-50">QUERY_ENGINE_ON</div>
                 </div>
                 
-                <div id="list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div id="data-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     </div>
             </div>
 
-            <div class="space-y-8">
-                <div class="cyber-card h-[550px] flex flex-col p-0">
-                    <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
-                        <span class="text-[11px] font-black italic uppercase">World_Comm_Terminal</span>
-                        <div class="flex gap-1"><div class="w-2 h-2 bg-red-500 animate-ping"></div></div>
+            <div class="space-y-10">
+                <div class="cyber-card h-[600px] flex flex-col p-0 border-zinc-800">
+                    <div class="p-5 bg-zinc-900 flex justify-between items-center border-b border-zinc-800">
+                        <span class="text-xs font-black italic uppercase">World_Comm_Terminal</span>
+                        <div class="w-3 h-3 bg-red-600 animate-pulse"></div>
                     </div>
-                    <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4 text-[10px] font-mono">
+                    <div id="chat-display" class="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[11px]">
                         </div>
-                    <div id="chat-input-section" class="hidden p-4 border-t border-zinc-800 bg-black">
-                        <input type="text" id="chat-msg" placeholder="Broadcast message..." class="w-full bg-transparent border-b border-zinc-800 p-2 text-white outline-none focus:border-neon transition-all">
+                    <div id="chat-input-area" class="hidden p-5 bg-black border-t border-zinc-800">
+                        <input type="text" id="chat-msg" placeholder="Broadcast message..." class="w-full bg-transparent border-b border-zinc-800 py-2 text-white outline-none focus:border-neon">
                     </div>
                 </div>
 
-                <div id="verify-section" class="hidden cyber-card border-cyan-500 bg-cyan-500/5">
-                    <div class="flex items-center gap-2 mb-6">
-                        <div class="w-2 h-4 bg-cyan-500"></div>
-                        <h3 class="text-xs font-black italic uppercase tracking-tighter">Identity_Verification</h3>
-                    </div>
-                    <p class="text-[9px] text-cyan-500 mb-4 italic">*Email registration required for global chat privileges.</p>
-                    <input type="email" id="email-val" placeholder="REGISTER_EMAIL_ADDRESS" class="cyber-input !border-cyan-900 !text-cyan-400">
-                    <button onclick="requestOTP()" id="btn-otp" class="w-full btn-auth !bg-transparent !border-cyan-500 !text-cyan-500 hover:!bg-cyan-500 hover:!text-black mb-4">Request_OTP_Cipher</button>
-                    
+                <div id="otp-section" class="hidden cyber-card border-cyan-500 bg-cyan-900/5">
+                    <h3 class="text-xs font-black uppercase mb-6 italic text-cyan-500 tracking-widest">Operator_Identification</h3>
+                    <input type="email" id="email-val" placeholder="REGISTER_CORE_EMAIL" class="cyber-input !border-cyan-900 !text-cyan-400">
+                    <button onclick="sendOTP()" id="otp-req-btn" class="w-full py-3 bg-transparent border border-cyan-500 text-cyan-500 text-[10px] font-black uppercase mb-4 hover:bg-cyan-500 hover:text-black">Request_Handshake_OTP</button>
                     <div class="flex gap-2">
-                        <input type="text" id="otp-val" placeholder="6-DIGIT_CODE" class="cyber-input !mb-0 text-center tracking-[10px] font-black">
-                        <button onclick="verifyOTP()" class="bg-cyan-500 text-black px-6 font-black uppercase text-xs">Verify</button>
+                        <input type="text" id="otp-code" placeholder="CODE" class="cyber-input !mb-0 text-center !p-3">
+                        <button onclick="confirmOTP()" class="bg-cyan-600 text-black px-6 font-black uppercase text-[10px]">Verify</button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 w-full p-2 bg-black/90 border-t border-zinc-900 z-[9000] flex justify-between px-10 items-center">
-        <div class="text-[8px] opacity-40 uppercase tracking-[2px]">System_Uptime: <span id="uptime-counter">0h 0m 0s</span></div>
-        <div class="text-[8px] text-neon italic">NEKO_CLOUD_ENCRYPTION_V4_SECURE</div>
+    <footer class="fixed bottom-0 w-full bg-black/95 border-t border-zinc-900 p-4 z-[9000] flex justify-between items-center px-10">
+        <div class="text-[9px] font-black opacity-30 uppercase tracking-[4px]">Uptime: <span id="uptime-val">0h 0m 0s</span></div>
+        <div class="text-[9px] text-neon italic font-bold">NEKO_CLOUD_SECURE_ENCRYPTION_v4.5</div>
     </footer>
 
     <script type="module">
-        // IMPORT FIREBASE
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // FIREBASE CONFIG
-        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        const app = initializeApp(firebaseConfig);
+        const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(config);
         const db = getDatabase(app);
 
-        // 1. SYSTEM INITIALIZATION & MATRIX
+        // 1. MATRIX CORE
         const canvas = document.getElementById("matrix");
         const ctx = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
-        const fontSize = 16;
-        const columns = canvas.width / fontSize;
-        const rainDrops = Array.from({ length: columns }).fill(1);
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*あいうえお";
+        const fSize = 16;
+        const drops = Array.from({ length: canvas.width / fSize }).fill(1);
 
         function drawMatrix() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#0F0";
-            ctx.font = fontSize + "px monospace";
-
-            for (let i = 0; i < rainDrops.length; i++) {
-                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
-                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                    rainDrops[i] = 0;
-                }
-                rainDrops[i]++;
-            }
+            ctx.fillStyle = "#0F0"; ctx.font = fSize + "px monospace";
+            drops.forEach((y, i) => {
+                const txt = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(txt, i * fSize, y * fSize);
+                if (y * fSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
         }
-        setInterval(drawMatrix, 35);
+        setInterval(drawMatrix, 40);
 
-        // 2. HELPER FUNCTIONS
+        // 2. SYSTEM LOGS
         const log = (msg) => {
-            const container = document.getElementById('log-container');
-            const div = document.createElement('div');
-            div.className = 'log-entry';
-            div.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
-            container.appendChild(div);
-            setTimeout(() => div.remove(), 4500);
+            const container = document.getElementById('terminal-logs');
+            const entry = document.createElement('div');
+            entry.className = 'term-entry';
+            entry.innerHTML = `<span class="text-neon opacity-50">[${new Date().toLocaleTimeString()}]</span> > ${msg}`;
+            container.appendChild(entry);
+            setTimeout(() => { entry.style.opacity = '0'; setTimeout(() => entry.remove(), 500); }, 5000);
         };
 
-        window.toggleSidebar = () => {
-            document.getElementById('sidebar').classList.toggle('active');
-        };
-
-        // 3. LANGUAGE & SYSTEM START
+        // 3. SYSTEM BOOT
         let currentLang = 'en';
-        window.initSystem = (lang) => {
+        window.bootSystem = (lang) => {
             currentLang = lang;
+            document.getElementById('lang-screen').style.transition = '1s';
             document.getElementById('lang-screen').style.opacity = '0';
+            log(`Kernel loading: ${lang.toUpperCase()} environment...`);
             setTimeout(() => {
                 document.getElementById('lang-screen').style.display = 'none';
                 document.getElementById('auth-screen').classList.remove('hidden');
-                
                 if(lang === 'vi') {
-                    document.getElementById('auth-header').innerText = "ĐĂNG NHẬP";
-                    document.getElementById('auth-btn').innerText = "KHỞI CHẠY HỆ THỐNG";
-                    document.getElementById('auth-toggle-text').innerText = ">>> Tạo Tài Khoản Operator Mới";
-                    document.getElementById('side-title').innerText = "BẢNG ĐIỀU KHIỂN";
+                    document.getElementById('auth-h').innerText = "XÁC_THỰC";
+                    document.getElementById('auth-btn').innerText = "KHỞI_CHẠY_HỆ_THỐNG";
+                    document.getElementById('auth-tog').innerText = ">>> Đăng Ký Tài Khoản Operator Mới";
+                    document.getElementById('sd-title').innerText = "BẢNG_LỆNH";
                 }
-            }, 800);
-            log(`System initialized in ${lang.toUpperCase()} mode.`);
+            }, 1000);
         };
 
-        // 4. AUTHENTICATION LOGIC (FIXED & EXTENDED)
-        let isLoginMode = true;
-        let currentUser = "";
-
-        window.toggleAuthMode = () => {
-            isLoginMode = !isLoginMode;
-            const header = document.getElementById('auth-header');
+        // 4. AUTHENTICATION LOGIC (HEAVY)
+        let isLogin = true;
+        let curU = "";
+        window.toggleAuth = () => {
+            isLogin = !isLogin;
+            const h = document.getElementById('auth-h');
             const btn = document.getElementById('auth-btn');
-            const toggle = document.getElementById('auth-toggle-text');
-            const keyBox = document.getElementById('key-gate');
+            const tog = document.getElementById('auth-tog');
+            const kWrap = document.getElementById('key-wrapper');
 
-            if(isLoginMode) {
-                header.innerText = currentLang === 'vi' ? "ĐĂNG NHẬP" : "LOGIN";
-                btn.innerText = currentLang === 'vi' ? "KHỞI CHẠY HỆ THỐNG" : "INITIALIZE LOGIN";
-                toggle.innerText = currentLang === 'vi' ? ">>> Tạo Tài Khoản Operator Mới" : ">>> Create New Operator Profile";
-                keyBox.style.display = "block";
-            } else {
-                header.innerText = currentLang === 'vi' ? "ĐĂNG KÝ" : "REGISTER";
-                btn.innerText = currentLang === 'vi' ? "TẠO TÀI KHOẢN" : "CREATE ACCOUNT";
-                toggle.innerText = currentLang === 'vi' ? ">>> Đã có tài khoản? Đăng nhập" : ">>> Already have account? Login";
-                keyBox.style.display = "none";
-            }
+            h.innerText = isLogin ? (currentLang === 'vi' ? "XÁC_THỰC" : "LOGIN") : (currentLang === 'vi' ? "ĐĂNG_KÝ" : "REGISTER");
+            btn.innerText = isLogin ? (currentLang === 'vi' ? "KHỞI_CHẠY_HỆ_THỐNG" : "INITIALIZE_PROTOCOL") : (currentLang === 'vi' ? "TẠO_HỒ_SƠ" : "CREATE_IDENTITY");
+            tog.innerText = isLogin ? (currentLang === 'vi' ? ">>> Đăng Ký Tài Khoản Mới" : ">>> Request New Credentials") : (currentLang === 'vi' ? ">>> Đã Có Hồ Sơ? Đăng Nhập" : ">>> Already Authorized? Login");
+            kWrap.style.display = isLogin ? "block" : "none";
+            log("UI_TRANSITION: Mode " + (isLogin ? "Login" : "Register"));
         };
 
-        window.handleAuth = async () => {
+        window.execAuth = async () => {
             const u = document.getElementById('u-user').value.trim();
             const p = document.getElementById('u-pass').value.trim();
             const k = document.getElementById('u-key').value.trim();
 
-            if(!u || !p) return log("CRITICAL: Operator ID and Cipher required!");
+            if(!u || !p) return log("CRITICAL: Missing credentials.");
 
-            if(isLoginMode) {
-                if(!k) return log("ERROR: Access License Key is missing!");
-                
-                const userSnap = await get(ref(db, `Users/${u}`));
-                const keySnap = await get(ref(db, `Keys/${k}`));
+            if(isLogin) {
+                log(`HANDSHAKING: Operator ${u}...`);
+                const uSnap = await get(ref(db, `Users/${u}`));
+                const kSnap = await get(ref(db, `Keys/${k}`));
 
-                if(!userSnap.exists() || userSnap.val().pass !== p) {
-                    return log("ACCESS DENIED: Invalid Credentials.");
-                }
+                if(!uSnap.exists() || uSnap.val().pass !== p) return log("FAILURE: Invalid credentials.");
+                if(uSnap.val().banned) return log("CRITICAL: Operator blacklisted.");
+                if(!kSnap.exists()) return log("FAILURE: License key invalid.");
 
-                if(userSnap.val().banned) return log("BANNED: This operator is blacklisted.");
-
-                if(!keySnap.exists()) return log("INVALID KEY: License not found in DB.");
-
-                // HWID Check
                 const hwid = navigator.userAgent.length + screen.width;
-                if(keySnap.val().hwid && keySnap.val().hwid !== hwid) {
-                    return log("HWID MISMATCH: Device lock active.");
-                }
+                if(kSnap.val().hwid && kSnap.val().hwid !== hwid) return log("SECURITY: HWID Mismatch.");
+                if(!kSnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: hwid });
 
-                if(!keySnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: hwid });
-
-                // SUCCESS LOGIN
-                currentUser = u;
-                document.getElementById('auth-screen').style.display = "none";
+                curU = u;
+                document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('key-expiry-display').innerText = keySnap.val().expiry;
+                document.getElementById('cur-op-name').innerText = u.toUpperCase();
+                document.getElementById('key-exp').innerText = kSnap.val().expiry;
                 
-                log(`WELCOME BACK, OPERATOR ${u}. ACCESS GRANTED.`);
-                
-                // Initialize Data
-                checkUserStatus(u);
-                loadData();
-                loadChat();
-                syncModLinks();
-                startUptime();
-            } else {
-                // REGISTER MODE
-                const check = await get(ref(db, `Users/${u}`));
-                if(check.exists()) return log("ERROR: Operator ID already taken.");
+                if(u === "admin") document.getElementById('admin-tools').classList.remove('hidden');
 
-                await set(ref(db, `Users/${u}`), {
-                    pass: p, banned: false, verified: false, joined: Date.now()
-                });
-                log("REGISTRATION COMPLETE. Switching to Login Terminal...");
-                toggleAuthMode();
+                log(`ACCESS_GRANTED: Welcome Operator ${u}.`);
+                checkStatus(u); fetchData(); syncChat(); syncMods(); startTimer();
+            } else {
+                const check = await get(ref(db, `Users/${u}`));
+                if(check.exists()) return log("FAILURE: Operator ID already exists.");
+                await set(ref(db, `Users/${u}`), { pass: p, banned: false, verified: false });
+                log("SUCCESS: Identity created. Return to login.");
+                toggleAuth();
             }
         };
 
-        // 5. MODERATOR LINKS SYNC
-        function syncModLinks() {
-            onValue(ref(db, 'ModLinks'), (snapshot) => {
-                const data = snapshot.val();
-                if(!data) return;
-                const mods = ["Thuan", "Loc", "Neko", "King"];
-                mods.forEach(m => {
-                    const target = document.getElementById(`mod-${m}`);
-                    if(data[m]) {
-                        target.innerHTML = `<button onclick="window.open('${data[m]}')" class="mod-btn">BẤM VÀO ĐÂY</button>`;
-                    } else {
-                        target.innerHTML = `<span class="text-red-600 text-[10px] italic">OFFLINE</span>`;
-                    }
-                });
-            });
+        // 5. ADMIN QUICK PROVISION
+        window.quickAuthCreate = async () => {
+            const qu = document.getElementById('aq-user').value.trim();
+            const qk = document.getElementById('aq-key').value.trim();
+            if(!qu || !qk) return log("ADMIN_ERROR: Missing target info.");
+            
+            await set(ref(db, `Users/${qu}`), { pass: "123", banned: false, verified: true });
+            await set(ref(db, `Keys/${qk}`), { status: "active", expiry: "31/12/2026", hwid: "" });
+            log(`PROVISIONING_COMPLETE: [${qu}] + [${qk}]`);
+        };
+
+        // 6. RESOURCE MANAGEMENT
+        async function validateLink(id, url) {
+            try {
+                const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+                if(!r.ok) await remove(ref(db, `SharedLinks/${id}`));
+            } catch(e) {}
         }
 
-        // 6. AUTO CLEANER & LINK LOADING
-        async function cleanDeadLinks(links) {
-            for (let id in links) {
-                try {
-                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(links[id].url)}`);
-                    if(!res.ok) await remove(ref(db, `SharedLinks/${id}`));
-                } catch(e) {}
-            }
-        }
-
-        window.loadData = () => {
-            const query = document.getElementById('search').value.toLowerCase();
-            onValue(ref(db, 'SharedLinks'), (snapshot) => {
-                const list = document.getElementById('list');
-                const data = snapshot.val();
-                list.innerHTML = "";
-                if(!data) {
-                    document.getElementById('node-count').innerText = "0 ACTIVE";
-                    return;
-                }
-
-                const keys = Object.keys(data).reverse();
-                document.getElementById('node-count').innerText = `${keys.length} ACTIVE`;
+        window.fetchData = () => {
+            const q = document.getElementById('search').value.toLowerCase();
+            onValue(ref(db, 'SharedLinks'), (s) => {
+                const g = document.getElementById('data-grid');
+                const d = s.val(); g.innerHTML = "";
+                if(!d) { document.getElementById('node-val').innerText = "0 ACTIVE"; return; }
+                const ks = Object.keys(d).reverse();
+                document.getElementById('node-val').innerText = ks.length + " ACTIVE";
                 
-                cleanDeadLinks(data);
-
-                keys.forEach(id => {
-                    const item = data[id];
-                    if(item.url.toLowerCase().includes(query) || item.owner.toLowerCase().includes(query)) {
-                        list.innerHTML += `
+                ks.forEach(id => {
+                    const o = d[id];
+                    if(o.url.toLowerCase().includes(q) || o.owner.toLowerCase().includes(q)) {
+                        validateLink(id, o.url);
+                        g.innerHTML += `
                         <div class="cyber-card group">
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="text-[8px] bg-neon text-black px-2 py-0.5 font-black uppercase">OP: ${item.owner}</span>
-                                <span class="text-[8px] opacity-30">${item.time}</span>
-                            </div>
-                            <h3 class="text-white text-[11px] font-bold mb-6 line-clamp-2 h-10 italic opacity-80 group-hover:opacity-100">${item.info || item.url}</h3>
-                            <button onclick="window.open('${item.url}')" class="w-full py-2 border border-neon text-neon text-[9px] font-bold hover:bg-neon hover:text-black transition-all">ESTABLISH_CONNECTION</button>
+                            <div class="flex justify-between mb-4"><span class="text-[8px] bg-neon text-black px-2 font-black italic">BY: ${o.owner}</span><span class="text-[8px] opacity-30">${o.time}</span></div>
+                            <h3 class="text-white text-xs font-bold mb-6 h-10 line-clamp-2">${o.info || o.url}</h3>
+                            <button onclick="window.open('${o.url}')" class="w-full py-3 border border-neon text-neon text-[10px] font-black hover:bg-neon hover:text-black transition-all">ESTABLISH_CONNECTION</button>
                         </div>`;
                     }
                 });
             });
         };
 
-        window.postLink = async () => {
+        window.commitPayload = async () => {
             const url = document.getElementById('f-url').value.trim();
             const info = document.getElementById('f-info').value.trim();
-            if(!url) return log("ERROR: No URL provided for upload.");
-
-            await push(ref(db, 'SharedLinks'), {
-                url, info, owner: currentUser, time: new Date().toLocaleDateString()
-            });
-            document.getElementById('up-form').classList.add('hidden');
-            log("DATA_UPLOAD_SUCCESS: Global node updated.");
+            if(!url) return log("ERROR: Payload URI missing.");
+            await push(ref(db, 'SharedLinks'), { url, info, owner: curU, time: new Date().toLocaleDateString() });
+            document.getElementById('up-box').classList.add('hidden');
+            log("INJECTION_SUCCESS: Data synchronized.");
         };
 
-        // 7. CHAT & VERIFICATION
-        async function checkUserStatus(u) {
-            const snap = await get(ref(db, `Users/${u}`));
-            if(snap.val().verified) {
-                document.getElementById('chat-input-section').classList.remove('hidden');
-            } else {
-                document.getElementById('verify-section').classList.remove('hidden');
-                const mSnap = await get(ref(db, `MailConfirm/${u}`));
-                if(mSnap.exists()) {
-                    document.getElementById('btn-otp').innerText = "AWAITING ADMIN APPROVAL";
-                    document.getElementById('btn-otp').disabled = true;
+        // 7. CHAT & IDENTITY
+        async function checkStatus(u) {
+            const s = await get(ref(db, `Users/${u}`));
+            if(s.val().verified) document.getElementById('chat-input-area').classList.remove('hidden');
+            else {
+                document.getElementById('otp-section').classList.remove('hidden');
+                const m = await get(ref(db, `MailConfirm/${u}`));
+                if(m.exists()) {
+                    document.getElementById('otp-req-btn').innerText = "PENDING_APPROVAL";
+                    document.getElementById('otp-req-btn').disabled = true;
                 }
             }
         }
 
-        window.requestOTP = async () => {
+        window.sendOTP = async () => {
             const email = document.getElementById('email-val').value.trim();
-            if(!email.includes("@")) return log("ERROR: Email format invalid.");
+            if(!email.includes("@")) return log("ERROR: Email invalid.");
             const otp = Math.floor(100000 + Math.random() * 900000);
-            await set(ref(db, `MailConfirm/${currentUser}`), { email, otp, timestamp: Date.now() });
-            log("VERIFY: OTP request logged. Profile temporarily locked.");
-            setTimeout(() => location.reload(), 1500);
+            await set(ref(db, `MailConfirm/${curU}`), { email, otp, ts: Date.now() });
+            log("OTP_SENT: Awaiting response.");
+            setTimeout(() => location.reload(), 1200);
         };
 
-        window.verifyOTP = async () => {
-            const code = document.getElementById('otp-val').value.trim();
-            const snap = await get(ref(db, `MailConfirm/${currentUser}`));
-            if(snap.exists() && snap.val().otp == code) {
-                await update(ref(db, `Users/${currentUser}`), { verified: true });
-                log("IDENTITY_CONFIRMED: Comm-link unlocked.");
-                location.reload();
-            } else {
-                log("ERROR: Invalid Cipher Code.");
-            }
+        window.confirmOTP = async () => {
+            const c = document.getElementById('otp-code').value.trim();
+            const s = await get(ref(db, `MailConfirm/${curU}`));
+            if(s.exists() && s.val().otp == c) {
+                await update(ref(db, `Users/${curU}`), { verified: true });
+                log("IDENTITY_VERIFIED."); location.reload();
+            } else log("ERROR: Handshake code invalid.");
         };
 
-        window.loadChat = () => {
-            onValue(ref(db, 'WorldChat'), (snapshot) => {
-                const box = document.getElementById('chat-box');
-                const data = snapshot.val();
-                box.innerHTML = "";
-                if(!data) return;
-                Object.values(data).slice(-30).forEach(m => {
-                    box.innerHTML += `<div><span class="text-neon font-black uppercase">[${m.u}]:</span> <span class="text-white opacity-70">${m.msg}</span></div>`;
+        window.syncChat = () => {
+            onValue(ref(db, 'WorldChat'), (s) => {
+                const b = document.getElementById('chat-display');
+                const d = s.val(); b.innerHTML = ""; if(!d) return;
+                Object.values(d).slice(-40).forEach(m => {
+                    b.innerHTML += `<div><span class="text-neon font-black">[${m.u}]:</span> <span class="text-white opacity-60">${m.msg}</span></div>`;
                 });
-                box.scrollTop = box.scrollHeight;
+                b.scrollTop = b.scrollHeight;
             });
         };
 
         document.getElementById('chat-msg').addEventListener('keypress', (e) => {
             if(e.key === 'Enter' && e.target.value.trim()) {
-                push(ref(db, 'WorldChat'), { u: currentUser, msg: e.target.value.trim() });
+                push(ref(db, 'WorldChat'), { u: curU, msg: e.target.value.trim() });
                 e.target.value = "";
             }
         });
 
-        // 8. SYSTEM UPTIME
-        function startUptime() {
-            let sec = 0, min = 0, hour = 0;
+        // 8. MODERATOR LINK SYNC
+        window.syncMods = () => {
+            onValue(ref(db, 'ModLinks'), (s) => {
+                const d = s.val(); if(!d) return;
+                const ms = ["Thuan", "Loc", "Neko", "King"];
+                ms.forEach(m => {
+                    const el = document.getElementById(`m-${m}`);
+                    if(d[m]) el.innerHTML = `<button onclick="window.open('${d[m]}')" class="mod-status-btn">BẤM VÀO ĐÂY</button>`;
+                });
+            });
+        };
+
+        // 9. TIMER & SECURITY
+        function startTimer() {
+            let s = 0, m = 0, h = 0;
             setInterval(() => {
-                sec++; if(sec==60){sec=0; min++;} if(min==60){min=0; hour++;}
-                document.getElementById('uptime-counter').innerText = `${hour}h ${min}m ${sec}s`;
+                s++; if(s==60){s=0; m++;} if(m==60){m=0; h++;}
+                document.getElementById('uptime-val').innerText = `${h}h ${m}m ${s}s`;
             }, 1000);
         }
 
-        // Close sidebar on click outside
+        // ANTI INSPECT
+        document.onkeydown = (e) => {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74))) return false;
+        };
+
+        // Close sidebar
         document.addEventListener('click', (e) => {
-            const sb = document.getElementById('sidebar');
-            if(!sb.contains(e.target) && e.target.innerText !== '☰') {
-                sb.classList.remove('active');
+            if(!document.getElementById('sidebar').contains(e.target) && e.target.innerText !== '☰') {
+                document.getElementById('sidebar').classList.remove('active');
             }
         });
 
