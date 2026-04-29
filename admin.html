@@ -1,103 +1,133 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8"><title>Admin Control Panel</title>
+    <meta charset="UTF-8">
+    <title>ROOT TERMINAL - NEKO ADMIN</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
+    <style>
+        body { background: #050505; color: #00ff41; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+        .card { background: #0a0a0a; border: 1px solid #1f2937; padding: 20px; border-radius: 12px; }
+        .inp { background: #000; border: 1px solid #333; color: #00ff41; padding: 12px; border-radius: 10px; width: 100%; outline: none; margin-bottom: 12px; }
+        .btn { font-weight: 800; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; text-transform: uppercase; border: none; }
+    </style>
 </head>
-<body class="p-4 md:p-10 max-w-6xl mx-auto text-[11px]">
-    <h1 class="text-2xl font-black mb-8 border-b border-zinc-800 pb-4 uppercase">Root@System</h1>
+<body class="p-8 max-w-7xl mx-auto">
+    <div class="flex justify-between items-end mb-10 border-b border-zinc-800 pb-6">
+        <h1 class="text-3xl font-black italic tracking-tighter uppercase">Root <span class="text-white">Terminal</span></h1>
+        <p class="text-right opacity-50">SYSTEM VERSION: 4.0.0<br>STATUS: ENCRYPTED</p>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-zinc-900 p-5 rounded-xl border border-emerald-900">
-            <h2 class="font-bold mb-4 uppercase">Cài đặt Link Vượt</h2>
-            <input type="text" id="l4m" placeholder="Dán link Link4m..." class="bg-black p-3 rounded border border-emerald-800 w-full mb-3 outline-none">
-            <button onclick="saveL()" class="w-full bg-emerald-500 text-black py-2 font-bold uppercase">Lưu Cấu Hình</button>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div class="card border-blue-500/50 bg-blue-900/5">
+            <h2 class="text-blue-400 font-black mb-4 uppercase italic tracking-widest text-xs">⚡ Key Generator</h2>
+            <input type="text" id="k-name" placeholder="Tên Key (Gợi nhớ)" class="inp">
+            <select id="k-days" class="inp">
+                <option value="1">Sử dụng 1 Ngày</option>
+                <option value="7">Sử dụng 7 Ngày</option>
+                <option value="30">Sử dụng 30 Ngày</option>
+                <option value="365">Sử dụng 1 Năm</option>
+            </select>
+            <button onclick="smartGenKey()" class="btn bg-blue-600 text-white hover:bg-blue-500">Generate & Save</button>
+            <div id="result-key" class="mt-4 p-3 bg-black border border-dashed border-blue-500 text-center font-bold text-white tracking-widest select-all">---</div>
         </div>
-        <div class="bg-zinc-900 p-5 rounded-xl border border-blue-900">
-            <h2 class="font-bold mb-4 text-blue-400 italic">⭐ GETKEY YSM (SPECIAL)</h2>
-            <p class="mb-2 opacity-50 truncate">https://ysmteam.io.vn/keys/free?admin=YSMTEAM</p>
-            <button onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')" class="w-full bg-blue-600 text-white py-2 uppercase font-bold">Mở Trang YSM</button>
+
+        <div class="card border-red-500/50 bg-red-900/5">
+            <h2 class="text-red-500 font-black mb-4 uppercase italic tracking-widest text-xs">👤 User Moderator</h2>
+            <input type="text" id="u-ban" placeholder="Username cần xử lý..." class="inp">
+            <div class="flex gap-2 mb-2">
+                <button onclick="setBan(true)" class="btn bg-red-600 text-white flex-1">BAN</button>
+                <button onclick="setBan(false)" class="btn bg-zinc-800 text-white flex-1">UNBAN</button>
+            </div>
+            <p class="text-[9px] opacity-40 text-center italic">Người bị BAN sẽ không thể đăng nhập.</p>
+        </div>
+
+        <div class="card border-emerald-500/50 bg-emerald-900/5">
+            <h2 class="text-emerald-500 font-black mb-4 uppercase italic tracking-widest text-xs">⚙️ System Config</h2>
+            <input type="text" id="l4m" class="inp" placeholder="Link vượt (Link4m/Link68)...">
+            <button onclick="saveL()" class="btn bg-emerald-600 text-black">Lưu Link Vượt</button>
+            <div id="mail-list" class="mt-4 space-y-2 max-h-[80px] overflow-auto border-t border-emerald-900/30 pt-3"></div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div class="bg-zinc-900 p-5 rounded-xl border border-white/10">
-            <h2 class="font-bold mb-3 uppercase">Tạo Key & Hạn</h2>
-            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black border border-zinc-800 p-2 w-full mb-2 outline-none">
-            <input type="text" id="k-exp" placeholder="Ngày hết (dd/mm/yyyy)" class="bg-black border border-zinc-800 p-2 w-full mb-2 outline-none">
-            <button onclick="genK()" class="w-full bg-white text-black py-2 font-black">XÁC NHẬN TẠO</button>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="card">
+            <h2 class="font-black mb-4 uppercase border-b border-zinc-800 pb-2 text-neon text-xs tracking-widest">Active Keys Database</h2>
+            <div id="key-list" class="h-[400px] overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div>
         </div>
 
-        <div class="bg-zinc-900 p-5 rounded-xl border border-zinc-800">
-            <h2 class="font-bold mb-3 uppercase text-emerald-500">Key Manager (Xóa Key)</h2>
-            <div id="key-list" class="space-y-2 h-[100px] overflow-y-auto pr-2"></div>
-        </div>
-
-        <div class="bg-zinc-900 p-5 rounded-xl border border-red-900">
-            <h2 class="font-bold mb-3 uppercase text-red-500">Ban User & Mail OTP</h2>
-            <div id="mail-list" class="space-y-2 h-[100px] overflow-auto mb-3 border-b border-zinc-800 pb-2"></div>
-            <input type="text" id="u-ban" placeholder="Username" class="bg-black border border-zinc-800 p-2 w-full mb-2 outline-none">
-            <button onclick="setBan(true)" class="w-full bg-red-600 text-white py-1 mb-1">BAN</button>
-            <button onclick="setBan(false)" class="w-full bg-zinc-800 text-white py-1">UNBAN</button>
+        <div class="card">
+            <h2 class="font-black mb-4 uppercase border-b border-zinc-800 pb-2 text-white text-xs tracking-widest">Global Shared Links</h2>
+            <div id="link-list" class="h-[400px] overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div>
         </div>
     </div>
-
-    <h2 class="font-bold mb-4 uppercase text-white">Quản lý Link trên Web (Nhấn để xóa)</h2>
-    <div id="all-links" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
 
-        window.saveL = () => set(ref(db, 'Config/MissionLink'), document.getElementById('l4m').value).then(()=>alert("Đã lưu!"));
-        
-        window.genK = async () => {
-            const id = document.getElementById('k-id').value, exp = document.getElementById('k-exp').value;
-            if(!id) return;
-            const snap = await get(ref(db, `Keys/${id}`));
-            if(snap.exists()) return alert("LỖI: Tên Key này đã tồn tại!");
-            
-            set(ref(db, `Keys/${id}`), { status: "active", expiry: exp, hwid: "" }).then(() => {
-                alert("TẠO THÀNH CÔNG!\nKey: " + id + "\nHạn: " + exp);
-                document.getElementById('k-id').value = "";
-            });
+        window.smartGenKey = async () => {
+            const name = document.getElementById('k-name').value;
+            const days = parseInt(document.getElementById('k-days').value);
+            if(!name) return alert("Nhập tên gợi nhớ!");
+            const finalKey = `${name}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            const now = new Date(); now.setDate(now.getDate() + days);
+            const exp = now.toLocaleDateString('vi-VN');
+            await set(ref(db, `Keys/${finalKey}`), { status: "active", expiry: exp, hwid: "" });
+            document.getElementById('result-key').innerText = finalKey;
+            alert("Tạo Key thành công!");
         };
 
-        window.setBan = (st) => update(ref(db, `Users/${document.getElementById('u-ban').value}`), { banned: st }).then(()=>alert("Đã cập nhật!"));
+        window.deleteItem = (path) => { if(confirm("Xác nhận xóa vĩnh viễn?")) remove(ref(db, path)); };
 
-        // Danh sách Key & Xóa Key
+        // RESET HWID FUNCTION
+        window.resetHWID = (keyId) => {
+            if(confirm(`Reset thiết bị cho Key: ${keyId}?\nNgười dùng sẽ có thể đăng nhập trên máy mới.`)) {
+                update(ref(db, `Keys/${keyId}`), { hwid: "" }).then(() => alert("Đã Reset HWID!"));
+            }
+        };
+
+        window.setBan = (st) => update(ref(db, `Users/${document.getElementById('u-ban').value}`), { banned: st }).then(()=>alert("Thực thi xong!"));
+        window.saveL = () => set(ref(db, 'Config/MissionLink'), document.getElementById('l4m').value).then(()=>alert("Đã lưu!"));
+
         onValue(ref(db, 'Keys'), (s) => {
-            const box = document.getElementById('key-list'); box.innerHTML = "";
+            const list = document.getElementById('key-list'); list.innerHTML = "";
             const d = s.val(); if(!d) return;
             Object.keys(d).forEach(k => {
-                box.innerHTML += `<div class="flex justify-between bg-black p-2 border border-zinc-800 mb-1">
-                    <span>${k}</span>
-                    <button onclick="remove(ref(db, 'Keys/${k}'))" class="text-red-500 font-bold">XÓA</button>
+                list.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-lg flex justify-between items-center">
+                    <div>
+                        <p class="text-white font-bold">${k}</p>
+                        <p class="text-[8px] opacity-50 uppercase">Hạn: ${d[k].expiry} | HWID: ${d[k].hwid ? 'LOCKED' : 'OPEN'}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="resetHWID('${k}')" class="text-cyan-400 border border-cyan-900 px-2 py-1 rounded hover:bg-cyan-500 hover:text-black transition-all">RESET</button>
+                        <button onclick="deleteItem('Keys/${k}')" class="text-red-500 border border-red-900 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all">XÓA</button>
+                    </div>
                 </div>`;
             });
         });
 
-        // Xóa Link Web
         onValue(ref(db, 'SharedLinks'), (s) => {
-            const box = document.getElementById('all-links'); box.innerHTML = "";
+            const list = document.getElementById('link-list'); list.innerHTML = "";
             const d = s.val(); if(!d) return;
             Object.keys(d).forEach(id => {
-                box.innerHTML += `<div class="bg-zinc-950 p-3 rounded border border-zinc-800">
-                    <p class="truncate opacity-50 mb-2">${d[id].url}</p>
-                    <button onclick="remove(ref(db, 'SharedLinks/${id}'))" class="text-red-500 font-bold uppercase w-full border border-red-900 py-1 hover:bg-red-900/20">XÓA LINK NÀY</button>
+                list.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-lg flex justify-between items-center">
+                    <div class="w-2/3">
+                        <p class="text-neon text-[9px] font-black uppercase">${d[id].owner}</p>
+                        <p class="text-gray-400 truncate text-[9px]">${d[id].url}</p>
+                    </div>
+                    <button onclick="deleteItem('SharedLinks/${id}')" class="text-red-500 font-bold border border-red-900 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-all">GỠ LINK</button>
                 </div>`;
             });
         });
 
         onValue(ref(db, 'MailConfirm'), (s) => {
-            const l = document.getElementById('mail-list'); l.innerHTML = "";
+            const mList = document.getElementById('mail-list'); mList.innerHTML = "";
             const d = s.val(); if(!d) return;
             Object.keys(d).forEach(u => {
-                l.innerHTML += `<div class="bg-black p-1 border border-blue-900 mb-1 flex justify-between">
+                mList.innerHTML += `<div class="flex justify-between bg-emerald-950/20 p-2 border border-emerald-900/30 text-[9px]">
                     <span>${u}: <b class="text-white">${d[u].otp}</b></span>
-                    <button onclick="remove(ref(db, 'MailConfirm/${u}'))" class="text-blue-500">X</button>
+                    <button onclick="remove(ref(db, 'MailConfirm/${u}'))" class="text-red-500">X</button>
                 </div>`;
             });
         });
