@@ -3,94 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko - Get Key</title>
+    <title>Neko Hub - Get Key</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #0a0a0a; color: #fff; }
+        .cyber-card { background: #151515; border: 1px solid #333; box-shadow: 0 0 20px rgba(139, 92, 246, 0.1); }
+    </style>
 </head>
-<body class="bg-[#121212] text-white font-sans flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="w-full max-w-md cyber-card rounded-3xl p-8 text-center border-t-4 border-t-purple-600">
+        <h1 class="text-4xl font-black mb-1 tracking-tighter text-purple-500">NEKO</h1>
+        <p class="text-zinc-500 text-[10px] mb-8 uppercase tracking-[5px]">Secure Key System</p>
 
-    <div class="w-full max-w-md bg-[#1e1e1e] rounded-3xl p-8 shadow-2xl border border-zinc-800 text-center">
-        <h1 class="text-4xl font-black mb-2 tracking-tighter">Neko</h1>
-        <p class="text-zinc-500 text-sm mb-8 uppercase tracking-[4px]">Key System</p>
-
-        <div class="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 mb-6">
+        <div class="bg-zinc-900/50 rounded-2xl p-6 border border-zinc-800 mb-6">
             <div class="flex items-center gap-4 mb-6 text-left">
-                <div class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(147,51,234,0.4)]">
-                    <span class="text-2xl font-bold">LQ</span>
+                <div class="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-900/40">
+                    <i class="fa-solid fa-bolt text-2xl"></i>
                 </div>
                 <div>
-                    <h2 class="font-bold text-lg leading-tight">Liên Quân / Roblox</h2>
-                    <p class="text-zinc-500 text-xs">Phiên bản Premium v1.0</p>
+                    <h2 class="font-bold text-lg">Premium Access</h2>
+                    <p class="text-zinc-500 text-xs">Hiệu lực: 24 Giờ</p>
                 </div>
             </div>
 
-            <button id="btn-get" onclick="generateKey()" class="w-full bg-[#10b981] hover:bg-[#059669] text-white font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/20">
-                <i class="fa-solid fa-key"></i> Bấm vào đây để lấy key
+            <button id="btn-get" onclick="generateKey()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-key"></i> LẤY KEY NGAY
             </button>
 
-            <div id="result-box" class="hidden mt-6 pt-6 border-t border-zinc-800">
-                <p class="text-zinc-400 text-xs mb-2">Key của bạn là:</p>
-                <div class="bg-black p-4 rounded-lg border border-purple-900/50 flex items-center justify-between">
-                    <code id="key-display" class="text-purple-400 font-mono font-bold text-lg"></code>
-                    <button onclick="copyKey()" class="text-zinc-500 hover:text-white transition-colors">
-                        <i class="fa-regular fa-copy"></i>
-                    </button>
+            <div id="result-box" class="hidden mt-6 pt-6 border-t border-zinc-800 animate-bounce">
+                <p class="text-zinc-500 text-[10px] mb-2 uppercase">Key của bạn là:</p>
+                <div class="bg-black p-4 rounded-lg border border-purple-500/30 flex items-center justify-between">
+                    <code id="key-display" class="text-purple-400 font-mono font-bold text-xl tracking-wider"></code>
+                    <button onclick="copyKey()" class="text-zinc-400 hover:text-white"><i class="fa-regular fa-copy"></i></button>
                 </div>
-                <p class="text-[10px] text-zinc-600 mt-4 italic">* Key có hiệu lực trong 24h</p>
             </div>
         </div>
-        
-        <p class="text-zinc-700 text-[10px]">© 2026 Neko Hub - All rights reserved</p>
+        <p class="text-zinc-700 text-[10px]">© 2026 NEKO HUB SYSTEM</p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        // Cấu hình Firebase của bạn
-        const firebaseConfig = {
-            apiKey: "AIzaSyDSMZ31Uh5gauvC2CxdxQ32KltPEnPvUL0",
-            databaseURL: "https://keysytem-4af25-default-rtdb.firebaseio.com/",
-            projectId: "keysytem-4af25"
-        };
-
-        // Khởi tạo Firebase
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.firebaseio.com/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         window.generateKey = async function() {
             const btn = document.getElementById('btn-get');
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Đang tạo mã...';
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch animate-spin"></i> ĐANG TẠO...';
             btn.disabled = true;
 
-            // Tạo mã ngẫu nhiên dạng NEKO_XXXX
-            const randomID = Math.random().toString(36).substring(2, 7).toUpperCase();
-            const finalKey = "NEKO_" + randomID;
+            const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
 
             try {
-                // Lưu key lên Firebase vào mục ActiveKeys
                 await set(ref(db, 'ActiveKeys/' + finalKey), {
                     status: "active",
-                    timestamp: Date.now()
+                    created: Date.now()
                 });
-
-                // Hiện kết quả
                 document.getElementById('result-box').classList.remove('hidden');
                 document.getElementById('key-display').innerText = finalKey;
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã lấy thành công';
-                
-            } catch (error) {
-                alert("Lỗi kết nối Firebase: " + error.message);
-                btn.innerHTML = 'Bấm lại để thử lại';
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> THÀNH CÔNG';
+            } catch (e) {
+                alert("Lỗi: " + e.message);
                 btn.disabled = false;
+                btn.innerHTML = 'THỬ LẠI';
             }
-        }
+        };
 
         window.copyKey = function() {
-            const keyText = document.getElementById('key-display').innerText;
-            navigator.clipboard.writeText(keyText);
-            alert("Đã copy mã key: " + keyText);
-        }
+            const key = document.getElementById('key-display').innerText;
+            navigator.clipboard.writeText(key);
+            alert("Đã copy mã!");
+        };
     </script>
 </body>
 </html>
