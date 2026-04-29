@@ -2,62 +2,157 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Neko Root Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neko Root Admin - Control Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    <style>
+        body { background: #000; color: #10b981; font-family: 'JetBrains Mono', monospace; }
+        .admin-card { background: #0a0a0a; border: 1px solid #111827; border-radius: 20px; padding: 24px; transition: 0.3s; }
+        .admin-card:hover { border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.05); }
+        .input-dark { background: #000; border: 1px solid #1f2937; color: #10b981; padding: 12px; border-radius: 12px; outline: none; width: 100%; transition: 0.3s; }
+        .input-dark:focus { border-color: #10b981; }
+        .btn-green { background: #10b981; color: #000; font-weight: 800; padding: 12px; border-radius: 12px; transition: 0.3s; width: 100%; }
+        .btn-green:hover { background: #fff; }
+        .btn-red { background: #ef4444; color: #fff; font-weight: 800; padding: 12px; border-radius: 12px; transition: 0.3s; width: 100%; }
+        .btn-red:hover { opacity: 0.8; }
+    </style>
 </head>
 <body class="p-4 md:p-10 max-w-5xl mx-auto">
-    <h1 class="text-2xl font-black mb-8 border-b border-emerald-900 pb-4 uppercase">Admin Manager</h1>
+
+    <div class="flex justify-between items-center mb-10 border-b border-zinc-900 pb-6">
+        <div>
+            <h1 class="text-2xl font-black uppercase italic">Root<span class="text-white">@Control</span></h1>
+            <p class="text-[10px] opacity-50 font-bold uppercase mt-1">Hệ thống quản lý Neko Cloud</p>
+        </div>
+        <button onclick="window.location.href='index.html'" class="text-[10px] border border-zinc-800 px-4 py-2 rounded-lg hover:bg-white hover:text-black">QUAY LẠI WEB</button>
+    </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div class="bg-zinc-900 p-6 rounded-2xl border border-emerald-900">
-            <h2 class="text-xs font-bold mb-4 uppercase">Tạo Key & Hạn Dùng</h2>
-            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black p-3 rounded-lg border border-emerald-800 w-full mb-3 outline-none">
-            <input type="text" id="k-exp" placeholder="Hạn dùng (vd: 29/04/2026)" class="bg-black p-3 rounded-lg border border-emerald-800 w-full mb-3 outline-none">
-            <button onclick="genK()" class="w-full bg-emerald-500 text-black py-3 rounded-lg font-bold">LƯU KEY</button>
+        
+        <div class="admin-card border-emerald-900/30">
+            <h2 class="text-xs font-black mb-4 uppercase flex items-center gap-2">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                Cập nhật Link Vượt (Link4m)
+            </h2>
+            <p class="text-[9px] mb-3 opacity-50 uppercase italic">Link này sẽ dùng cho trang laykey.html</p>
+            <input type="text" id="l4m-input" placeholder="Dán link rút gọn vào đây..." class="input-dark mb-4 text-xs">
+            <button onclick="updateMissionLink()" class="btn-green uppercase text-xs">Lưu Link Nhiệm Vụ</button>
         </div>
 
-        <div class="bg-zinc-900 p-6 rounded-2xl border border-red-900">
-            <h2 class="text-xs font-bold mb-4 uppercase text-red-500">Ban / Unban User</h2>
-            <input type="text" id="u-target" placeholder="Nhập Username..." class="bg-black p-3 rounded-lg border border-red-800 w-full mb-3 outline-none text-red-500">
+        <div class="admin-card">
+            <h2 class="text-xs font-black mb-4 uppercase text-white">Tạo Key Truy Cập</h2>
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="k-id" placeholder="Tên Key" class="input-dark text-xs">
+                <input type="text" id="k-exp" placeholder="Hạn (vd: 30/12/2026)" class="input-dark text-xs">
+            </div>
+            <button onclick="generateManualKey()" class="btn-green uppercase text-xs bg-white">Xác nhận tạo Key</button>
+        </div>
+
+        <div class="admin-card border-red-900/30">
+            <h2 class="text-xs font-black mb-4 uppercase text-red-500">Quản lý User (Ban)</h2>
+            <input type="text" id="ban-target" placeholder="Nhập Username chính xác..." class="input-dark mb-4 text-xs border-red-900/20">
             <div class="flex gap-2">
-                <button onclick="ban(true)" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-bold">BAN USER</button>
-                <button onclick="ban(false)" class="flex-1 border border-white text-white py-3 rounded-lg font-bold">UNBAN</button>
+                <button onclick="updateBanStatus(true)" class="btn-red uppercase text-xs">BAN USER</button>
+                <button onclick="updateBanStatus(false)" class="btn-green uppercase text-xs bg-zinc-800 text-white">Gỡ Ban</button>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h2 class="text-xs font-black mb-4 uppercase text-blue-400">Thông tin Donate</h2>
+            <div class="text-[10px] space-y-2 opacity-80">
+                <p>STK: 0867799161 (Vpbank)</p>
+                <p>SDT: 0867799161</p>
+                <p>Chủ tài khoản: Võ Minh Long</p>
             </div>
         </div>
     </div>
 
-    <h2 class="text-sm font-bold mb-4 uppercase">Danh sách Báo cáo từ User</h2>
-    <div id="report-list" class="space-y-3"></div>
+    <div class="mb-10">
+        <h2 class="text-sm font-black mb-6 uppercase flex items-center gap-3 text-red-500">
+            Danh sách báo cáo vi phạm
+            <span id="report-count" class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">0</span>
+        </h2>
+        <div id="report-container" class="space-y-3">
+            <p class="text-[10px] opacity-30 italic">Hiện chưa có báo cáo nào...</p>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+
         const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(config);
         const db = getDatabase(app);
 
-        window.genK = () => {
-            const id = document.getElementById('k-id').value, exp = document.getElementById('k-exp').value;
-            if(id) set(ref(db, `Keys/${id}`), { status: "active", expiry: exp, hwid: "" }).then(() => alert("Key đã được tạo!"));
+        // 1. Cập nhật Link Rút Gọn (Link4m)
+        window.updateMissionLink = () => {
+            const url = document.getElementById('l4m-input').value;
+            if(!url) return alert("Vui lòng nhập link!");
+            set(ref(db, 'Config/MissionLink'), url).then(() => {
+                alert("Đã cập nhật link nhiệm vụ thành công!");
+                document.getElementById('l4m-input').value = "";
+            });
         };
 
-        window.ban = (st) => {
-            const u = document.getElementById('u-target').value;
-            if(u) update(ref(db, `Users/${u}`), { banned: st }).then(() => alert("Đã cập nhật trạng thái Ban!"));
+        // 2. Tạo Key Thủ Công
+        window.generateManualKey = () => {
+            const id = document.getElementById('k-id').value;
+            const exp = document.getElementById('k-exp').value;
+            if(!id || !exp) return alert("Điền đủ Tên Key và Hạn dùng!");
+            set(ref(db, `Keys/${id}`), {
+                status: "active",
+                expiry: exp,
+                hwid: "" // Để trống để máy đầu tiên dùng sẽ khóa
+            }).then(() => {
+                alert("Đã tạo Key: " + id);
+                document.getElementById('k-id').value = "";
+                document.getElementById('k-exp').value = "";
+            });
         };
 
+        // 3. Ban / Unban User
+        window.updateBanStatus = (status) => {
+            const username = document.getElementById('ban-target').value;
+            if(!username) return alert("Nhập username!");
+            update(ref(db, `Users/${username}`), { banned: status }).then(() => {
+                alert(status ? "Đã BAN thành công!" : "Đã GỠ BAN thành công!");
+                document.getElementById('ban-target').value = "";
+            });
+        };
+
+        // 4. Lấy danh sách Report
         onValue(ref(db, 'Reports'), (snap) => {
-            const list = document.getElementById('report-list'); list.innerHTML = "";
-            const data = snap.val(); if(!data) return;
-            Object.keys(data).forEach(id => {
+            const container = document.getElementById('report-container');
+            const countLabel = document.getElementById('report-count');
+            container.innerHTML = "";
+            const data = snap.val();
+            if(!data) {
+                container.innerHTML = '<p class="text-[10px] opacity-30 italic">Hiện chưa có báo cáo nào...</p>';
+                countLabel.innerText = "0";
+                return;
+            }
+            const keys = Object.keys(data);
+            countLabel.innerText = keys.length;
+            keys.reverse().forEach(id => {
                 const r = data[id];
-                list.innerHTML += `<div class="bg-zinc-900 p-4 rounded-xl border border-red-950 flex justify-between items-center">
-                    <span class="text-[10px]"><b class="text-red-500">${r.target}</b> bị báo cáo bởi <b>${r.reporter}</b>: ${r.reason}</span>
-                    <button onclick="remove(ref(db, 'Reports/${id}'))" class="text-[9px] underline">XÓA REPORT</button>
-                </div>`;
+                container.innerHTML += `
+                    <div class="admin-card border-red-900/20 py-4 flex justify-between items-center">
+                        <div>
+                            <p class="text-[11px] font-bold">Đối tượng bị tố cáo: <span class="text-red-500">${r.target}</span></p>
+                            <p class="text-[10px] opacity-60">Lý do: ${r.reason}</p>
+                            <p class="text-[9px] opacity-40 italic">Người báo cáo: ${r.reporter}</p>
+                        </div>
+                        <button onclick="deleteReport('${id}')" class="text-red-500 text-[10px] font-bold border border-red-900/30 px-3 py-1 rounded-lg hover:bg-red-500 hover:text-white transition-all">XÓA REPORT</button>
+                    </div>`;
             });
         });
+
+        window.deleteReport = (id) => {
+            if(confirm("Xóa báo cáo này?")) remove(ref(db, `Reports/${id}`));
+        };
+
     </script>
 </body>
 </html>
