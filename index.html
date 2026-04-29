@@ -3,99 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko Cloud - Share Link</title>
+    <title>Neko Cloud - Matrix Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', sans-serif; }
-        .cyber-panel { background: #111; border: 1px solid #222; }
-        .link-card { background: #161616; border-left: 4px solid #7c3aed; transition: 0.3s; }
-        .link-card:hover { background: #1c1c1c; transform: translateX(5px); }
+        body { background: #020617; color: #10b981; font-family: 'JetBrains Mono', monospace; }
+        .cyber-border { border: 1px solid rgba(16, 185, 129, 0.2); }
+        .green-glow:focus { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); border-color: #10b981; }
+        .btn-mượt { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .btn-mượt:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3); }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-10">
 
-    <div class="max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-10">
-            <h1 class="text-3xl font-black italic text-purple-500 tracking-tighter">NEKO <span class="text-white">CLOUD</span></h1>
-            <div class="flex gap-2">
-                 <button onclick="window.location.href='admin.html'" class="bg-zinc-800 text-white px-4 py-2 rounded-full font-bold text-sm">ADMIN</button>
-                 <button onclick="toggleUpload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-bold transition-all">
-                    <i class="fa-solid fa-plus mr-2"></i> ĐĂNG FILE
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
+            <h1 class="text-4xl font-black italic tracking-tighter text-emerald-500">NEKO <span class="text-white">NODE</span></h1>
+            
+            <div class="flex flex-1 max-w-xl w-full gap-2">
+                <div class="relative w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-emerald-800"></i>
+                    <input type="text" id="search-input" oninput="searchFile()" placeholder="Tìm kiếm tài nguyên..." 
+                        class="w-full bg-slate-950 border border-emerald-900/30 pl-12 pr-4 py-2.5 rounded-xl outline-none green-glow text-emerald-400">
+                </div>
+                <button onclick="document.getElementById('upload-form').classList.toggle('hidden')" 
+                    class="btn-mượt bg-emerald-500 text-black px-6 py-2.5 rounded-xl font-extrabold whitespace-nowrap">
+                    ĐĂNG FILE
                 </button>
             </div>
         </div>
 
-        <div id="upload-form" class="hidden cyber-panel rounded-3xl p-6 mb-10 border-purple-900/30 border">
-            <h2 class="text-xl font-bold mb-4 text-purple-400">Tải lên File/Link mới</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="file-name" placeholder="Tên file..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
-                <input type="text" id="file-url" placeholder="Dán URL..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
+        <div id="upload-form" class="hidden bg-slate-900/50 border border-emerald-500/20 rounded-3xl p-8 mb-10 backdrop-blur-md">
+            <h2 class="text-xl font-bold mb-6 flex items-center gap-2"><i class="fa-solid fa-cloud-arrow-up"></i> UPLOAD SYSTEM</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <input type="text" id="f-name" placeholder="Tên tệp..." class="bg-black border border-emerald-900/50 p-4 rounded-xl outline-none green-glow">
+                <input type="text" id="f-domain" placeholder="Domain (vd: tool.xyz)" class="bg-black border border-emerald-900/50 p-4 rounded-xl outline-none green-glow">
+                <input type="text" id="f-url" placeholder="URL trực tiếp..." class="bg-black border border-emerald-900/50 p-4 rounded-xl outline-none green-glow">
             </div>
-            <button onclick="uploadLink()" class="w-full mt-4 bg-white text-black font-black py-3 rounded-xl hover:bg-purple-500 hover:text-white transition-all">XÁC NHẬN</button>
+            <p id="upload-msg" class="text-[11px] mt-4 font-bold uppercase text-emerald-700"></p>
+            <button onclick="uploadLink()" class="w-full mt-4 bg-white text-black font-black py-4 rounded-xl btn-mượt hover:bg-emerald-500 hover:text-white">XÁC NHẬN GIAO DỊCH</button>
         </div>
 
-        <div class="space-y-4" id="link-container">
-            <p class="text-center text-zinc-600">Đang tải dữ liệu từ Cloud...</p>
-        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="link-container"></div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, increment } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, push, onValue, update, increment } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.toggleUpload = () => document.getElementById('upload-form').classList.toggle('hidden');
-
+        // Chặn link rác & Upload
         window.uploadLink = async () => {
-            const name = document.getElementById('file-name').value;
-            const url = document.getElementById('file-url').value;
-            if (!name || !url) return alert("Thiếu thông tin!");
+            const name = document.getElementById('f-name').value;
+            const domain = document.getElementById('f-domain').value;
+            const url = document.getElementById('f-url').value;
+            const msg = document.getElementById('upload-msg');
+            const banned = ["link4m", "layma.net", "funlink", "yeumoney", "toptap"];
+
+            if (!name || !domain || !url) {
+                msg.innerText = "Lỗi: Thiếu thông tin!";
+                return;
+            }
+            if (banned.some(b => url.includes(b))) {
+                msg.innerText = "Lỗi: Phát hiện link rác bị cấm!";
+                msg.className = "text-[11px] mt-4 font-bold uppercase text-red-500";
+                return;
+            }
 
             await push(ref(db, 'SharedLinks'), {
-                name, url, views: 0, clicks: 0, timestamp: Date.now()
+                name, domain, url, views: 0, clicks: 0, timestamp: Date.now()
             });
-            document.getElementById('file-name').value = "";
-            document.getElementById('file-url').value = "";
-            toggleUpload();
+            msg.innerText = "Thành công: Đã đăng node lên hệ thống!";
+            msg.className = "text-[11px] mt-4 font-bold uppercase text-emerald-400";
+            setTimeout(() => location.reload(), 1500);
         };
 
         const container = document.getElementById('link-container');
         onValue(ref(db, 'SharedLinks'), (snapshot) => {
-            const data = snapshot.val();
-            container.innerHTML = "";
-            if (!data) return container.innerHTML = "<div class='text-center py-20 opacity-20'>TRỐNG</div>";
+            const data = snapshot.val() || {};
+            window.allData = data;
+            renderUI(data);
+        });
 
+        window.renderUI = (data) => {
+            container.innerHTML = "";
             Object.keys(data).reverse().forEach(id => {
                 const item = data[id];
                 const card = document.createElement('div');
-                card.className = "link-card p-5 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4";
+                card.className = "bg-slate-900/30 border border-emerald-900/30 p-6 rounded-2xl flex flex-col gap-4 btn-mượt";
                 card.innerHTML = `
-                    <div class="flex-1">
-                        <h3 class="font-bold text-lg text-white mb-1">${item.name}</h3>
-                        <div class="flex gap-4 text-[10px] text-zinc-500 font-bold">
-                            <span><i class="fa-solid fa-eye text-purple-500"></i> ${item.views || 0} VIEW</span>
-                            <span><i class="fa-solid fa-mouse-pointer text-purple-500"></i> ${item.clicks || 0} CLICK</span>
-                        </div>
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-extrabold text-white text-lg leading-tight uppercase">${item.name}</h3>
+                        <span class="text-[9px] border border-emerald-500/50 text-emerald-500 px-2 py-1 rounded-md font-bold">${item.domain}</span>
                     </div>
-                    <button onclick="handleAction('${id}', '${item.url}')" class="bg-purple-600 hover:bg-white hover:text-black text-white px-8 py-2 rounded-xl font-bold transition-all">
-                        TẢI XUỐNG
+                    <div class="flex gap-4 text-[10px] font-bold text-emerald-800">
+                        <span><i class="fa-solid fa-eye mr-1"></i> ${item.views || 0}</span>
+                        <span><i class="fa-solid fa-bolt mr-1"></i> ${item.clicks || 0}</span>
+                    </div>
+                    <button onclick="handleAction('${id}', '${item.url}')" 
+                        class="w-full bg-emerald-900/20 border border-emerald-500/50 hover:bg-emerald-500 hover:text-black py-3 rounded-xl font-bold btn-mượt text-xs uppercase tracking-widest">
+                        TRUY CẬP DỮ LIỆU
                     </button>
                 `;
                 container.appendChild(card);
             });
-        });
+        };
 
-        // HÀM QUAN TRỌNG: Chỉ tăng view khi thực sự click vào nút Tải xuống
-        window.handleAction = async (id, url) => {
-            // Tăng cả view và click cùng lúc khi người dùng tương tác
-            await update(ref(db, `SharedLinks/${id}`), { 
-                clicks: increment(1),
-                views: increment(1) 
+        window.searchFile = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = {};
+            Object.keys(window.allData).forEach(id => {
+                if (window.allData[id].name.toLowerCase().includes(term)) filtered[id] = window.allData[id];
             });
+            renderUI(filtered);
+        };
+
+        window.handleAction = async (id, url) => {
+            await update(ref(db, `SharedLinks/${id}`), { views: increment(1), clicks: increment(1) });
             window.open(url, '_blank');
         };
     </script>

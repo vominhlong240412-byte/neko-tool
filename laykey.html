@@ -2,134 +2,47 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko - Get Key Fast</title>
+    <title>Neko Cloud - Terminal Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; }
-        .cyber-card { background: #111; border: 1px solid #222; box-shadow: 0 0 40px rgba(139, 92, 246, 0.15); }
-        .progress-circle { transition: stroke-dasharray 1s linear; }
+        body { background: #020617; color: #10b981; font-family: 'JetBrains Mono', monospace; }
+        .terminal-box { border: 1px solid #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="w-full max-w-md cyber-card rounded-[2.5rem] p-8 text-center border-t-4 border-t-purple-600">
-        <h1 class="text-3xl font-black mb-1 italic text-white text-purple-500">NEKO GET KEY</h1>
-        <p id="step-label" class="text-[10px] text-zinc-500 uppercase tracking-[4px] mb-8">Hệ thống xác thực nhanh</p>
-
-        <div id="verify-area" class="bg-zinc-900/50 rounded-3xl p-6 border border-zinc-800 mb-6">
-            
-            <button id="start-btn" onclick="startMission()" class="w-full bg-purple-600 hover:bg-purple-700 py-4 rounded-2xl font-black text-lg transition-all active:scale-95">
-                <i class="fa-solid fa-play mr-2"></i> BẮT ĐẦU NHIỆM VỤ
-            </button>
-
-            <div id="timer-box" class="hidden">
-                <div class="relative w-24 h-24 mx-auto mb-4">
-                    <svg class="w-full h-full" viewBox="0 0 36 36">
-                        <path class="text-zinc-800" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path id="circle-progress" class="text-purple-600 progress-circle" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <div id="countdown" class="absolute inset-0 flex items-center justify-center font-bold text-2xl text-purple-400">10</div>
-                </div>
-                <p id="timer-msg" class="text-sm text-zinc-400">Đang chuẩn bị đợt 1...</p>
-            </div>
-
-            <div id="captcha-box" class="hidden">
-                <p class="text-sm font-bold mb-4 text-zinc-300">Nhập mã xác nhận để tiếp tục</p>
-                <div class="bg-black p-4 rounded-xl mb-4 text-2xl font-mono tracking-[10px] italic text-purple-400 select-none border border-purple-900/50" id="captcha-text"></div>
-                <input type="text" id="captcha-input" placeholder="Nhập mã..." class="w-full bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center mb-4 focus:border-purple-600 outline-none text-white font-bold">
-                <button onclick="verifyCaptcha()" class="w-full bg-purple-600 py-3 rounded-xl font-black">XÁC NHẬN</button>
-            </div>
-
-            <button id="final-btn" onclick="generateKey()" class="hidden w-full bg-green-600 py-4 rounded-2xl font-black text-lg shadow-lg shadow-green-900/20">
-                <i class="fa-solid fa-gift mr-2"></i> NHẬN KEY NGAY
-            </button>
-        </div>
-
-        <div id="result-box" class="hidden bg-black p-5 rounded-2xl border border-purple-500/50 shadow-inner">
-             <p class="text-[10px] text-zinc-600 mb-2 uppercase">Key của bạn:</p>
-             <code id="key-display" class="text-purple-400 font-mono font-bold text-2xl tracking-widest"></code>
-        </div>
+<body class="flex items-center justify-center min-h-screen p-6">
+    <div class="terminal-box bg-black p-10 rounded-2xl w-full max-w-md">
+        <div class="text-xs mb-6 opacity-50 uppercase tracking-widest">Auth_Protocol_v2.0</div>
+        <h2 class="text-3xl font-black mb-8 text-white uppercase italic">Nhập Key</h2>
+        <input type="text" id="key-in" placeholder="PASSKEY..." class="w-full bg-slate-950 border-b-2 border-emerald-900 p-4 rounded-t-xl outline-none focus:border-emerald-500 text-center text-xl font-bold uppercase tracking-widest">
+        <button onclick="verify()" class="w-full bg-emerald-500 text-black py-4 mt-6 font-black rounded-xl hover:bg-white transition-all uppercase">Verify Access</button>
+        <p id="msg" class="mt-4 text-xs font-bold uppercase text-center"></p>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
         const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let currentStep = 1;
-        const totalSteps = 2; // Chỉ 2 đợt
-        const timePerStep = 10; // Mỗi đợt 10s
-        let timeLeft = timePerStep;
-        let timer;
-
-        window.startMission = function() {
-            document.getElementById('start-btn').classList.add('hidden');
-            startTimer();
-        }
-
-        function startTimer() {
-            document.getElementById('timer-box').classList.remove('hidden');
-            document.getElementById('captcha-box').classList.add('hidden');
-            document.getElementById('step-label').innerText = `Đang chạy đợt: ${currentStep}/${totalSteps}`;
-            document.getElementById('timer-msg').innerText = `Vui lòng đợi ${timePerStep} giây...`;
+        window.verify = async () => {
+            const val = document.getElementById('key-in').value;
+            const msg = document.getElementById('msg');
+            msg.innerText = "Checking...";
             
-            timeLeft = timePerStep;
-            document.getElementById('countdown').innerText = timeLeft;
-            document.getElementById('circle-progress').setAttribute('stroke-dasharray', `0, 100`);
-
-            timer = setInterval(() => {
-                timeLeft--;
-                document.getElementById('countdown').innerText = timeLeft;
-                const percent = ((timePerStep - timeLeft) / timePerStep) * 100;
-                document.getElementById('circle-progress').setAttribute('stroke-dasharray', `${percent}, 100`);
-
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    showCaptcha();
-                }
-            }, 1000);
-        }
-
-        function showCaptcha() {
-            document.getElementById('timer-box').classList.add('hidden');
-            document.getElementById('captcha-box').classList.remove('hidden');
-            const code = Math.random().toString(36).substring(2, 7).toUpperCase();
-            document.getElementById('captcha-text').innerText = code;
-        }
-
-        window.verifyCaptcha = function() {
-            const input = document.getElementById('captcha-input').value.toUpperCase();
-            const target = document.getElementById('captcha-text').innerText;
-            if (input === target) {
-                document.getElementById('captcha-input').value = "";
-                if (currentStep < totalSteps) {
-                    currentStep++;
-                    startTimer();
-                } else {
-                    document.getElementById('captcha-box').classList.add('hidden');
-                    document.getElementById('final-btn').classList.remove('hidden');
-                    document.getElementById('step-label').innerText = "Đã hoàn thành thử thách!";
-                }
+            const snapshot = await get(ref(db, `Keys/${val}`));
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                localStorage.setItem('neko_auth', JSON.stringify(data));
+                msg.innerText = "GRANTED! Redirecting...";
+                msg.style.color = "#10b981";
+                setTimeout(() => window.location.href = 'index.html', 1000);
             } else {
-                alert("Sai mã rồi bạn ơi!");
+                msg.innerText = "Access Denied: Key Incorrect";
+                msg.style.color = "#ef4444";
             }
-        }
-
-        window.generateKey = async function() {
-            const btn = document.getElementById('final-btn');
-            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> ĐANG XỬ LÝ...';
-            const finalKey = "NEKO_" + Math.random().toString(36).substring(2, 8).toUpperCase();
-            try {
-                await set(ref(db, 'ActiveKeys/' + finalKey), { status: "active", created: Date.now() });
-                document.getElementById('result-box').classList.remove('hidden');
-                document.getElementById('key-display').innerText = finalKey;
-                btn.classList.add('hidden');
-            } catch (e) { alert("Lỗi: " + e.message); }
-        }
+        };
     </script>
 </body>
 </html>
