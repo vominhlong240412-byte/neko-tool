@@ -1,30 +1,21 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8"><title>Neko Key</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
-</head>
-<body class="flex items-center justify-center min-h-screen">
-    <div id="box" class="hidden border border-emerald-500 p-10 rounded-3xl text-center bg-zinc-950">
-        <h2 class="text-xs font-bold mb-4 italic uppercase">Nhiệm vụ thành công!</h2>
-        <div id="key" class="text-3xl font-black bg-black p-6 rounded-2xl border border-emerald-800 mb-6 text-emerald-400 select-all">...</div>
-        <p class="text-[10px] opacity-50 uppercase mb-4">Hạn dùng: 24 Giờ</p>
+<head><meta charset="UTF-8"><title>Your Key</title><script src="https://cdn.tailwindcss.com"></script></head>
+<body class="bg-black text-emerald-500 font-mono flex items-center justify-center min-h-screen">
+    <div id="box" class="hidden border border-emerald-500 p-10 rounded-3xl text-center">
+        <h2 class="text-xs italic mb-4">SUCCESS! KEY CỦA BẠN:</h2>
+        <div id="key" class="text-3xl font-black bg-zinc-900 p-6 rounded-2xl border border-emerald-800 mb-6 select-all">...</div>
         <button onclick="window.location.href='index.html'" class="text-[10px] underline uppercase">Về trang chủ</button>
     </div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
-
-        const p = new URLSearchParams(window.location.search);
-        if(p.get('status') === 'success') {
+        if(new URLSearchParams(window.location.search).get('status') === 'success') {
             document.getElementById('box').classList.remove('hidden');
             const k = 'NEKO-' + Math.random().toString(36).substring(2, 9).toUpperCase();
             const exp = new Date(Date.now() + 86400000).toLocaleDateString('vi-VN');
-            set(ref(db, `Keys/${k}`), { status: "active", expiry: exp, hwid: "" }).then(() => {
-                document.getElementById('key').innerText = k;
-            });
+            set(ref(db, `Keys/${k}`), { status: "active", expiry: exp, hwid: "" }).then(()=>document.getElementById('key').innerText = k);
         } else { window.location.href = 'laykey.html'; }
     </script>
 </body>

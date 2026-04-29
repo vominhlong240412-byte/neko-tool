@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><title>Mail System</title></head>
-<body style="background: #000; color: #10b981; font-family: monospace;">
-    <h2>DANH SÁCH YÊU CẦU XÁC THỰC EMAIL</h2>
-    <div id="list"></div>
+<head><meta charset="UTF-8"><title>Mail List</title></head>
+<body style="background:#000; color:#10b981; font-family:monospace; padding:20px;">
+    <h2>DANH SÁCH GỬI OTP</h2>
+    <div id="l"></div>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
-
         onValue(ref(db, 'MailConfirm'), (s) => {
             const d = s.val(); if(!d) return;
-            document.getElementById('list').innerHTML = Object.keys(d).map(u => 
-                `<div style="border: 1px solid #333; padding: 10px; margin: 10px;">
-                    USER: <b>${u}</b> <br>
-                    EMAIL: ${d[u].email} <br>
-                    MÃ OTP: <b style="color: yellow;">${d[u].otp}</b> <br>
-                    <i>(Hãy gửi mã này cho họ qua Email)</i>
-                </div>`
-            ).join('');
+            document.getElementById('l').innerHTML = Object.keys(d).map(u => 
+                `<div style="border:1px solid #333; padding:10px; margin:10px;">
+                    USER: ${u} | EMAIL: ${d[u].email} | OTP: <b style="color:yellow">${d[u].otp}</b>
+                </div>`).join('');
         });
     </script>
 </body>
