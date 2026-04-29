@@ -7,9 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .cyber-panel { background: #111; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .neon-border { border-bottom: 2px solid #7c3aed; }
+        body { background: #0a0a0a; color: #eee; font-family: 'Segoe UI', sans-serif; }
+        .cyber-panel { background: #111; border: 1px solid #222; }
         .link-card { background: #161616; border-left: 4px solid #7c3aed; transition: 0.3s; }
         .link-card:hover { background: #1c1c1c; transform: translateX(5px); }
     </style>
@@ -19,24 +18,25 @@
     <div class="max-w-4xl mx-auto">
         <div class="flex justify-between items-center mb-10">
             <h1 class="text-3xl font-black italic text-purple-500 tracking-tighter">NEKO <span class="text-white">CLOUD</span></h1>
-            <button onclick="toggleUpload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-bold transition-all">
-                <i class="fa-solid fa-plus mr-2"></i> ĐĂNG FILE
-            </button>
+            <div class="flex gap-2">
+                 <button onclick="window.location.href='admin.html'" class="bg-zinc-800 text-white px-4 py-2 rounded-full font-bold text-sm">ADMIN</button>
+                 <button onclick="toggleUpload()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-full font-bold transition-all">
+                    <i class="fa-solid fa-plus mr-2"></i> ĐĂNG FILE
+                </button>
+            </div>
         </div>
 
-        <div id="upload-form" class="hidden cyber-panel rounded-3xl p-6 mb-10 animate-fade-in-down">
+        <div id="upload-form" class="hidden cyber-panel rounded-3xl p-6 mb-10 border-purple-900/30 border">
             <h2 class="text-xl font-bold mb-4 text-purple-400">Tải lên File/Link mới</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="file-name" placeholder="Tên file hoặc nội dung..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
-                <input type="text" id="file-url" placeholder="Dán URL link vào đây..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
+                <input type="text" id="file-name" placeholder="Tên file..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
+                <input type="text" id="file-url" placeholder="Dán URL..." class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl outline-none focus:border-purple-600">
             </div>
-            <button onclick="uploadLink()" class="w-full mt-4 bg-white text-black font-black py-3 rounded-xl hover:bg-purple-500 hover:text-white transition-all">
-                XÁC NHẬN UPLOAD
-            </button>
+            <button onclick="uploadLink()" class="w-full mt-4 bg-white text-black font-black py-3 rounded-xl hover:bg-purple-500 hover:text-white transition-all">XÁC NHẬN</button>
         </div>
 
         <div class="space-y-4" id="link-container">
-            <p class="text-center text-zinc-600 animate-pulse">Đang tải danh sách file...</p>
+            <p class="text-center text-zinc-600">Đang tải dữ liệu từ Cloud...</p>
         </div>
     </div>
 
@@ -48,44 +48,26 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Hiển thị/Ẩn form
-        window.toggleUpload = () => {
-            const form = document.getElementById('upload-form');
-            form.classList.toggle('hidden');
-        };
+        window.toggleUpload = () => document.getElementById('upload-form').classList.toggle('hidden');
 
-        // Hàm Upload
         window.uploadLink = async () => {
             const name = document.getElementById('file-name').value;
             const url = document.getElementById('file-url').value;
+            if (!name || !url) return alert("Thiếu thông tin!");
 
-            if (!name || !url) return alert("Vui lòng nhập đủ tên và link!");
-
-            const newLinkRef = push(ref(db, 'SharedLinks'));
-            await set(newLinkRef, {
-                name: name,
-                url: url,
-                views: 0,
-                clicks: 0,
-                timestamp: Date.now()
+            await push(ref(db, 'SharedLinks'), {
+                name, url, views: 0, clicks: 0, timestamp: Date.now()
             });
-
             document.getElementById('file-name').value = "";
             document.getElementById('file-url').value = "";
             toggleUpload();
-            alert("Đăng link thành công!");
         };
 
-        // Lắng nghe dữ liệu và hiển thị
         const container = document.getElementById('link-container');
         onValue(ref(db, 'SharedLinks'), (snapshot) => {
             const data = snapshot.val();
             container.innerHTML = "";
-            
-            if (!data) {
-                container.innerHTML = `<div class="text-center text-zinc-700 py-20">Chưa có file nào được chia sẻ.</div>`;
-                return;
-            }
+            if (!data) return container.innerHTML = "<div class='text-center py-20 opacity-20'>TRỐNG</div>";
 
             Object.keys(data).reverse().forEach(id => {
                 const item = data[id];
@@ -94,39 +76,27 @@
                 card.innerHTML = `
                     <div class="flex-1">
                         <h3 class="font-bold text-lg text-white mb-1">${item.name}</h3>
-                        <div class="flex gap-4 text-[10px] text-zinc-500 uppercase font-bold">
-                            <span><i class="fa-solid fa-eye text-purple-500"></i> ${item.views || 0} Xem</span>
-                            <span><i class="fa-solid fa-mouse-pointer text-purple-500"></i> ${item.clicks || 0} Click</span>
+                        <div class="flex gap-4 text-[10px] text-zinc-500 font-bold">
+                            <span><i class="fa-solid fa-eye text-purple-500"></i> ${item.views || 0} VIEW</span>
+                            <span><i class="fa-solid fa-mouse-pointer text-purple-500"></i> ${item.clicks || 0} CLICK</span>
                         </div>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="handleAction('${id}', '${item.url}', 'click')" class="bg-zinc-800 hover:bg-purple-600 text-white px-6 py-2 rounded-xl font-bold transition-all">
-                            TẢI XUỐNG
-                        </button>
-                        <button onclick="deleteLink('${id}')" class="bg-red-900/20 text-red-500 w-10 h-10 rounded-xl hover:bg-red-600 hover:text-white transition-all">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
+                    <button onclick="handleAction('${id}', '${item.url}')" class="bg-purple-600 hover:bg-white hover:text-black text-white px-8 py-2 rounded-xl font-bold transition-all">
+                        TẢI XUỐNG
+                    </button>
                 `;
-                
-                // Tăng lượt Xem khi card xuất hiện (View)
-                update(ref(db, `SharedLinks/${id}`), { views: increment(1) });
-                
                 container.appendChild(card);
             });
         });
 
-        // Xử lý khi bấm nút Tải xuống (Click)
+        // HÀM QUAN TRỌNG: Chỉ tăng view khi thực sự click vào nút Tải xuống
         window.handleAction = async (id, url) => {
-            await update(ref(db, `SharedLinks/${id}`), { clicks: increment(1) });
+            // Tăng cả view và click cùng lúc khi người dùng tương tác
+            await update(ref(db, `SharedLinks/${id}`), { 
+                clicks: increment(1),
+                views: increment(1) 
+            });
             window.open(url, '_blank');
-        };
-
-        // Xóa Link
-        window.deleteLink = (id) => {
-            if (confirm("Bạn có chắc chắn muốn xóa link này không?")) {
-                remove(ref(db, `SharedLinks/${id}`));
-            }
         };
     </script>
 </body>
