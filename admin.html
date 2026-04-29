@@ -5,60 +5,57 @@
     <title>ROOT TERMINAL - NEKO ADMIN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #050505; color: #00ff41; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+        body { background: #050505; color: #00ff41; font-family: monospace; }
         .card { background: #0a0a0a; border: 1px solid #1f2937; padding: 20px; border-radius: 12px; }
-        .inp { background: #000; border: 1px solid #333; color: #00ff41; padding: 12px; border-radius: 10px; width: 100%; outline: none; margin-bottom: 12px; }
-        .btn { font-weight: 800; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; text-transform: uppercase; border: none; }
+        .inp { background: #000; border: 1px solid #333; color: #00ff41; padding: 12px; border-radius: 10px; width: 100%; outline: none; margin-bottom: 10px; font-size: 11px; }
+        .btn { font-weight: 800; padding: 12px; border-radius: 10px; width: 100%; cursor: pointer; text-transform: uppercase; border: none; font-size: 11px; }
     </style>
 </head>
-<body class="p-8 max-w-7xl mx-auto">
-    <div class="flex justify-between items-end mb-10 border-b border-zinc-800 pb-6">
-        <h1 class="text-3xl font-black italic tracking-tighter uppercase">Root <span class="text-white">Terminal</span></h1>
-        <p class="text-right opacity-50">SYSTEM VERSION: 4.0.0<br>STATUS: ENCRYPTED</p>
-    </div>
+<body class="p-8 max-w-[1500px] mx-auto">
+    <h1 class="text-3xl font-black italic mb-8 border-b border-zinc-800 pb-4">NEKO <span class="text-white">ROOT_ADMIN</span></h1>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="card border-blue-500/50 bg-blue-900/5">
-            <h2 class="text-blue-400 font-black mb-4 uppercase italic tracking-widest text-xs">⚡ Key Generator</h2>
-            <input type="text" id="k-name" placeholder="Tên Key (Gợi nhớ)" class="inp">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+        <div class="card border-blue-500/30">
+            <h2 class="text-blue-400 font-bold mb-4 text-[10px]">⚡ KEY GENERATOR</h2>
+            <input type="text" id="k-name" placeholder="Tên gợi nhớ" class="inp">
             <select id="k-days" class="inp">
-                <option value="1">Sử dụng 1 Ngày</option>
-                <option value="7">Sử dụng 7 Ngày</option>
-                <option value="30">Sử dụng 30 Ngày</option>
-                <option value="365">Sử dụng 1 Năm</option>
+                <option value="1">1 Ngày</option><option value="7">7 Ngày</option><option value="30">30 Ngày</option>
             </select>
-            <button onclick="smartGenKey()" class="btn bg-blue-600 text-white hover:bg-blue-500">Generate & Save</button>
-            <div id="result-key" class="mt-4 p-3 bg-black border border-dashed border-blue-500 text-center font-bold text-white tracking-widest select-all">---</div>
+            <button onclick="smartGenKey()" class="btn bg-blue-600 text-white hover:bg-blue-500">Generate</button>
+            <div id="result-key" class="mt-4 p-2 bg-black border border-dashed border-blue-500 text-center font-bold text-white text-[10px]">---</div>
         </div>
 
-        <div class="card border-red-500/50 bg-red-900/5">
-            <h2 class="text-red-500 font-black mb-4 uppercase italic tracking-widest text-xs">👤 User Moderator</h2>
-            <input type="text" id="u-ban" placeholder="Username cần xử lý..." class="inp">
-            <div class="flex gap-2 mb-2">
-                <button onclick="setBan(true)" class="btn bg-red-600 text-white flex-1">BAN</button>
-                <button onclick="setBan(false)" class="btn bg-zinc-800 text-white flex-1">UNBAN</button>
+        <div class="card border-red-500/30">
+            <h2 class="text-red-500 font-bold mb-4 text-[10px]">👤 USER MODERATOR</h2>
+            <input type="text" id="u-ban" placeholder="Username..." class="inp">
+            <div class="flex gap-2">
+                <button onclick="setBan(true)" class="btn bg-red-600 text-white">BAN</button>
+                <button onclick="setBan(false)" class="btn bg-zinc-800 text-white">UNBAN</button>
             </div>
-            <p class="text-[9px] opacity-40 text-center italic">Người bị BAN sẽ không thể đăng nhập.</p>
         </div>
 
-        <div class="card border-emerald-500/50 bg-emerald-900/5">
-            <h2 class="text-emerald-500 font-black mb-4 uppercase italic tracking-widest text-xs">⚙️ System Config</h2>
-            <input type="text" id="l4m" class="inp" placeholder="Link vượt (Link4m/Link68)...">
-            <button onclick="saveL()" class="btn bg-emerald-600 text-black">Lưu Link Vượt</button>
-            <div id="mail-list" class="mt-4 space-y-2 max-h-[80px] overflow-auto border-t border-emerald-900/30 pt-3"></div>
+        <div class="card border-cyan-500/30">
+            <h2 class="text-cyan-400 font-bold mb-4 text-[10px]">🔗 MODERATOR LINK UPLOADER</h2>
+            <select id="mod-select" class="inp">
+                <option value="Thuan">Thuận Mod</option>
+                <option value="Loc">Lộc Mod</option>
+                <option value="Neko">NEKO</option>
+                <option value="King">KING OF CHEAT</option>
+            </select>
+            <input type="text" id="mod-link-val" placeholder="Dán link getkey tại đây..." class="inp">
+            <button onclick="upModLink()" class="btn bg-cyan-600 text-black">Cập nhật Link</button>
+            <p class="text-[8px] opacity-40 mt-2 italic">*Link sẽ hiện nút "Bấm vào đây" ở menu 3 gạch.</p>
+        </div>
+
+        <div class="card border-emerald-500/30">
+            <h2 class="text-emerald-500 font-bold mb-4 text-[10px]">📩 PENDING OTP</h2>
+            <div id="mail-list" class="space-y-2 h-[150px] overflow-y-auto pr-1"></div>
         </div>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="card">
-            <h2 class="font-black mb-4 uppercase border-b border-zinc-800 pb-2 text-neon text-xs tracking-widest">Active Keys Database</h2>
-            <div id="key-list" class="h-[400px] overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div>
-        </div>
-
-        <div class="card">
-            <h2 class="font-black mb-4 uppercase border-b border-zinc-800 pb-2 text-white text-xs tracking-widest">Global Shared Links</h2>
-            <div id="link-list" class="h-[400px] overflow-y-auto space-y-3 pr-2 scrollbar-hide"></div>
-        </div>
+        <div class="card"><h2 class="font-bold mb-4 text-neon text-[10px] border-b border-zinc-800">KEYS DATABASE (HWID RESET)</h2><div id="key-list" class="h-[400px] overflow-y-auto space-y-2"></div></div>
+        <div class="card"><h2 class="font-bold mb-4 text-white text-[10px] border-b border-zinc-800">GLOBAL LINKS (404 CLEANER ACTIVE)</h2><div id="link-list" class="h-[400px] overflow-y-auto space-y-2"></div></div>
     </div>
 
     <script type="module">
@@ -66,68 +63,53 @@
         import { getDatabase, ref, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
         const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
 
+        // UP LINK MOD
+        window.upModLink = () => {
+            const mod = document.getElementById('mod-select').value;
+            const link = document.getElementById('mod-link-val').value;
+            if(!link) return alert("Vui lòng dán link!");
+            update(ref(db, 'ModLinks'), { [mod]: link }).then(() => {
+                alert(`Đã cập nhật link cho ${mod}`);
+                document.getElementById('mod-link-val').value = "";
+            });
+        };
+
         window.smartGenKey = async () => {
-            const name = document.getElementById('k-name').value;
-            const days = parseInt(document.getElementById('k-days').value);
-            if(!name) return alert("Nhập tên gợi nhớ!");
+            const name = document.getElementById('k-name').value, days = parseInt(document.getElementById('k-days').value);
+            if(!name) return;
             const finalKey = `${name}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
-            const now = new Date(); now.setDate(now.getDate() + days);
-            const exp = now.toLocaleDateString('vi-VN');
-            await set(ref(db, `Keys/${finalKey}`), { status: "active", expiry: exp, hwid: "" });
+            const exp = new Date(); exp.setDate(exp.getDate() + days);
+            await set(ref(db, `Keys/${finalKey}`), { status: "active", expiry: exp.toLocaleDateString('vi-VN'), hwid: "" });
             document.getElementById('result-key').innerText = finalKey;
-            alert("Tạo Key thành công!");
         };
 
-        window.deleteItem = (path) => { if(confirm("Xác nhận xóa vĩnh viễn?")) remove(ref(db, path)); };
-
-        // RESET HWID FUNCTION
-        window.resetHWID = (keyId) => {
-            if(confirm(`Reset thiết bị cho Key: ${keyId}?\nNgười dùng sẽ có thể đăng nhập trên máy mới.`)) {
-                update(ref(db, `Keys/${keyId}`), { hwid: "" }).then(() => alert("Đã Reset HWID!"));
-            }
-        };
-
+        window.deleteItem = (path) => { if(confirm("Xóa vĩnh viễn?")) remove(ref(db, path)); };
+        window.resetHWID = (id) => update(ref(db, `Keys/${id}`), { hwid: "" }).then(() => alert("Reset Xong!"));
         window.setBan = (st) => update(ref(db, `Users/${document.getElementById('u-ban').value}`), { banned: st }).then(()=>alert("Thực thi xong!"));
-        window.saveL = () => set(ref(db, 'Config/MissionLink'), document.getElementById('l4m').value).then(()=>alert("Đã lưu!"));
 
         onValue(ref(db, 'Keys'), (s) => {
-            const list = document.getElementById('key-list'); list.innerHTML = "";
-            const d = s.val(); if(!d) return;
+            const l = document.getElementById('key-list'), d = s.val(); l.innerHTML = ""; if(!d) return;
             Object.keys(d).forEach(k => {
-                list.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-lg flex justify-between items-center">
-                    <div>
-                        <p class="text-white font-bold">${k}</p>
-                        <p class="text-[8px] opacity-50 uppercase">Hạn: ${d[k].expiry} | HWID: ${d[k].hwid ? 'LOCKED' : 'OPEN'}</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="resetHWID('${k}')" class="text-cyan-400 border border-cyan-900 px-2 py-1 rounded hover:bg-cyan-500 hover:text-black transition-all">RESET</button>
-                        <button onclick="deleteItem('Keys/${k}')" class="text-red-500 border border-red-900 px-2 py-1 rounded hover:bg-red-500 hover:text-white transition-all">XÓA</button>
-                    </div>
+                l.innerHTML += `<div class="p-3 bg-black border border-zinc-800 flex justify-between items-center text-[10px]">
+                    <span>${k} (${d[k].expiry}) HWID: ${d[k].hwid ? 'LOCKED' : 'OPEN'}</span>
+                    <div class="flex gap-2"><button onclick="resetHWID('${k}')" class="text-cyan-400">RESET</button><button onclick="deleteItem('Keys/${k}')" class="text-red-500">X</button></div>
                 </div>`;
             });
         });
 
         onValue(ref(db, 'SharedLinks'), (s) => {
-            const list = document.getElementById('link-list'); list.innerHTML = "";
-            const d = s.val(); if(!d) return;
+            const l = document.getElementById('link-list'), d = s.val(); l.innerHTML = ""; if(!d) return;
             Object.keys(d).forEach(id => {
-                list.innerHTML += `<div class="p-3 bg-black/50 border border-zinc-800 rounded-lg flex justify-between items-center">
-                    <div class="w-2/3">
-                        <p class="text-neon text-[9px] font-black uppercase">${d[id].owner}</p>
-                        <p class="text-gray-400 truncate text-[9px]">${d[id].url}</p>
-                    </div>
-                    <button onclick="deleteItem('SharedLinks/${id}')" class="text-red-500 font-bold border border-red-900 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-all">GỠ LINK</button>
-                </div>`;
+                l.innerHTML += `<div class="p-3 bg-black border border-zinc-800 flex justify-between items-center text-[10px]"><span class="truncate w-3/4">${d[id].url}</span><button onclick="deleteItem('SharedLinks/${id}')" class="text-red-500">GỠ</button></div>`;
             });
         });
 
         onValue(ref(db, 'MailConfirm'), (s) => {
-            const mList = document.getElementById('mail-list'); mList.innerHTML = "";
-            const d = s.val(); if(!d) return;
+            const mList = document.getElementById('mail-list'), d = s.val(); mList.innerHTML = ""; if(!d) return;
             Object.keys(d).forEach(u => {
-                mList.innerHTML += `<div class="flex justify-between bg-emerald-950/20 p-2 border border-emerald-900/30 text-[9px]">
-                    <span>${u}: <b class="text-white">${d[u].otp}</b></span>
-                    <button onclick="remove(ref(db, 'MailConfirm/${u}'))" class="text-red-500">X</button>
+                mList.innerHTML += `<div class="bg-emerald-950/20 p-2 border border-emerald-900 rounded relative text-[10px]">
+                    <p>User: ${u} | Email: ${d[u].email}</p><p class="text-white font-black">OTP: ${d[u].otp}</p>
+                    <button onclick="remove(ref(db, 'MailConfirm/${u}'))" class="absolute top-2 right-2 text-red-500">X</button>
                 </div>`;
             });
         });

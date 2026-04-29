@@ -3,311 +3,489 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEKO CLOUD - ULTIMATE HYPER OPERATOR</title>
+    <title>NEKO CLOUD - HYPER OPERATOR ULTIMATE EDITION</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;700&family=JetBrains+Mono:wght@800&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,400;0,800;1,400&display=swap" rel="stylesheet">
+    
     <style>
-        :root { 
-            --neon: #00ff41; --cyan: #00f3ff; --red: #ff003c; --bg: #010101; 
-            --purple: #bc13fe; --dark-grey: #0a0a0a;
-        }
-        
-        * { cursor: crosshair; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 10px; }
-
-        body { 
-            background: var(--bg); color: var(--neon); 
-            font-family: 'Fira Code', monospace; overflow-x: hidden; margin: 0;
-            background-image: radial-gradient(circle at 50% 50%, #0d0d0d 0%, #010101 100%);
+        /* --- CORE CSS VARIABLES --- */
+        :root {
+            --neon: #00ff41;
+            --cyan: #00f3ff;
+            --red: #ff003c;
+            --purple: #bc13fe;
+            --bg: #020202;
+            --card-bg: rgba(5, 5, 5, 0.95);
+            --border: rgba(0, 255, 65, 0.3);
         }
 
-        /* Hiệu ứng Scanline nền */
-        body::before {
-            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 9999; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        /* --- GLOBAL RESET & SCROLLBAR --- */
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            cursor: crosshair !important;
+            selection-background: var(--neon);
+            selection-color: #000;
         }
 
-        /* Matrix Canvas */
-        #matrix { position: fixed; top:0; left:0; z-index:-1; opacity: 0.2; filter: blur(1px); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 10px; box-shadow: 0 0 10px var(--neon); }
 
-        /* Sidebar trượt */
-        #sidebar { 
-            position: fixed; top: 0; left: -320px; width: 300px; height: 100%; 
+        body {
+            background: var(--bg);
+            color: var(--neon);
+            font-family: 'Fira Code', monospace;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* --- OVERLAY EFFECTS (HIỆU ỨNG NỀN) --- */
+        #matrix {
+            position: fixed; top: 0; left: 0; z-index: -1;
+            opacity: 0.2; filter: blur(0.5px);
+        }
+
+        .scanlines {
+            position: fixed; inset: 0; z-index: 9999;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .noise {
+            position: fixed; inset: 0; z-index: 9998;
+            background-image: url('https://media.giphy.com/media/oEI9uWUicGLeE/giphy.gif');
+            opacity: 0.03; pointer-events: none;
+        }
+
+        /* --- LANGUAGE SELECTOR (MÀN HÌNH ĐẦU TIÊN) --- */
+        #lang-screen {
+            position: fixed; inset: 0; z-index: 10000;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+
+        .lang-card {
+            background: rgba(10, 10, 10, 0.8);
+            border: 1px solid var(--neon);
+            padding: 50px; border-radius: 2px;
+            text-align: center; position: relative;
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.1);
+        }
+
+        .lang-btn {
+            width: 300px; padding: 20px; margin: 15px;
+            background: transparent; border: 1px solid var(--neon);
+            color: var(--neon); font-family: 'Orbitron'; font-weight: 900;
+            letter-spacing: 5px; transition: 0.4s;
+            position: relative; overflow: hidden;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .lang-btn:hover {
+            background: var(--neon); color: #000;
+            box-shadow: 0 0 40px var(--neon); transform: scale(1.05);
+        }
+
+        /* --- SIDEBAR MENU --- */
+        #sidebar {
+            position: fixed; top: 0; left: -340px; width: 320px; height: 100%;
             background: rgba(2, 2, 2, 0.98); border-right: 2px solid var(--neon);
-            z-index: 5000; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            box-shadow: 20px 0 50px rgba(0, 255, 65, 0.1);
+            z-index: 9000; transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(20px);
         }
+
         #sidebar.active { left: 0; }
 
-        /* Card hiệu ứng Cyber */
+        .sidebar-header {
+            padding: 30px; border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+            background: linear-gradient(to right, rgba(0, 255, 65, 0.1), transparent);
+        }
+
+        .menu-item {
+            padding: 20px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: 0.3s; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+        }
+
+        .menu-item:hover {
+            background: rgba(0, 255, 65, 0.08);
+            padding-left: 40px; border-right: 4px solid var(--neon);
+        }
+
+        .new-key-box {
+            margin: 15px; padding: 20px;
+            border: 2px solid var(--cyan);
+            background: rgba(0, 243, 255, 0.05);
+            text-align: center; transition: 0.3s;
+        }
+        .new-key-box:hover { background: var(--cyan); color: #000; box-shadow: 0 0 20px var(--cyan); }
+
+        /* --- AUTH SCREEN --- */
+        #auth-screen {
+            position: fixed; inset: 0; z-index: 8000;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex; items-center; justify-content: center; p-4;
+        }
+
+        .auth-card {
+            width: 100%; max-w: 500px; background: var(--card-bg);
+            border: 1px solid var(--neon); padding: 40px;
+            position: relative; box-shadow: 0 0 100px rgba(0, 255, 65, 0.15);
+        }
+
+        .cyber-input {
+            width: 100%; background: #000; border: 1px solid #1a1a1a;
+            padding: 15px; color: #fff; outline: none;
+            font-family: 'JetBrains Mono'; margin-bottom: 20px;
+            transition: 0.3s; border-left: 4px solid #1a1a1a;
+        }
+
+        .cyber-input:focus { border-color: var(--neon); border-left-color: var(--neon); background: rgba(0, 255, 65, 0.02); }
+
+        .btn-auth {
+            width: 100%; padding: 20px; background: var(--neon);
+            color: #000; font-weight: 900; font-family: 'Orbitron';
+            text-transform: uppercase; letter-spacing: 3px;
+            transition: 0.3s; clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+        }
+
+        .btn-auth:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 255, 65, 0.3); }
+
+        /* --- DASHBOARD ELEMENTS --- */
         .cyber-card {
-            background: rgba(10, 10, 10, 0.85); border: 1px solid rgba(0, 255, 65, 0.3);
-            position: relative; overflow: hidden; transition: 0.4s;
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 95% 100%, 0 100%);
-        }
-        .cyber-card:hover { border-color: var(--neon); box-shadow: 0 0 30px rgba(0, 255, 65, 0.2); transform: translateY(-5px); }
-        .cyber-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: var(--neon);
+            background: var(--card-bg); border: 1px solid var(--border);
+            padding: 25px; transition: 0.4s; position: relative;
+            overflow: hidden;
         }
 
-        /* Nút bấm Hyper */
-        .btn-hyper {
-            position: relative; background: transparent; border: 1px solid var(--neon);
-            color: var(--neon); padding: 10px 20px; font-weight: bold; overflow: hidden;
-            transition: 0.3s; font-family: 'Orbitron', sans-serif; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-        }
-        .btn-hyper:hover { background: var(--neon); color: #000; box-shadow: 0 0 20px var(--neon); }
-        
-        /* Đăng ký / Đăng nhập Screen */
-        .auth-container {
-            backdrop-filter: blur(15px); border: 2px solid var(--neon);
-            box-shadow: 0 0 50px rgba(0, 255, 65, 0.3); background: rgba(0, 0, 0, 0.9);
+        .cyber-card:hover {
+            border-color: var(--neon);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.1);
+            transform: translateY(-5px);
         }
 
-        /* Hệ thống Notification */
-        #notif-container { position: fixed; bottom: 20px; right: 20px; z-index: 10000; pointer-events: none; }
-        .notif {
-            background: #000; border-left: 5px solid var(--neon); color: #fff;
-            padding: 15px 25px; margin-top: 10px; font-size: 10px; animation: slideIn 0.4s forwards;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-
-        /* Animation cho Text Glitch */
-        .glitch { animation: glitch 1s linear infinite; }
-        @keyframes glitch {
-            0% { text-shadow: 2px 0 var(--red), -2px 0 var(--cyan); }
-            50% { text-shadow: -2px 0 var(--red), 2px 0 var(--cyan); }
-            100% { text-shadow: 2px 0 var(--red), -2px 0 var(--cyan); }
+        .cyber-card::after {
+            content: ""; position: absolute; top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 255, 65, 0.03), transparent);
+            transform: rotate(45deg); pointer-events: none;
         }
 
-        .mod-status { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; }
-        .status-blink { animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .status-tag {
+            font-[10px] font-bold uppercase px-2 py-1 bg-zinc-900 border border-zinc-700;
+        }
 
-        input { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Hiệu ứng khung ngắm */
-        .crosshair-corner { position: absolute; width: 15px; height: 15px; border: 2px solid var(--neon); }
-        .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
-        .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
-        .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
-        .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+        /* --- NOTIFICATION LOGS --- */
+        #log-container {
+            position: fixed; bottom: 30px; right: 30px;
+            z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+            pointer-events: none;
+        }
+
+        .log-entry {
+            background: rgba(0, 0, 0, 0.9); border-left: 4px solid var(--neon);
+            padding: 15px 25px; color: #fff; font-size: 11px;
+            min-width: 300px; animation: logSlide 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @keyframes logSlide {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* --- GLITCH EFFECT --- */
+        .glitch-text { position: relative; animation: textGlitch 2s infinite; }
+        @keyframes textGlitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        /* --- MOD STATUS --- */
+        .mod-btn {
+            background: var(--neon); color: #000; padding: 4px 10px;
+            font-size: 9px; font-weight: 900; animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }
+
     </style>
 </head>
 <body>
+    <div class="scanlines"></div>
+    <div class="noise"></div>
     <canvas id="matrix"></canvas>
-    <div id="notif-container"></div>
+    <div id="log-container"></div>
+
+    <div id="lang-screen">
+        <div class="lang-card">
+            <h1 class="text-5xl font-black italic mb-2 glitch-text">NEKO <span class="text-white">SYSTEM</span></h1>
+            <p class="text-[10px] tracking-[10px] mb-12 opacity-50">CHOOSE YOUR INTERFACE</p>
+            <div class="flex flex-col gap-4">
+                <button onclick="initSystem('vi')" class="lang-btn">VIETNAMESE</button>
+                <button onclick="initSystem('en')" class="lang-btn">ENGLISH</button>
+            </div>
+            <div class="mt-12 text-[8px] text-zinc-600 italic">Waiting for operator input... [OS_READY]</div>
+        </div>
+    </div>
 
     <div id="sidebar">
-        <div class="p-8 border-b border-zinc-800 flex justify-between items-center bg-zinc-900/50">
-            <h2 class="text-xl font-black italic tracking-widest text-white">CORE <span class="text-neon">OS</span></h2>
-            <button onclick="toggleSidebar()" class="text-red-500 text-2xl font-black hover:scale-125 transition-all">✕</button>
+        <div class="sidebar-header">
+            <h2 class="text-2xl font-black italic tracking-tighter" id="side-title">CORE CONTROL</h2>
+            <p class="text-[9px] text-neon opacity-40">SYSTEM_OPERATOR_V4.0</p>
         </div>
-        <div class="p-4 space-y-2">
-            <div class="menu-item group" onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')">
-                <p class="text-[9px] opacity-40">FREE ACCESS NODE</p>
-                <div class="flex justify-between items-center">
-                    <span class="font-bold">GetKey Free Fire</span>
-                    <span class="bg-cyan-500 text-black px-2 py-0.5 text-[8px] font-black">BẤM VÀO ĐÂY</span>
+        
+        <div class="p-2">
+            <div class="new-key-box cursor-pointer" onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')">
+                <p class="text-[9px] font-bold">LICENSE_HUB</p>
+                <p class="font-black italic text-lg">NEW KEY (GET FREE)</p>
+            </div>
+
+            <div class="px-6 py-4 text-[10px] font-bold opacity-30 uppercase border-b border-zinc-800">Moderator Access</div>
+            
+            <div id="mod-links-area">
+                <div class="menu-item">
+                    <span class="font-bold">THUẬN MOD</span>
+                    <div id="mod-Thuan"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                </div>
+                <div class="menu-item">
+                    <span class="font-bold">Lộc Mod</span>
+                    <div id="mod-Loc"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                </div>
+                <div class="menu-item">
+                    <span class="font-bold">NEKO</span>
+                    <div id="mod-Neko"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
+                </div>
+                <div class="menu-item">
+                    <span class="font-bold">KING OF CHEAT</span>
+                    <div id="mod-King"><span class="text-red-600 text-[10px] italic">OFFLINE</span></div>
                 </div>
             </div>
-            <div class="pt-4 pb-2 text-[10px] opacity-30 font-bold border-b border-zinc-800 uppercase tracking-widest">Active Moderators</div>
-            <div class="menu-item flex justify-between"><span>THUẬN MOD</span><span class="text-red-500 status-blink">CHƯA CÓ</span></div>
-            <div class="menu-item flex justify-between"><span>Lộc Mod</span><span class="text-red-500 status-blink">CHƯA CÓ</span></div>
-            <div class="menu-item flex justify-between"><span>NEKO</span><span class="text-red-500 status-blink">CHƯA CÓ</span></div>
-            <div class="menu-item flex justify-between"><span>KING OF CHEAT</span><span class="text-red-500 status-blink">CHƯA CÓ</span></div>
-            <div class="mt-10 p-4 border border-zinc-800 rounded bg-black/40">
-                <p class="text-[8px] text-zinc-500">SYSTEM_LOG:</p>
-                <p class="text-[9px] text-neon italic">Waiting for operator authentication...</p>
+
+            <div class="mt-20 p-6">
+                <button onclick="location.reload()" class="w-full py-3 border border-red-600 text-red-600 text-[10px] font-bold hover:bg-red-600 hover:text-white transition-all">SYSTEM_TERMINATE</button>
             </div>
         </div>
     </div>
 
-    <header class="max-w-[1400px] mx-auto p-6 flex justify-between items-center relative z-10">
-        <div class="flex items-center gap-8">
-            <div onclick="toggleSidebar()" class="relative group cursor-pointer">
-                <div class="w-10 h-10 border border-neon flex flex-col items-center justify-center gap-1.5 group-hover:bg-neon/10 transition-all">
-                    <div class="w-6 h-0.5 bg-neon"></div>
-                    <div class="w-4 h-0.5 bg-neon self-start ml-2"></div>
-                    <div class="w-6 h-0.5 bg-neon"></div>
-                </div>
-                <div class="absolute -top-1 -left-1 w-2 h-2 bg-neon"></div>
-                <div class="absolute -bottom-1 -right-1 w-2 h-2 bg-neon"></div>
-            </div>
-            <div>
-                <h1 class="text-3xl font-black italic tracking-tighter text-white glitch">NEKO <span class="text-neon">CLOUD</span></h1>
-                <p class="text-[9px] tracking-[4px] font-bold text-zinc-500 uppercase">Hyper Security Interface v4.0</p>
-            </div>
-        </div>
-        <div class="flex gap-4">
-            <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="btn-hyper px-8 py-2 text-xs">UPLOAD_DATA</button>
-            <button onclick="location.reload()" class="border-2 border-red-600 text-red-600 px-6 py-2 text-[10px] font-black italic hover:bg-red-600 hover:text-white transition-all">SYSTEM_HALT</button>
-        </div>
-    </header>
-
-    <div id="auth-screen" class="fixed inset-0 z-[6000] bg-black/90 flex items-center justify-center p-4">
-        <div class="auth-container p-12 w-full max-w-lg relative overflow-hidden">
-            <div class="crosshair-corner tl"></div><div class="crosshair-corner tr"></div>
-            <div class="crosshair-corner bl"></div><div class="crosshair-corner br"></div>
+    <div id="auth-screen" class="hidden">
+        <div class="auth-card">
+            <div class="absolute top-0 left-0 w-10 h-1 border-t-4 border-l-4 border-neon"></div>
+            <div class="absolute bottom-0 right-0 w-10 h-1 border-b-4 border-r-4 border-neon"></div>
             
             <div class="text-center mb-10">
-                <h2 id="auth-title" class="text-4xl font-black italic tracking-widest text-white mb-2 uppercase">Login_Access</h2>
-                <div class="h-1 w-32 bg-neon mx-auto"></div>
+                <h2 id="auth-header" class="text-4xl font-black italic tracking-widest text-white mb-2">LOGIN</h2>
+                <div class="h-1 w-20 bg-neon mx-auto"></div>
             </div>
 
-            <div class="space-y-6">
-                <div class="relative">
-                    <span class="absolute -top-2 left-4 bg-black px-2 text-[9px] font-bold text-neon uppercase">Operator_ID</span>
-                    <input type="text" id="u-user" placeholder="Enter Username" class="w-full bg-transparent border-b-2 border-zinc-800 p-4 text-white outline-none focus:border-neon transition-all">
-                </div>
-                <div class="relative">
-                    <span class="absolute -top-2 left-4 bg-black px-2 text-[9px] font-bold text-neon uppercase">Access_Cipher</span>
-                    <input type="password" id="u-pass" placeholder="Enter Password" class="w-full bg-transparent border-b-2 border-zinc-800 p-4 text-white outline-none focus:border-neon transition-all">
-                </div>
-                <div id="key-input-box" class="relative">
-                    <span class="absolute -top-2 left-4 bg-black px-2 text-[9px] font-bold text-red-500 uppercase">License_Key</span>
-                    <input type="text" id="u-key" placeholder="Paste Access Key" class="w-full bg-transparent border-b-2 border-zinc-800 p-4 text-red-500 font-black outline-none focus:border-red-500 transition-all tracking-widest">
+            <div class="space-y-4">
+                <input type="text" id="u-user" placeholder="OPERATOR_NAME" class="cyber-input">
+                <input type="password" id="u-pass" placeholder="SECURITY_CIPHER" class="cyber-input">
+                <div id="key-gate">
+                    <input type="text" id="u-key" placeholder="ACCESS_LICENSE_KEY" class="cyber-input !border-red-900 !text-red-500">
                 </div>
             </div>
 
-            <button onclick="handleAuth()" id="auth-btn" class="w-full mt-10 bg-neon text-black font-black py-5 text-xl italic hover:bg-white transition-all">INITIALIZE LOGIN</button>
+            <button onclick="handleAuth()" id="auth-btn" class="btn-auth mt-6">Initialize_Login</button>
             
-            <div class="flex justify-between mt-6">
-                <p onclick="switchAuthMode()" id="mode-text" class="text-[10px] font-black cursor-pointer hover:text-white uppercase tracking-tighter">>>> Create New Operator Profile</p>
+            <div class="mt-8 text-center">
+                <p onclick="toggleAuthMode()" id="auth-toggle-text" class="text-[10px] cursor-pointer hover:text-white transition-all uppercase tracking-[3px]">>>> Create New Operator Profile</p>
             </div>
         </div>
     </div>
 
-    <main id="main-content" class="hidden max-w-[1400px] mx-auto mt-10 px-6 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
-            <div class="cyber-card p-5 border-l-4 border-l-blue-500 bg-blue-500/5">
-                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase">Cloud Status</p>
-                <p class="text-xl font-black text-blue-400">OPERATIONAL</p>
+    <main id="main-content" class="hidden max-w-[1500px] mx-auto p-6 md:p-10">
+        <header class="flex justify-between items-center mb-12 border-b border-zinc-900 pb-8">
+            <div class="flex items-center gap-8">
+                <button onclick="document.getElementById('sidebar').classList.add('active')" class="text-3xl hover:text-white transition-all">☰</button>
+                <div>
+                    <h1 class="text-3xl font-black italic text-white tracking-tighter">NEKO <span class="text-neon">CLOUD</span></h1>
+                    <p class="text-[8px] tracking-[5px] opacity-40">SECURE_DATA_EXCHANGE_NODE</p>
+                </div>
             </div>
-            <div class="cyber-card p-5 border-l-4 border-l-emerald-500">
-                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase">Admin Donate</p>
-                <p class="text-lg font-black text-white">0867799161</p>
+            <div class="flex gap-4">
+                <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="btn-hyper px-8 py-3">UPLOAD_DATA</button>
             </div>
-            <div class="cyber-card p-5 border-l-4 border-l-purple-500">
-                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase">License Time</p>
-                <p id="key-expiry-display" class="text-xl font-black text-purple-400 italic">--/--/----</p>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <div class="cyber-card border-l-4 border-l-blue-500">
+                <p class="text-[10px] font-bold opacity-30 mb-2">CONNECTION_STATUS</p>
+                <p class="text-xl font-black text-blue-400">ENCRYPTED_ACTIVE</p>
             </div>
-            <div class="cyber-card p-5 border-l-4 border-l-orange-500">
-                <p class="text-[9px] font-bold opacity-50 mb-1 uppercase">Nodes Detected</p>
-                <p id="node-count" class="text-xl font-black text-orange-400">SCANNING...</p>
+            <div class="cyber-card border-l-4 border-l-emerald-500">
+                <p class="text-[10px] font-bold opacity-30 mb-2">OPERATOR_CREDITS</p>
+                <p class="text-xl font-black text-white">0867799161 <span class="text-[10px]">(VPBANK)</span></p>
+            </div>
+            <div class="cyber-card border-l-4 border-l-purple-500">
+                <p class="text-[10px] font-bold opacity-30 mb-2" id="expiry-label">LICENSE_EXPIRY</p>
+                <p id="key-expiry-display" class="text-xl font-black text-purple-400">--/--/----</p>
+            </div>
+            <div class="cyber-card border-l-4 border-l-orange-500">
+                <p class="text-[10px] font-bold opacity-30 mb-2">CLOUD_NODES</p>
+                <p id="node-count" class="text-xl font-black text-orange-400 italic">SCANNING...</p>
             </div>
         </div>
 
-        <div id="up-form" class="hidden cyber-card p-8 mb-10 border-dashed border-neon bg-emerald-500/5">
-            <div class="flex items-center gap-2 mb-6">
-                <div class="w-3 h-3 bg-neon"></div>
-                <h3 class="text-xs font-black uppercase italic tracking-widest">Push_New_Data_To_Global_Node</h3>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-4">
-                    <label class="text-[10px] font-bold opacity-50 uppercase">Target URL:</label>
-                    <input type="text" id="f-url" class="w-full bg-black border border-zinc-800 p-4 text-xs text-cyan-400 outline-none focus:border-cyan-400" placeholder="https://...">
+        <div id="up-form" class="hidden cyber-card mb-12 border-neon border-dashed bg-emerald-500/5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <label class="text-[10px] font-bold opacity-40 uppercase block mb-2">Resource URL:</label>
+                    <input type="text" id="f-url" class="cyber-input !mb-0" placeholder="https://cdn.node.io/data...">
                 </div>
-                <div class="space-y-4">
-                    <label class="text-[10px] font-bold opacity-50 uppercase">Data Label:</label>
-                    <input type="text" id="f-info" class="w-full bg-black border border-zinc-800 p-4 text-xs text-white outline-none focus:border-white" placeholder="Module Description">
+                <div>
+                    <label class="text-[10px] font-bold opacity-40 uppercase block mb-2">Module Description:</label>
+                    <input type="text" id="f-info" class="cyber-input !mb-0" placeholder="Aimbot Config / Skin Data...">
                 </div>
             </div>
-            <button onclick="postLink()" class="w-full btn-hyper mt-8 py-4">SUBMIT_TO_CLOUD</button>
+            <button onclick="postLink()" class="w-full btn-auth !bg-transparent !border-neon !text-neon hover:!bg-neon hover:!text-black">Confirm_Upload_Sequence</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div class="lg:col-span-3">
-                <div class="relative mb-10">
-                    <input type="text" id="search" oninput="loadData()" placeholder="FILTERING_DATABASE_MODULES..." class="w-full bg-zinc-900/50 border border-zinc-800 p-6 text-xs font-black uppercase tracking-[5px] outline-none focus:border-neon focus:bg-black transition-all">
-                    <div class="absolute right-6 top-6 text-neon opacity-50 animate-pulse">SEARCH_ENGINE_ACTIVE</div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div class="lg:col-span-2">
+                <div class="relative mb-8">
+                    <input type="text" id="search" oninput="loadData()" placeholder="FILTER_DATABASE_FOR_MODULES..." class="w-full bg-zinc-950 border border-zinc-800 p-6 text-xs font-black uppercase tracking-[3px] outline-none focus:border-neon">
+                    <div class="absolute right-6 top-6 text-neon text-[10px] animate-pulse">SEARCH_CORE_ON</div>
                 </div>
-                <div id="list" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                
+                <div id="list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
             </div>
 
-            <div class="flex flex-col gap-6">
-                <div class="cyber-card h-[500px] flex flex-col border-zinc-800">
-                    <div class="p-4 bg-zinc-900/50 border-b border-zinc-800 flex justify-between">
-                        <span class="text-[10px] font-black italic">GLOBAL_COMMS</span>
-                        <span class="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+            <div class="space-y-8">
+                <div class="cyber-card h-[550px] flex flex-col p-0">
+                    <div class="p-4 bg-zinc-900 border-b border-zinc-800 flex justify-between items-center">
+                        <span class="text-[11px] font-black italic uppercase">World_Comm_Terminal</span>
+                        <div class="flex gap-1"><div class="w-2 h-2 bg-red-500 animate-ping"></div></div>
                     </div>
-                    <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-4 text-[10px]"></div>
-                    <div id="chat-input-section" class="hidden p-4 bg-black border-t border-zinc-800">
-                        <input type="text" id="chat-msg" placeholder="Broadcast message..." class="w-full bg-transparent border-b border-zinc-800 p-2 text-white text-[10px] outline-none focus:border-neon">
+                    <div id="chat-box" class="flex-1 overflow-y-auto p-5 space-y-4 text-[10px] font-mono">
+                        </div>
+                    <div id="chat-input-section" class="hidden p-4 border-t border-zinc-800 bg-black">
+                        <input type="text" id="chat-msg" placeholder="Broadcast message..." class="w-full bg-transparent border-b border-zinc-800 p-2 text-white outline-none focus:border-neon transition-all">
                     </div>
                 </div>
 
-                <div id="verify-section" class="hidden cyber-card p-6 border-cyan-500 bg-cyan-500/5">
-                    <div class="flex items-center gap-2 mb-4">
-                        <div class="w-2 h-4 bg-cyan-400"></div>
-                        <h3 class="text-[10px] font-black uppercase italic tracking-widest">Identity_Verify</h3>
+                <div id="verify-section" class="hidden cyber-card border-cyan-500 bg-cyan-500/5">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-2 h-4 bg-cyan-500"></div>
+                        <h3 class="text-xs font-black italic uppercase tracking-tighter">Identity_Verification</h3>
                     </div>
-                    <input type="email" id="email-val" placeholder="REGISTERED_EMAIL" class="w-full bg-black border border-cyan-900 p-3 text-[10px] text-cyan-400 mb-3 uppercase font-bold">
-                    <button onclick="requestOTP()" id="btn-otp" class="w-full btn-hyper border-cyan-400 text-cyan-400 py-2 text-[9px] mb-3">GET_AUTH_CODE</button>
+                    <p class="text-[9px] text-cyan-500 mb-4 italic">*Email registration required for global chat privileges.</p>
+                    <input type="email" id="email-val" placeholder="REGISTER_EMAIL_ADDRESS" class="cyber-input !border-cyan-900 !text-cyan-400">
+                    <button onclick="requestOTP()" id="btn-otp" class="w-full btn-auth !bg-transparent !border-cyan-500 !text-cyan-500 hover:!bg-cyan-500 hover:!text-black mb-4">Request_OTP_Cipher</button>
+                    
                     <div class="flex gap-2">
-                        <input type="text" id="otp-val" maxlength="6" placeholder="OTP_6" class="w-full bg-black border border-cyan-400 p-3 text-[10px] text-center tracking-[10px] font-black text-white">
-                        <button onclick="verifyOTP()" class="bg-cyan-500 text-black px-6 font-black uppercase text-[10px]">OK</button>
+                        <input type="text" id="otp-val" placeholder="6-DIGIT_CODE" class="cyber-input !mb-0 text-center tracking-[10px] font-black">
+                        <button onclick="verifyOTP()" class="bg-cyan-500 text-black px-6 font-black uppercase text-xs">Verify</button>
                     </div>
-                    <p class="text-[7px] text-zinc-500 mt-4 italic text-center italic">"Email will be locked for 7 days upon submission"</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 left-0 w-full p-2 bg-black/80 border-t border-zinc-900 text-[8px] flex justify-between px-10 tracking-widest opacity-40 z-50">
-        <div>SYSTEM_UPTIME: <span id="uptime">0h 0m 0s</span></div>
-        <div>OPERATOR_REGION: HO_CHI_MINH_CITY</div>
-        <div>ENCRYPTION: AES-256_RSA</div>
+    <footer class="fixed bottom-0 left-0 w-full p-2 bg-black/90 border-t border-zinc-900 z-[9000] flex justify-between px-10 items-center">
+        <div class="text-[8px] opacity-40 uppercase tracking-[2px]">System_Uptime: <span id="uptime-counter">0h 0m 0s</span></div>
+        <div class="text-[8px] text-neon italic">NEKO_CLOUD_ENCRYPTION_V4_SECURE</div>
     </footer>
 
     <script type="module">
+        // IMPORT FIREBASE
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
 
-        // --- CORE UI LOGIC ---
-        const c = document.getElementById("matrix"), ctx = c.getContext("2d");
-        c.width = window.innerWidth; c.height = window.innerHeight;
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
-        const drops = Array(Math.floor(c.width/20)).fill(1);
+        // FIREBASE CONFIG
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // 1. SYSTEM INITIALIZATION & MATRIX
+        const canvas = document.getElementById("matrix");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const rainDrops = Array.from({ length: columns }).fill(1);
+
         function drawMatrix() {
-            ctx.fillStyle = "rgba(0,0,0,0.05)"; ctx.fillRect(0,0,c.width,c.height);
-            ctx.fillStyle = "#0f0"; ctx.font = "15px 'JetBrains Mono'";
-            drops.forEach((y, i) => {
-                ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*20, y*20);
-                if(y*20 > c.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#0F0";
+            ctx.font = fontSize + "px monospace";
+
+            for (let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                if (rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    rainDrops[i] = 0;
+                }
+                rainDrops[i]++;
+            }
         }
-        setInterval(drawMatrix, 40);
+        setInterval(drawMatrix, 35);
 
-        window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('active');
+        // 2. HELPER FUNCTIONS
+        const log = (msg) => {
+            const container = document.getElementById('log-container');
+            const div = document.createElement('div');
+            div.className = 'log-entry';
+            div.innerHTML = `> [${new Date().toLocaleTimeString()}] ${msg}`;
+            container.appendChild(div);
+            setTimeout(() => div.remove(), 4500);
+        };
 
-        // Notification System
-        function showLog(msg) {
-            const container = document.getElementById('notif-container');
-            const el = document.createElement('div');
-            el.className = 'notif';
-            el.innerHTML = `[SYS_LOG]: ${msg}`;
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 4000);
-        }
+        window.toggleSidebar = () => {
+            document.getElementById('sidebar').classList.toggle('active');
+        };
 
-        // --- AUTH LOGIC (FIX LỖI) ---
+        // 3. LANGUAGE & SYSTEM START
+        let currentLang = 'en';
+        window.initSystem = (lang) => {
+            currentLang = lang;
+            document.getElementById('lang-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('lang-screen').style.display = 'none';
+                document.getElementById('auth-screen').classList.remove('hidden');
+                
+                if(lang === 'vi') {
+                    document.getElementById('auth-header').innerText = "ĐĂNG NHẬP";
+                    document.getElementById('auth-btn').innerText = "KHỞI CHẠY HỆ THỐNG";
+                    document.getElementById('auth-toggle-text').innerText = ">>> Tạo Tài Khoản Operator Mới";
+                    document.getElementById('side-title').innerText = "BẢNG ĐIỀU KHIỂN";
+                }
+            }, 800);
+            log(`System initialized in ${lang.toUpperCase()} mode.`);
+        };
+
+        // 4. AUTHENTICATION LOGIC (FIXED & EXTENDED)
         let isLoginMode = true;
-        let currentOperator = "";
+        let currentUser = "";
 
-        window.switchAuthMode = () => {
+        window.toggleAuthMode = () => {
             isLoginMode = !isLoginMode;
-            document.getElementById('auth-title').innerText = isLoginMode ? "Login_Access" : "Register_ID";
-            document.getElementById('auth-btn').innerText = isLoginMode ? "INITIALIZE LOGIN" : "CREATE ACCOUNT";
-            document.getElementById('mode-text').innerText = isLoginMode ? ">>> Create New Operator Profile" : ">>> Return to Login Terminal";
-            document.getElementById('key-input-box').style.display = isLoginMode ? "block" : "none";
-            showLog(isLoginMode ? "Switching to Access Protocol" : "Initializing Registration Sequence");
+            const header = document.getElementById('auth-header');
+            const btn = document.getElementById('auth-btn');
+            const toggle = document.getElementById('auth-toggle-text');
+            const keyBox = document.getElementById('key-gate');
+
+            if(isLoginMode) {
+                header.innerText = currentLang === 'vi' ? "ĐĂNG NHẬP" : "LOGIN";
+                btn.innerText = currentLang === 'vi' ? "KHỞI CHẠY HỆ THỐNG" : "INITIALIZE LOGIN";
+                toggle.innerText = currentLang === 'vi' ? ">>> Tạo Tài Khoản Operator Mới" : ">>> Create New Operator Profile";
+                keyBox.style.display = "block";
+            } else {
+                header.innerText = currentLang === 'vi' ? "ĐĂNG KÝ" : "REGISTER";
+                btn.innerText = currentLang === 'vi' ? "TẠO TÀI KHOẢN" : "CREATE ACCOUNT";
+                toggle.innerText = currentLang === 'vi' ? ">>> Đã có tài khoản? Đăng nhập" : ">>> Already have account? Login";
+                keyBox.style.display = "none";
+            }
         };
 
         window.handleAuth = async () => {
@@ -315,201 +493,201 @@
             const p = document.getElementById('u-pass').value.trim();
             const k = document.getElementById('u-key').value.trim();
 
-            if(!u || !p) return showLog("ERROR: Credentials incomplete!");
+            if(!u || !p) return log("CRITICAL: Operator ID and Cipher required!");
 
             if(isLoginMode) {
-                // LOGIN LOGIC
-                if(!k) return showLog("ERROR: License Key required for login!");
+                if(!k) return log("ERROR: Access License Key is missing!");
                 
-                const userSnapshot = await get(ref(db, `Users/${u}`));
-                const keySnapshot = await get(ref(db, `Keys/${k}`));
+                const userSnap = await get(ref(db, `Users/${u}`));
+                const keySnap = await get(ref(db, `Keys/${k}`));
 
-                if(!userSnapshot.exists() || userSnapshot.val().pass !== p) {
-                    return showLog("CRITICAL: Invalid Operator or Cipher!");
+                if(!userSnap.exists() || userSnap.val().pass !== p) {
+                    return log("ACCESS DENIED: Invalid Credentials.");
                 }
 
-                if(userSnapshot.val().banned) return showLog("CRITICAL: This Operator has been BLACKLISTED!");
+                if(userSnap.val().banned) return log("BANNED: This operator is blacklisted.");
 
-                if(!keySnapshot.exists()) return showLog("CRITICAL: License Key invalid or expired!");
+                if(!keySnap.exists()) return log("INVALID KEY: License not found in DB.");
 
-                // HWID CHECK
-                const myHWID = navigator.userAgent.length + screen.width;
-                if(keySnapshot.val().hwid && keySnapshot.val().hwid !== myHWID) {
-                    return showLog("ERROR: Hardware ID Mismatch! Contact Admin for Reset.");
+                // HWID Check
+                const hwid = navigator.userAgent.length + screen.width;
+                if(keySnap.val().hwid && keySnap.val().hwid !== hwid) {
+                    return log("HWID MISMATCH: Device lock active.");
                 }
 
-                if(!keySnapshot.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: myHWID });
+                if(!keySnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: hwid });
 
                 // SUCCESS LOGIN
-                currentOperator = u;
+                currentUser = u;
                 document.getElementById('auth-screen').style.display = "none";
                 document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('key-expiry-display').innerText = keySnapshot.val().expiry;
+                document.getElementById('key-expiry-display').innerText = keySnap.val().expiry;
                 
-                showLog(`WELCOME OPERATOR: ${u}. Access Granted.`);
+                log(`WELCOME BACK, OPERATOR ${u}. ACCESS GRANTED.`);
                 
-                // Load Features
-                checkVerifyStatus(u);
-                loadData(); 
+                // Initialize Data
+                checkUserStatus(u);
+                loadData();
                 loadChat();
+                syncModLinks();
                 startUptime();
             } else {
-                // REGISTER LOGIC
-                const checkUser = await get(ref(db, `Users/${u}`));
-                if(checkUser.exists()) return showLog("ERROR: Operator ID already exists in Database!");
+                // REGISTER MODE
+                const check = await get(ref(db, `Users/${u}`));
+                if(check.exists()) return log("ERROR: Operator ID already taken.");
 
-                await set(ref(db, `Users/${u}`), { 
-                    pass: p, 
-                    banned: false, 
-                    verified: false,
-                    joinDate: new Date().toLocaleDateString()
+                await set(ref(db, `Users/${u}`), {
+                    pass: p, banned: false, verified: false, joined: Date.now()
                 });
-
-                showLog("REGISTRATION SUCCESS: Profile stored in Cloud. Switch to Login.");
-                switchAuthMode();
+                log("REGISTRATION COMPLETE. Switching to Login Terminal...");
+                toggleAuthMode();
             }
         };
 
-        // --- SCAN 404 AUTO-DELETE ---
-        async function runAutoCleaner(links) {
-            let deletedCount = 0;
-            for(let id in links) {
-                try {
-                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(links[id].url)}`, { method: 'GET' });
-                    if(!res.ok) {
-                        await remove(ref(db, `SharedLinks/${id}`));
-                        deletedCount++;
+        // 5. MODERATOR LINKS SYNC
+        function syncModLinks() {
+            onValue(ref(db, 'ModLinks'), (snapshot) => {
+                const data = snapshot.val();
+                if(!data) return;
+                const mods = ["Thuan", "Loc", "Neko", "King"];
+                mods.forEach(m => {
+                    const target = document.getElementById(`mod-${m}`);
+                    if(data[m]) {
+                        target.innerHTML = `<button onclick="window.open('${data[m]}')" class="mod-btn">BẤM VÀO ĐÂY</button>`;
+                    } else {
+                        target.innerHTML = `<span class="text-red-600 text-[10px] italic">OFFLINE</span>`;
                     }
-                } catch(e) {
-                    // Nếu lỗi CORS hoặc timeout, tạm thời giữ lại để tránh xóa nhầm
-                }
-            }
-            if(deletedCount > 0) showLog(`AUTO_CLEAN: Successfully purged ${deletedCount} dead nodes.`);
+                });
+            });
         }
 
-        // --- DATA HUB ---
-        window.postLink = async () => {
-            const url = document.getElementById('f-url').value;
-            const info = document.getElementById('f-info').value;
-            if(!url) return showLog("ERROR: Link URL is mandatory!");
-
-            await push(ref(db, 'SharedLinks'), {
-                url, info, 
-                owner: currentOperator, 
-                time: new Date().toLocaleDateString('vi-VN')
-            });
-
-            document.getElementById('up-form').classList.add('hidden');
-            showLog("UPLOADER: Data pushed to Global Node successfully.");
-        };
+        // 6. AUTO CLEANER & LINK LOADING
+        async function cleanDeadLinks(links) {
+            for (let id in links) {
+                try {
+                    const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(links[id].url)}`);
+                    if(!res.ok) await remove(ref(db, `SharedLinks/${id}`));
+                } catch(e) {}
+            }
+        }
 
         window.loadData = () => {
-            const term = document.getElementById('search').value.toLowerCase();
+            const query = document.getElementById('search').value.toLowerCase();
             onValue(ref(db, 'SharedLinks'), (snapshot) => {
                 const list = document.getElementById('list');
-                list.innerHTML = "";
                 const data = snapshot.val();
+                list.innerHTML = "";
                 if(!data) {
                     document.getElementById('node-count').innerText = "0 ACTIVE";
                     return;
                 }
+
+                const keys = Object.keys(data).reverse();
+                document.getElementById('node-count').innerText = `${keys.length} ACTIVE`;
                 
-                const ids = Object.keys(data).reverse();
-                document.getElementById('node-count').innerText = `${ids.length} ACTIVE`;
+                cleanDeadLinks(data);
 
-                // Chạy ngầm dọn dẹp link 404
-                runAutoCleaner(data);
-
-                ids.forEach(id => {
+                keys.forEach(id => {
                     const item = data[id];
-                    if(item.url.toLowerCase().includes(term) || item.owner.toLowerCase().includes(term)) {
+                    if(item.url.toLowerCase().includes(query) || item.owner.toLowerCase().includes(query)) {
                         list.innerHTML += `
-                        <div class="cyber-card p-6 bg-zinc-900/40 border-zinc-800 relative group">
-                            <div class="flex justify-between items-start mb-6">
-                                <span class="bg-neon text-black px-2 py-0.5 text-[7px] font-black italic">UID: ${item.owner}</span>
-                                <span class="text-zinc-600 text-[8px]">${item.time}</span>
+                        <div class="cyber-card group">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="text-[8px] bg-neon text-black px-2 py-0.5 font-black uppercase">OP: ${item.owner}</span>
+                                <span class="text-[8px] opacity-30">${item.time}</span>
                             </div>
-                            <h4 class="text-white text-[10px] font-bold mb-6 line-clamp-2 h-8 leading-relaxed opacity-80 group-hover:opacity-100">${item.info || item.url}</h4>
-                            <div class="grid grid-cols-2 gap-2">
-                                <button onclick="window.open('${item.url}')" class="btn-hyper !py-1 !px-0 text-[8px]">CONNECT</button>
-                                <button onclick="reportNode('${id}')" class="border border-red-900 text-red-500 text-[8px] font-bold py-1 hover:bg-red-500 hover:text-white transition-all">REPORT</button>
-                            </div>
+                            <h3 class="text-white text-[11px] font-bold mb-6 line-clamp-2 h-10 italic opacity-80 group-hover:opacity-100">${item.info || item.url}</h3>
+                            <button onclick="window.open('${item.url}')" class="w-full py-2 border border-neon text-neon text-[9px] font-bold hover:bg-neon hover:text-black transition-all">ESTABLISH_CONNECTION</button>
                         </div>`;
                     }
                 });
             });
         };
 
-        // --- CHAT & VERIFY ---
-        async function checkVerifyStatus(u) {
-            const s = await get(ref(db, `Users/${u}`));
-            if(s.val().verified) {
+        window.postLink = async () => {
+            const url = document.getElementById('f-url').value.trim();
+            const info = document.getElementById('f-info').value.trim();
+            if(!url) return log("ERROR: No URL provided for upload.");
+
+            await push(ref(db, 'SharedLinks'), {
+                url, info, owner: currentUser, time: new Date().toLocaleDateString()
+            });
+            document.getElementById('up-form').classList.add('hidden');
+            log("DATA_UPLOAD_SUCCESS: Global node updated.");
+        };
+
+        // 7. CHAT & VERIFICATION
+        async function checkUserStatus(u) {
+            const snap = await get(ref(db, `Users/${u}`));
+            if(snap.val().verified) {
                 document.getElementById('chat-input-section').classList.remove('hidden');
             } else {
                 document.getElementById('verify-section').classList.remove('hidden');
-                // Lock email nếu đã gửi
-                const mS = await get(ref(db, `MailConfirm/${u}`));
-                if(mS.exists()) {
-                    const inp = document.getElementById('email-val');
-                    inp.value = mS.val().email; inp.disabled = true;
-                    document.getElementById('btn-otp').innerText = "PENDING ADMIN APPROVAL";
+                const mSnap = await get(ref(db, `MailConfirm/${u}`));
+                if(mSnap.exists()) {
+                    document.getElementById('btn-otp').innerText = "AWAITING ADMIN APPROVAL";
                     document.getElementById('btn-otp').disabled = true;
                 }
             }
         }
 
         window.requestOTP = async () => {
-            const email = document.getElementById('email-val').value;
-            if(!email.includes("@")) return showLog("ERROR: Invalid Email structure!");
-            const otp = Math.floor(100000 + Math.random()*900000);
-            await set(ref(db, `MailConfirm/${currentOperator}`), { email, otp, timestamp: Date.now() });
-            showLog("AUTH: OTP Request sent to Admin. Profile Locked.");
-            setTimeout(() => location.reload(), 2000);
+            const email = document.getElementById('email-val').value.trim();
+            if(!email.includes("@")) return log("ERROR: Email format invalid.");
+            const otp = Math.floor(100000 + Math.random() * 900000);
+            await set(ref(db, `MailConfirm/${currentUser}`), { email, otp, timestamp: Date.now() });
+            log("VERIFY: OTP request logged. Profile temporarily locked.");
+            setTimeout(() => location.reload(), 1500);
         };
 
         window.verifyOTP = async () => {
-            const code = document.getElementById('otp-val').value;
-            const s = await get(ref(db, `MailConfirm/${currentOperator}`));
-            if(s.exists() && s.val().otp == code) {
-                await update(ref(db, `Users/${currentOperator}`), { verified: true });
-                showLog("IDENTITY_SECURED: You now have full chat access!");
+            const code = document.getElementById('otp-val').value.trim();
+            const snap = await get(ref(db, `MailConfirm/${currentUser}`));
+            if(snap.exists() && snap.val().otp == code) {
+                await update(ref(db, `Users/${currentUser}`), { verified: true });
+                log("IDENTITY_CONFIRMED: Comm-link unlocked.");
                 location.reload();
             } else {
-                showLog("ERROR: Cipher Code incorrect!");
+                log("ERROR: Invalid Cipher Code.");
             }
         };
 
         window.loadChat = () => {
-            onValue(ref(db, 'WorldChat'), (s) => {
-                const b = document.getElementById('chat-box'); b.innerHTML = "";
-                const data = s.val(); if(!data) return;
+            onValue(ref(db, 'WorldChat'), (snapshot) => {
+                const box = document.getElementById('chat-box');
+                const data = snapshot.val();
+                box.innerHTML = "";
+                if(!data) return;
                 Object.values(data).slice(-30).forEach(m => {
-                    b.innerHTML += `<div><b class="text-neon text-[8px] uppercase">[${m.u}]:</b> <span class="text-white opacity-80">${m.msg}</span></div>`;
+                    box.innerHTML += `<div><span class="text-neon font-black uppercase">[${m.u}]:</span> <span class="text-white opacity-70">${m.msg}</span></div>`;
                 });
-                b.scrollTop = b.scrollHeight;
+                box.scrollTop = box.scrollHeight;
             });
         };
 
         document.getElementById('chat-msg').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && e.target.value) {
-                push(ref(db, 'WorldChat'), { u: currentOperator, msg: e.target.value });
+            if(e.key === 'Enter' && e.target.value.trim()) {
+                push(ref(db, 'WorldChat'), { u: currentUser, msg: e.target.value.trim() });
                 e.target.value = "";
             }
         });
 
-        // --- UPTIME TIMER ---
+        // 8. SYSTEM UPTIME
         function startUptime() {
-            let s = 0, m = 0, h = 0;
+            let sec = 0, min = 0, hour = 0;
             setInterval(() => {
-                s++; if(s==60){s=0; m++;} if(m==60){m=0; h++;}
-                document.getElementById('uptime').innerText = `${h}h ${m}m ${s}s`;
+                sec++; if(sec==60){sec=0; min++;} if(min==60){min=0; hour++;}
+                document.getElementById('uptime-counter').innerText = `${hour}h ${min}m ${sec}s`;
             }, 1000);
         }
 
-        window.reportNode = (id) => {
-            showLog(`NODE_REPORT: Unit ${id} flagged for review.`);
-            push(ref(db, 'Reports'), { nodeID: id, reporter: currentOperator, time: Date.now() });
-        };
+        // Close sidebar on click outside
+        document.addEventListener('click', (e) => {
+            const sb = document.getElementById('sidebar');
+            if(!sb.contains(e.target) && e.target.innerText !== '☰') {
+                sb.classList.remove('active');
+            }
+        });
 
     </script>
 </body>
