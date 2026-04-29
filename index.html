@@ -3,133 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEKO CLOUD - HYPER OPERATOR SUPREMACY</title>
+    <title>NEKO CLOUD - HYPER OPERATOR SUPREMACY v6.0</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:ital,wght@0,100;0,400;0,800;1,400&display=swap" rel="stylesheet">
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <style>
-        /* --- CORE CONFIGURATION --- */
+        /* --- SUPREME CORE CONFIG --- */
         :root {
-            --neon: #00ff41; --cyan: #00f3ff; --red: #ff003c; --purple: #bc13fe;
-            --bg: #010101; --card-bg: rgba(3, 3, 3, 0.98); --border: rgba(0, 255, 65, 0.3);
-            --glitch-speed: 0.3s;
+            --neon: #00ff41; --cyan: #00f3ff; --red: #ff003c; --purple: #bc13fe; --yellow: #ffea00;
+            --bg: #010101; --card-bg: rgba(5, 5, 5, 0.95); --border: rgba(0, 255, 65, 0.15);
+            --font-main: 'JetBrains Mono', monospace; --font-head: 'Orbitron', sans-serif;
         }
 
-        /* --- ADVANCED RESET --- */
         * { margin: 0; padding: 0; box-sizing: border-box; cursor: crosshair !important; }
-        body { background: var(--bg); color: var(--neon); font-family: 'Fira Code', monospace; overflow-x: hidden; scroll-behavior: smooth; }
-        
-        /* --- HYPER EFFECTS OVERLAY --- */
-        #matrix { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.25; filter: contrast(120%); }
+        body { background: var(--bg); color: var(--neon); font-family: var(--font-main); overflow-x: hidden; scroll-behavior: smooth; }
+
+        /* --- HYPER VISUAL FX --- */
+        #matrix { position: fixed; inset: 0; z-index: -1; opacity: 0.15; filter: hue-rotate(0deg); transition: 2s; }
         
         .scanlines {
             position: fixed; inset: 0; z-index: 9999; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 4px, 4px 100%;
         }
 
-        .crt-flicker {
-            position: fixed; inset: 0; z-index: 9998; pointer-events: none;
-            background: rgba(18, 16, 16, 0.02); opacity: 0.1;
-            animation: flicker 0.1s infinite;
+        .noise {
+            position: fixed; inset: 0; z-index: 9998; opacity: 0.03; pointer-events: none;
+            background: url('https://media.giphy.com/media/oEI9uWUicG6M0/giphy.gif');
         }
 
-        @keyframes flicker {
-            0% { opacity: 0.1; } 50% { opacity: 0.15; } 100% { opacity: 0.1; }
+        .glitch-text { animation: glitch 1s linear infinite; }
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px, 0) skew(0deg); }
+            4%, 60% { transform: translate(-2px, 0) skew(0deg); }
+            62% { transform: translate(0, 0) skew(5deg); }
         }
 
-        /* --- LANGUAGE SELECTOR SCREEN --- */
+        /* --- LOADING SCREEN --- */
+        #loader {
+            position: fixed; inset: 0; z-index: 20000; background: #000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .load-bar { width: 300px; height: 2px; background: #111; position: relative; margin-top: 20px; overflow: hidden; }
+        .load-fill { width: 0%; height: 100%; background: var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+        /* --- LANGUAGE SELECTION --- */
         #lang-screen {
             position: fixed; inset: 0; z-index: 10000; background: #000;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            perspective: 1000px;
         }
-
-        .lang-container {
-            transform-style: preserve-3d; animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotateX(0deg); } 50% { transform: translateY(-20px) rotateX(5deg); } }
 
         .lang-btn {
-            width: 320px; padding: 25px; margin: 15px; border: 2px solid var(--neon);
-            background: rgba(0, 255, 65, 0.02); color: #fff; font-family: 'Orbitron';
-            font-weight: 900; letter-spacing: 6px; transition: 0.5s;
-            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0 100%);
+            width: 350px; padding: 25px; margin: 15px; border: 1px solid var(--neon);
+            background: rgba(0, 255, 65, 0.02); color: #fff; font-family: var(--font-head);
+            font-weight: 900; letter-spacing: 5px; transition: 0.4s;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
         }
 
-        .lang-btn:hover {
-            background: var(--neon); color: #000; box-shadow: 0 0 50px var(--neon);
-            transform: translateZ(50px) scale(1.1);
-        }
+        .lang-btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 40px var(--neon); transform: translateY(-5px); }
 
-        /* --- SIDEBAR SYSTEM --- */
+        /* --- SIDEBAR --- */
         #sidebar {
-            position: fixed; top: 0; left: -360px; width: 340px; height: 100%;
-            background: rgba(0, 0, 0, 0.98); border-right: 3px solid var(--neon);
-            z-index: 9000; transition: 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            box-shadow: 20px 0 50px rgba(0,0,0,0.9);
+            position: fixed; top: 0; left: -350px; width: 320px; height: 100%;
+            background: rgba(2, 2, 2, 0.99); border-right: 2px solid var(--neon);
+            z-index: 15000; transition: 0.6s cubic-bezier(0.85, 0, 0.15, 1);
+            box-shadow: 20px 0 80px rgba(0,0,0,0.9);
         }
 
         #sidebar.active { left: 0; }
 
+        .menu-header { padding: 30px; background: linear-gradient(to right, #0a0a0a, transparent); border-bottom: 1px solid #1a1a1a; }
         .menu-item {
-            padding: 22px 30px; border-bottom: 1px solid rgba(0, 255, 65, 0.1);
-            transition: 0.4s; display: flex; align-items: center; justify-content: space-between;
+            padding: 18px 30px; border-bottom: 1px solid #0f0f0f; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center; transition: 0.3s;
         }
+        .menu-item:hover { background: rgba(0, 255, 65, 0.08); padding-left: 45px; border-left: 4px solid var(--neon); }
 
-        .menu-item:hover { background: rgba(0, 255, 65, 0.12); border-left: 8px solid var(--neon); padding-left: 40px; }
-
-        .mod-status-btn {
-            background: var(--neon); color: #000; padding: 5px 12px; font-[10px] font-black;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%); animation: pulse 1.5s infinite;
-        }
-
-        /* --- AUTHENTICATION LAYER --- */
+        /* --- AUTH SYSTEM --- */
         #auth-screen {
-            position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.97);
-            display: flex; align-items: center; justify-content: center;
+            position: fixed; inset: 0; z-index: 12000; background: rgba(0,0,0,0.95);
+            display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px);
         }
 
-        .auth-panel {
-            width: 100%; max-w: 550px; background: #050505; border: 2px solid var(--neon);
-            padding: 50px; position: relative; overflow: hidden;
+        .auth-container {
+            width: 100%; max-w: 500px; padding: 50px; background: #030303; border: 1px solid var(--neon);
+            position: relative; box-shadow: 0 0 100px rgba(0,255,65,0.05);
         }
 
         .cyber-input {
-            width: 100%; background: #000; border: 1px solid #222; padding: 18px;
-            color: #fff; font-family: 'JetBrains Mono'; margin-bottom: 20px;
-            transition: 0.3s; border-left: 5px solid #222;
+            width: 100%; background: #000; border: 1px solid #1a1a1a; padding: 18px; color: #fff;
+            margin-bottom: 20px; font-weight: bold; border-left: 4px solid #1a1a1a; transition: 0.3s;
         }
 
-        .cyber-input:focus { border-color: var(--cyan); border-left-color: var(--cyan); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .cyber-input:focus { border-color: var(--neon); border-left-color: var(--neon); background: rgba(0,255,65,0.02); outline: none; }
 
-        /* --- DASHBOARD COMPONENTS --- */
-        .cyber-card {
+        .auth-btn {
+            width: 100%; padding: 22px; background: var(--neon); color: #000; font-family: var(--font-head);
+            font-weight: 900; font-size: 1.2rem; letter-spacing: 4px; clip-path: polygon(0 0, 95% 0, 100% 100%, 5% 100%);
+            transition: 0.4s;
+        }
+
+        .auth-btn:hover { background: #fff; transform: scale(1.02); box-shadow: 0 0 30px #fff; }
+
+        /* --- DASHBOARD ELEMENTS --- */
+        .stat-card {
             background: var(--card-bg); border: 1px solid var(--border); padding: 25px;
-            position: relative; transition: 0.5s;
+            position: relative; overflow: hidden; transition: 0.4s;
         }
 
-        .cyber-card:hover { border-color: var(--neon); transform: scale(1.02); z-index: 10; }
+        .stat-card:hover { border-color: var(--neon); transform: translateY(-5px); background: rgba(0,255,65,0.02); }
+        .stat-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(0,255,65,0.05), transparent); transition: 0.5s; }
+        .stat-card:hover::after { left: 100%; }
 
-        /* --- LOG TERMINAL --- */
-        #terminal-logs {
-            position: fixed; bottom: 40px; right: 30px; z-index: 9999;
+        /* --- TERMINAL LOGS --- */
+        #log-box {
+            position: fixed; bottom: 40px; right: 40px; z-index: 18000;
             display: flex; flex-direction: column; gap: 8px; pointer-events: none;
         }
 
-        .term-entry {
-            background: rgba(0, 0, 0, 0.95); border-right: 4px solid var(--neon);
-            padding: 12px 20px; color: #fff; font-size: 10px; width: 350px;
-            box-shadow: -10px 10px 20px rgba(0,0,0,0.8);
-            animation: slideInRight 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+        .log-entry {
+            background: rgba(0, 0, 0, 0.9); border-right: 4px solid var(--neon);
+            padding: 12px 25px; color: #fff; font-size: 11px; width: 350px;
+            box-shadow: -10px 10px 20px rgba(0,0,0,0.5);
+            animation: logIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
         }
 
-        @keyframes slideInRight { from { transform: translateX(110%); } to { transform: translateX(0); } }
+        @keyframes logIn { from { transform: translateX(120%); } to { transform: translateX(0); } }
+
+        /* --- DATA GRID --- */
+        #data-grid { display: grid; grid-template-cols: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+
+        .data-card {
+            background: #050505; border: 1px solid #111; padding: 20px;
+            position: relative; transition: 0.3s;
+        }
+        .data-card:hover { border-color: var(--cyan); box-shadow: 0 0 20px rgba(0,243,255,0.1); }
+
+        /* --- CHAT SYSTEM --- */
+        #chat-window {
+            height: 550px; display: flex; flex-direction: column; background: #020202;
+            border: 1px solid #111; position: relative;
+        }
+        #chat-content { flex: 1; overflow-y: auto; padding: 20px; scroll-behavior: smooth; }
+        .chat-msg { margin-bottom: 10px; font-size: 12px; line-height: 1.5; border-left: 2px solid transparent; padding-left: 10px; }
+        .chat-msg:hover { border-left-color: var(--neon); background: rgba(255,255,255,0.02); }
 
         /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: var(--neon); }
 
@@ -137,436 +161,563 @@
 </head>
 <body>
     <div class="scanlines"></div>
-    <div class="crt-flicker"></div>
+    <div class="noise"></div>
     <canvas id="matrix"></canvas>
-    <div id="terminal-logs"></div>
+    <div id="log-box"></div>
 
-    <div id="lang-screen">
-        <div class="lang-container text-center">
-            <h1 class="text-6xl font-[900] italic mb-4 tracking-tighter text-white">NEKO <span class="text-neon">SYSTEM</span></h1>
-            <div class="h-1 w-full bg-gradient-to-r from-transparent via-neon to-transparent mb-12"></div>
-            <button onclick="bootSystem('vi')" class="lang-btn block">VIETNAMESE_ENV</button>
-            <button onclick="bootSystem('en')" class="lang-btn block">ENGLISH_ENV</button>
-            <div class="mt-16 text-[9px] tracking-[8px] opacity-30 animate-pulse">ESTABLISHING_CORE_HANDSHAKE...</div>
+    <div id="loader">
+        <div class="text-3xl font-black italic mb-2 tracking-[10px]">INITIALIZING</div>
+        <div id="load-status" class="text-[10px] opacity-40 font-bold uppercase">Loading Core Modules...</div>
+        <div class="load-bar"><div id="load-fill" class="load-fill"></div></div>
+    </div>
+
+    <div id="lang-screen" class="hidden">
+        <div class="text-center">
+            <h1 class="text-6xl font-black italic mb-2 text-white glitch-text">NEKO <span class="text-neon">CLOUD</span></h1>
+            <p class="text-[10px] tracking-[15px] opacity-30 mb-16 uppercase">Advanced Data Nexus v6.0</p>
+            <button onclick="boot('vi')" class="lang-btn block">ENVIRONMENT_VI</button>
+            <button onclick="boot('en')" class="lang-btn block">ENVIRONMENT_EN</button>
+            <div class="mt-20 text-[8px] opacity-20 font-black tracking-[5px]">CORE_HANDSHAKE_PENDING...</div>
         </div>
     </div>
 
     <div id="sidebar">
-        <div class="p-8 border-b border-zinc-800 bg-zinc-900/20">
-            <h2 id="sd-title" class="text-2xl font-black italic">ROOT_MENU</h2>
-            <p class="text-[8px] text-cyan-500 font-bold mt-1 uppercase tracking-widest">Access_Level: Authorized</p>
+        <div class="menu-header">
+            <h2 id="sd-h" class="text-2xl font-black italic text-white">ROOT_ACCESS</h2>
+            <p class="text-[8px] text-cyan-500 font-bold mt-1 uppercase tracking-widest">Protocol: Secure_WebSocket_v6</p>
         </div>
 
-        <div class="p-2 space-y-1">
-            <div class="m-3 p-5 border-2 border-cyan-600 bg-cyan-900/10 cursor-pointer hover:bg-cyan-600 hover:text-black transition-all group" 
+        <div class="mt-4">
+            <div class="m-4 p-5 border-2 border-purple-600 bg-purple-900/10 cursor-pointer group hover:bg-purple-600 transition-all" 
                  onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')">
-                <p class="text-[9px] font-black opacity-60">LICENSE_GEN_v4</p>
-                <h3 class="text-xl font-black italic group-hover:scale-105 transition-all">GET NEW KEY</h3>
+                <p class="text-[8px] font-black opacity-50 uppercase">License_Generator</p>
+                <h3 class="text-xl font-black italic text-white group-hover:scale-105 transition-all">REDEEM NEW KEY</h3>
             </div>
 
-            <div class="px-6 py-4 text-[10px] font-black opacity-30 uppercase">Moderator Gateways</div>
+            <div class="px-8 py-4 text-[10px] font-black opacity-30 uppercase tracking-widest border-b border-zinc-900">Operator Network</div>
             
-            <div id="mod-container" class="space-y-1">
+            <div id="mod-container">
                 <div class="menu-item">
-                    <span class="font-bold tracking-widest uppercase">Thuận Mod</span>
-                    <div id="m-Thuan" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
+                    <span class="font-bold text-zinc-400">Thuận Mod</span>
+                    <div id="m-Thuan" class="text-[10px] text-red-600 font-black italic">DISCONNECTED</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold tracking-widest uppercase">Lộc Mod</span>
-                    <div id="m-Loc" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
+                    <span class="font-bold text-zinc-400">Lộc Mod</span>
+                    <div id="m-Loc" class="text-[10px] text-red-600 font-black italic">DISCONNECTED</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold tracking-widest uppercase">NEKO</span>
-                    <div id="m-Neko" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
+                    <span class="font-bold text-zinc-400">NEKO</span>
+                    <div id="m-Neko" class="text-[10px] text-red-600 font-black italic">DISCONNECTED</div>
                 </div>
                 <div class="menu-item">
-                    <span class="font-bold tracking-widest uppercase">KING OF CHEAT</span>
-                    <div id="m-King" class="text-[9px] text-red-600 italic font-bold">OFFLINE_NODE</div>
+                    <span class="font-bold text-zinc-400">KING OF CHEAT</span>
+                    <div id="m-King" class="text-[10px] text-red-600 font-black italic">DISCONNECTED</div>
                 </div>
             </div>
 
-            <div id="admin-tools" class="hidden mt-10 px-4">
-                <div class="p-4 bg-red-950/20 border border-red-900">
-                    <p class="text-[10px] font-black text-red-500 mb-2 italic">ADMIN_QUICK_PROVISION</p>
-                    <input type="text" id="aq-user" placeholder="Target User" class="w-full bg-black border border-red-900 p-2 text-[10px] mb-2">
-                    <input type="text" id="aq-key" placeholder="Target Key" class="w-full bg-black border border-red-900 p-2 text-[10px] mb-2">
-                    <button onclick="quickAuthCreate()" class="w-full py-2 bg-red-600 text-white font-black text-[9px]">EXECUTE_CREATION</button>
+            <div id="admin-panel" class="hidden mx-4 mt-8 p-5 bg-red-950/20 border border-red-900/50">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-2 h-2 bg-red-600 animate-pulse"></div>
+                    <p class="text-[10px] font-black text-red-500 italic uppercase">Admin_Override_Unit</p>
                 </div>
+                <input type="text" id="adm-u" placeholder="New Username" class="w-full bg-black border border-red-900 p-3 text-[10px] mb-2 outline-none">
+                <input type="text" id="adm-p" placeholder="New Password" class="w-full bg-black border border-red-900 p-3 text-[10px] mb-2 outline-none">
+                <input type="text" id="adm-k" placeholder="New Access Key" class="w-full bg-black border border-red-900 p-3 text-[10px] mb-3 outline-none">
+                <button onclick="execAdminProvision()" class="w-full py-3 bg-red-600 text-white font-black text-[10px] hover:bg-red-500 transition-all">PROVISION_IDENTITY</button>
             </div>
         </div>
 
-        <div class="absolute bottom-0 w-full p-6 border-t border-zinc-900">
-            <button onclick="location.reload()" class="w-full py-4 bg-zinc-900 text-zinc-500 font-bold text-[10px] hover:text-red-500">TERMINATE_SESSION</button>
+        <div class="absolute bottom-0 w-full p-8 border-t border-zinc-900">
+            <button onclick="location.reload()" class="w-full py-4 text-zinc-600 font-black text-[10px] hover:text-red-500 transition-all uppercase tracking-widest">Terminate_Session</button>
         </div>
     </div>
 
     <div id="auth-screen" class="hidden">
-        <div class="auth-panel">
-            <div class="absolute top-0 right-0 p-4 opacity-20 font-black text-[10px]">SECURE_SOCKET_v4.2</div>
-            <div class="mb-10 text-center">
-                <h2 id="auth-h" class="text-5xl font-black italic text-white tracking-widest mb-2">LOGIN</h2>
-                <div class="flex justify-center gap-1"><div class="h-1 w-8 bg-neon"></div><div class="h-1 w-2 bg-neon"></div></div>
+        <div class="auth-container">
+            <div class="absolute -top-1 -left-1 w-10 h-10 border-t-2 border-l-2 border-neon"></div>
+            <div class="absolute -bottom-1 -right-1 w-10 h-10 border-b-2 border-r-2 border-neon"></div>
+            
+            <div class="mb-12 text-center">
+                <h2 id="auth-h" class="text-5xl font-black italic text-white tracking-tighter">LOGIN</h2>
+                <div class="h-1 w-20 bg-neon mx-auto mt-4 shadow-[0_0_15px_var(--neon)]"></div>
             </div>
 
-            <div class="space-y-4">
-                <input type="text" id="u-user" placeholder="OPERATOR_IDENTITY" class="cyber-input">
-                <input type="password" id="u-pass" placeholder="SECURITY_CIPHER" class="cyber-input">
-                <div id="key-wrapper">
-                    <input type="text" id="u-key" placeholder="ACCESS_LICENSE_KEY" class="cyber-input !border-red-900 !text-red-500 font-black">
+            <div class="space-y-2">
+                <div class="text-[10px] font-black opacity-30 mb-1 ml-1">OPERATOR_ID</div>
+                <input type="text" id="u-user" placeholder="..." class="cyber-input">
+                
+                <div class="text-[10px] font-black opacity-30 mb-1 ml-1">SECURITY_CIPHER</div>
+                <input type="password" id="u-pass" placeholder="..." class="cyber-input">
+                
+                <div id="key-gate">
+                    <div class="text-[10px] font-black text-red-500 opacity-50 mb-1 ml-1">ACCESS_LICENSE_KEY</div>
+                    <input type="text" id="u-key" placeholder="..." class="cyber-input !border-red-900 !text-red-500 font-black">
                 </div>
             </div>
 
-            <button onclick="execAuth()" id="auth-btn" class="w-full py-6 bg-neon text-black font-black italic text-xl mt-6 hover:bg-white transition-all shadow-[0_0_30px_rgba(0,255,65,0.3)]">
-                INITIALIZE_PROTOCOL
-            </button>
+            <button onclick="performAuth()" id="auth-btn" class="auth-btn mt-8">INITIALIZE_HANDSHAKE</button>
 
-            <div class="mt-10 text-center">
-                <p id="auth-tog" onclick="toggleAuth()" class="text-[10px] font-bold opacity-40 hover:opacity-100 cursor-pointer transition-all uppercase tracking-[4px]">
-                    >>> Request New Operator Credentials
+            <div class="mt-12 text-center">
+                <p id="auth-tog" onclick="toggleAuth()" class="text-[10px] font-black opacity-40 hover:opacity-100 cursor-pointer transition-all uppercase tracking-[4px]">
+                    >>> Register New Operator Node
                 </p>
             </div>
         </div>
     </div>
 
-    <main id="main-content" class="hidden max-w-[1600px] mx-auto p-4 md:p-12 pb-32">
-        <header class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
-            <div class="flex items-center gap-8">
-                <button onclick="document.getElementById('sidebar').classList.add('active')" class="text-4xl hover:text-white transition-all">☰</button>
+    <main id="main-content" class="hidden opacity-0 max-w-[1600px] mx-auto p-6 md:p-16 pb-32">
+        <header class="flex flex-col lg:flex-row justify-between items-center mb-20 gap-10">
+            <div class="flex items-center gap-10">
+                <button onclick="document.getElementById('sidebar').classList.add('active')" class="text-5xl hover:text-white transition-all hover:rotate-90">☰</button>
                 <div>
-                    <h1 class="text-4xl font-black italic text-white leading-none">NEKO <span class="text-neon uppercase">Cloud</span></h1>
-                    <p class="text-[9px] tracking-[6px] opacity-40 mt-2 font-bold uppercase">Multi-threaded Data Stream Access</p>
+                    <h1 class="text-5xl font-black italic text-white leading-none tracking-tighter">NEKO <span class="text-neon uppercase">Cloud</span></h1>
+                    <div class="flex items-center gap-3 mt-3">
+                        <div class="w-3 h-3 bg-neon rounded-full animate-pulse shadow-[0_0_10px_var(--neon)]"></div>
+                        <p class="text-[10px] tracking-[6px] opacity-40 font-black uppercase">Data Stream: Synchronized</p>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:block text-right">
-                    <p class="text-[8px] opacity-40 font-bold uppercase">Current Operator:</p>
-                    <p id="cur-op-name" class="text-xs font-black text-neon italic tracking-widest">---</p>
+            <div class="flex items-center gap-6">
+                <div class="hidden md:block text-right border-r border-zinc-800 pr-6">
+                    <p class="text-[9px] opacity-30 font-black uppercase">Session_Operator:</p>
+                    <p id="cur-op" class="text-lg font-black text-neon italic tracking-widest uppercase">Guest</p>
                 </div>
-                <button onclick="document.getElementById('up-box').classList.toggle('hidden')" class="px-10 py-4 bg-transparent border-2 border-neon text-neon font-black italic hover:bg-neon hover:text-black transition-all">UPLOAD_PAYLOAD</button>
+                <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="px-12 py-5 bg-transparent border-2 border-neon text-neon font-black italic text-sm hover:bg-neon hover:text-black transition-all shadow-[0_0_20px_rgba(0,255,65,0.1)]">UPLOAD_PAYLOAD</button>
             </div>
         </header>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <div class="cyber-card border-l-[6px] border-l-blue-600">
-                <p class="text-[10px] font-black opacity-30 mb-2">DB_SYNC_STATUS</p>
-                <div class="flex items-center gap-2"><div class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></div><p class="text-xl font-black text-white italic uppercase tracking-tighter">Connected</p></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+            <div class="stat-card border-l-[6px] border-l-blue-600">
+                <p class="text-[10px] font-black opacity-30 mb-3">CONNECTION_SSL</p>
+                <p class="text-2xl font-black text-white italic tracking-tighter uppercase">ESTABLISHED</p>
+                <div class="absolute bottom-0 right-0 p-2 opacity-10 text-4xl">🔒</div>
             </div>
-            <div class="cyber-card border-l-[6px] border-l-purple-600">
-                <p class="text-[10px] font-black opacity-30 mb-2">LICENSE_EXPIRY</p>
-                <p id="key-exp" class="text-2xl font-black text-purple-500 italic">--/--/----</p>
+            <div class="stat-card border-l-[6px] border-l-purple-600">
+                <p class="text-[10px] font-black opacity-30 mb-3">LICENSE_EXPIRY</p>
+                <p id="disp-exp" class="text-2xl font-black text-purple-500 italic tracking-tighter">--/--/----</p>
+                <div class="absolute bottom-0 right-0 p-2 opacity-10 text-4xl">⏳</div>
             </div>
-            <div class="cyber-card border-l-[6px] border-l-emerald-600">
-                <p class="text-[10px] font-black opacity-30 mb-2">SUPPORT_DONATE</p>
-                <p class="text-xl font-black text-white italic">0867799161</p>
+            <div class="stat-card border-l-[6px] border-l-emerald-600">
+                <p class="text-[10px] font-black opacity-30 mb-3">SUPPORT_HOTLINE</p>
+                <p class="text-2xl font-black text-white italic tracking-tighter">0867.799.161</p>
+                <div class="absolute bottom-0 right-0 p-2 opacity-10 text-4xl">📞</div>
             </div>
-            <div class="cyber-card border-l-[6px] border-l-orange-600">
-                <p class="text-[10px] font-black opacity-30 mb-2">NETWORK_NODES</p>
-                <p id="node-val" class="text-2xl font-black text-orange-500 italic">SCANNING...</p>
+            <div class="stat-card border-l-[6px] border-l-orange-600">
+                <p class="text-[10px] font-black opacity-30 mb-3">GLOBAL_NODES</p>
+                <p id="disp-nodes" class="text-2xl font-black text-orange-500 italic tracking-tighter">SCANNING...</p>
+                <div class="absolute bottom-0 right-0 p-2 opacity-10 text-4xl">🌐</div>
             </div>
         </div>
 
-        <div id="up-box" class="hidden cyber-card mb-12 border-dashed border-neon bg-emerald-950/10">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div id="up-form" class="hidden mb-16 p-10 bg-emerald-950/5 border-2 border-dashed border-neon/30">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
                 <div>
-                    <label class="text-[10px] font-black opacity-50 block mb-2 uppercase">Payload URI:</label>
-                    <input type="text" id="f-url" class="cyber-input !mb-0" placeholder="https://external-resource.cdn/data">
+                    <label class="text-[10px] font-black text-neon mb-3 block uppercase tracking-widest">Payload Link (URL):</label>
+                    <input type="text" id="f-url" class="cyber-input !mb-0 bg-black/50" placeholder="https://cloud-resource.io/v1/data">
                 </div>
                 <div>
-                    <label class="text-[10px] font-black opacity-50 block mb-2 uppercase">Module Metadata:</label>
-                    <input type="text" id="f-info" class="cyber-input !mb-0" placeholder="Input target description...">
+                    <label class="text-[10px] font-black text-neon mb-3 block uppercase tracking-widest">Module Info / Description:</label>
+                    <input type="text" id="f-info" class="cyber-input !mb-0 bg-black/50" placeholder="Target module identification...">
                 </div>
             </div>
-            <button onclick="commitPayload()" class="w-full py-5 border-2 border-neon text-neon font-black italic text-lg hover:bg-neon hover:text-black transition-all uppercase">Start_Injection_Sequence</button>
+            <button onclick="commitData()" class="w-full py-6 border-2 border-neon text-neon font-black italic text-xl hover:bg-neon hover:text-black transition-all uppercase tracking-[10px]">Start_Injection_Protocol</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div class="lg:col-span-2">
-                <div class="relative mb-10">
-                    <input type="text" id="search" oninput="fetchData()" placeholder="FILTER_DATABASE_MODULES..." class="w-full bg-black border border-zinc-800 p-8 text-sm font-black uppercase tracking-[5px] outline-none focus:border-neon transition-all">
-                    <div class="absolute right-8 top-8 text-[9px] font-black animate-pulse opacity-50">QUERY_ENGINE_ON</div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-16">
+            <div class="xl:col-span-2">
+                <div class="relative mb-12">
+                    <div class="absolute left-6 top-1/2 -translate-y-1/2 text-neon opacity-50">🔍</div>
+                    <input type="text" id="search-bar" oninput="refreshData()" placeholder="FILTER_DATABASE_CHANNELS..." class="w-full bg-black/80 border border-zinc-800 p-10 pl-16 text-sm font-black uppercase tracking-[8px] outline-none focus:border-neon focus:shadow-[0_0_30px_rgba(0,255,65,0.1)] transition-all">
                 </div>
                 
-                <div id="data-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div id="data-grid">
                     </div>
             </div>
 
-            <div class="space-y-10">
-                <div class="cyber-card h-[600px] flex flex-col p-0 border-zinc-800">
-                    <div class="p-5 bg-zinc-900 flex justify-between items-center border-b border-zinc-800">
-                        <span class="text-xs font-black italic uppercase">World_Comm_Terminal</span>
-                        <div class="w-3 h-3 bg-red-600 animate-pulse"></div>
+            <div class="space-y-12">
+                <div class="cyber-card p-0 border-zinc-800 flex flex-col h-[650px]">
+                    <div class="p-6 bg-zinc-900/50 border-b border-zinc-800 flex justify-between items-center">
+                        <span class="text-xs font-black italic uppercase tracking-widest text-white">World_Nexus_Chat</span>
+                        <div class="flex gap-1"><div class="w-1 h-3 bg-neon animate-bounce"></div><div class="w-1 h-3 bg-neon animate-bounce [animation-delay:0.2s]"></div><div class="w-1 h-3 bg-neon animate-bounce [animation-delay:0.4s]"></div></div>
                     </div>
-                    <div id="chat-display" class="flex-1 overflow-y-auto p-6 space-y-4 font-mono text-[11px]">
+                    <div id="chat-content">
                         </div>
-                    <div id="chat-input-area" class="hidden p-5 bg-black border-t border-zinc-800">
-                        <input type="text" id="chat-msg" placeholder="Broadcast message..." class="w-full bg-transparent border-b border-zinc-800 py-2 text-white outline-none focus:border-neon">
+                    <div id="chat-gate" class="hidden p-6 bg-black border-t border-zinc-800">
+                        <div class="flex gap-4">
+                            <input type="text" id="chat-input" placeholder="Broadcast to all operators..." class="flex-1 bg-transparent border-b border-zinc-800 py-3 text-sm text-white outline-none focus:border-neon transition-all">
+                            <button onclick="sendMessage()" class="text-neon font-black hover:scale-110 transition-all">SEND_></button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="otp-section" class="hidden cyber-card border-cyan-500 bg-cyan-900/5">
-                    <h3 class="text-xs font-black uppercase mb-6 italic text-cyan-500 tracking-widest">Operator_Identification</h3>
-                    <input type="email" id="email-val" placeholder="REGISTER_CORE_EMAIL" class="cyber-input !border-cyan-900 !text-cyan-400">
-                    <button onclick="sendOTP()" id="otp-req-btn" class="w-full py-3 bg-transparent border border-cyan-500 text-cyan-500 text-[10px] font-black uppercase mb-4 hover:bg-cyan-500 hover:text-black">Request_Handshake_OTP</button>
-                    <div class="flex gap-2">
-                        <input type="text" id="otp-code" placeholder="CODE" class="cyber-input !mb-0 text-center !p-3">
-                        <button onclick="confirmOTP()" class="bg-cyan-600 text-black px-6 font-black uppercase text-[10px]">Verify</button>
+                <div id="verify-area" class="hidden stat-card border-cyan-500 bg-cyan-900/5">
+                    <h3 class="text-xs font-black text-cyan-500 uppercase italic tracking-widest mb-6">Operator_Auth_Verification</h3>
+                    <div class="space-y-4">
+                        <input type="email" id="v-email" placeholder="Recovery Email" class="cyber-input !border-cyan-900/50 !bg-transparent !mb-0 !text-cyan-400">
+                        <button onclick="requestOTP()" id="otp-btn" class="w-full py-4 bg-transparent border border-cyan-600 text-cyan-600 font-black text-[10px] uppercase hover:bg-cyan-600 hover:text-black transition-all">Request_Handshake_OTP</button>
+                        <div class="flex gap-2">
+                            <input type="text" id="v-otp" placeholder="CODE" class="cyber-input !mb-0 !p-3 text-center font-black !border-cyan-900/50">
+                            <button onclick="confirmOTP()" class="bg-cyan-600 text-black px-8 font-black uppercase text-[10px] hover:bg-white">Verify</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="fixed bottom-0 w-full bg-black/95 border-t border-zinc-900 p-4 z-[9000] flex justify-between items-center px-10">
-        <div class="text-[9px] font-black opacity-30 uppercase tracking-[4px]">Uptime: <span id="uptime-val">0h 0m 0s</span></div>
-        <div class="text-[9px] text-neon italic font-bold">NEKO_CLOUD_SECURE_ENCRYPTION_v4.5</div>
+    <footer class="fixed bottom-0 w-full bg-black/95 border-t border-zinc-900 p-5 z-[19000] flex flex-col md:flex-row justify-between items-center px-12 gap-4">
+        <div class="text-[9px] font-black opacity-30 uppercase tracking-[5px]">System_Uptime: <span id="uptime-clock" class="text-neon">0h 0m 0s</span></div>
+        <div class="flex gap-8 items-center">
+            <div class="text-[9px] text-neon italic font-bold tracking-[2px] animate-pulse">NEKO_CLOUD_SECURE_ENCRYPTION_v6.0_STABLE</div>
+            <div class="text-[9px] opacity-20 font-black">PING: 24ms</div>
+        </div>
     </footer>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, get, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        const app = initializeApp(config);
+        // DATABASE CONFIGURATION
+        const fbConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(fbConfig);
         const db = getDatabase(app);
 
-        // 1. MATRIX CORE
+        // 1. BOOT SEQUENCE
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const fill = document.getElementById('load-fill');
+            const status = document.getElementById('load-status');
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if(progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    gsap.to("#loader", { opacity: 0, duration: 1, onComplete: () => {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('lang-screen').classList.remove('hidden');
+                    }});
+                }
+                fill.style.width = progress + "%";
+                if(progress > 30) status.innerText = "Synchronizing Database...";
+                if(progress > 70) status.innerText = "Encrypting WebSocket Stream...";
+            }, 150);
+        });
+
+        // 2. MATRIX ANIMATION ENGINE
         const canvas = document.getElementById("matrix");
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*あいうえお";
-        const fSize = 16;
-        const drops = Array.from({ length: canvas.width / fSize }).fill(1);
+        const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*あいうえおカキクケコ";
+        const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const rainDrops = Array.from({ length: columns }).fill(1);
 
         function drawMatrix() {
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "#0F0"; ctx.font = fSize + "px monospace";
-            drops.forEach((y, i) => {
-                const txt = chars.charAt(Math.floor(Math.random() * chars.length));
-                ctx.fillText(txt, i * fSize, y * fSize);
-                if (y * fSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
-                drops[i]++;
-            });
+            ctx.fillStyle = "#0F0"; ctx.font = fontSize + "px monospace";
+            for(let i = 0; i < rainDrops.length; i++) {
+                const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+                ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+                if(rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975) rainDrops[i] = 0;
+                rainDrops[i]++;
+            }
         }
         setInterval(drawMatrix, 40);
 
-        // 2. SYSTEM LOGS
+        // 3. SYSTEM LOGGING
         const log = (msg) => {
-            const container = document.getElementById('terminal-logs');
-            const entry = document.createElement('div');
-            entry.className = 'term-entry';
-            entry.innerHTML = `<span class="text-neon opacity-50">[${new Date().toLocaleTimeString()}]</span> > ${msg}`;
-            container.appendChild(entry);
-            setTimeout(() => { entry.style.opacity = '0'; setTimeout(() => entry.remove(), 500); }, 5000);
+            const box = document.getElementById('log-box');
+            const el = document.createElement('div');
+            el.className = 'log-entry';
+            el.innerHTML = `<span class="text-neon opacity-40">[${new Date().toLocaleTimeString()}]</span> > ${msg}`;
+            box.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(50px)';
+                setTimeout(() => el.remove(), 500);
+            }, 5000);
         };
 
-        // 3. SYSTEM BOOT
+        // 4. LANGUAGE HANDLER
         let currentLang = 'en';
-        window.bootSystem = (lang) => {
-            currentLang = lang;
-            document.getElementById('lang-screen').style.transition = '1s';
-            document.getElementById('lang-screen').style.opacity = '0';
-            log(`Kernel loading: ${lang.toUpperCase()} environment...`);
-            setTimeout(() => {
+        window.boot = (l) => {
+            currentLang = l;
+            gsap.to("#lang-screen", { opacity: 0, duration: 0.8, onComplete: () => {
                 document.getElementById('lang-screen').style.display = 'none';
                 document.getElementById('auth-screen').classList.remove('hidden');
-                if(lang === 'vi') {
+                if(l === 'vi') {
                     document.getElementById('auth-h').innerText = "XÁC_THỰC";
-                    document.getElementById('auth-btn').innerText = "KHỞI_CHẠY_HỆ_THỐNG";
+                    document.getElementById('auth-btn').innerText = "KHỞI_CHẠY_PROTOCOL";
                     document.getElementById('auth-tog').innerText = ">>> Đăng Ký Tài Khoản Operator Mới";
-                    document.getElementById('sd-title').innerText = "BẢNG_LỆNH";
+                    document.getElementById('sd-h').innerText = "BẢNG_ĐIỀU_KHIỂN";
                 }
-            }, 1000);
+                log(`Environment [${l.toUpperCase()}] loaded successfully.`);
+            }});
         };
 
-        // 4. AUTHENTICATION LOGIC (HEAVY)
+        // 5. AUTHENTICATION CORE (ANTI-ERROR v6)
         let isLogin = true;
-        let curU = "";
+        let currentUser = "";
+        
         window.toggleAuth = () => {
             isLogin = !isLogin;
             const h = document.getElementById('auth-h');
             const btn = document.getElementById('auth-btn');
             const tog = document.getElementById('auth-tog');
-            const kWrap = document.getElementById('key-wrapper');
+            const kGate = document.getElementById('key-gate');
 
             h.innerText = isLogin ? (currentLang === 'vi' ? "XÁC_THỰC" : "LOGIN") : (currentLang === 'vi' ? "ĐĂNG_KÝ" : "REGISTER");
-            btn.innerText = isLogin ? (currentLang === 'vi' ? "KHỞI_CHẠY_HỆ_THỐNG" : "INITIALIZE_PROTOCOL") : (currentLang === 'vi' ? "TẠO_HỒ_SƠ" : "CREATE_IDENTITY");
-            tog.innerText = isLogin ? (currentLang === 'vi' ? ">>> Đăng Ký Tài Khoản Mới" : ">>> Request New Credentials") : (currentLang === 'vi' ? ">>> Đã Có Hồ Sơ? Đăng Nhập" : ">>> Already Authorized? Login");
-            kWrap.style.display = isLogin ? "block" : "none";
-            log("UI_TRANSITION: Mode " + (isLogin ? "Login" : "Register"));
+            btn.innerText = isLogin ? (currentLang === 'vi' ? "KHỞI_CHẠY_PROTOCOL" : "INITIALIZE_HANDSHAKE") : (currentLang === 'vi' ? "TẠO_HỒ_SƠ_MỚI" : "CREATE_NEW_IDENTITY");
+            tog.innerText = isLogin ? (currentLang === 'vi' ? ">>> Đăng Ký Tài Khoản Mới" : ">>> Register New Operator Node") : (currentLang === 'vi' ? ">>> Đã Có Tài Khoản? Đăng Nhập" : ">>> Already Have Identity? Login");
+            kGate.style.display = isLogin ? "block" : "none";
+            log("Mode Switched: " + (isLogin ? "Authentication" : "Provisioning"));
         };
 
-        window.execAuth = async () => {
+        window.performAuth = async () => {
             const u = document.getElementById('u-user').value.trim();
             const p = document.getElementById('u-pass').value.trim();
             const k = document.getElementById('u-key').value.trim();
 
-            if(!u || !p) return log("CRITICAL: Missing credentials.");
+            if(!u || !p) return log("CRITICAL: Identity fields cannot be empty.");
 
             if(isLogin) {
-                log(`HANDSHAKING: Operator ${u}...`);
-                const uSnap = await get(ref(db, `Users/${u}`));
-                const kSnap = await get(ref(db, `Keys/${k}`));
+                log(`Attempting handshake for operator: ${u}...`);
+                try {
+                    const uSnap = await get(ref(db, `Users/${u}`));
+                    const kSnap = await get(ref(db, `Keys/${k}`));
 
-                if(!uSnap.exists() || uSnap.val().pass !== p) return log("FAILURE: Invalid credentials.");
-                if(uSnap.val().banned) return log("CRITICAL: Operator blacklisted.");
-                if(!kSnap.exists()) return log("FAILURE: License key invalid.");
+                    // Validate User & Pass
+                    if(!uSnap.exists()) return log("FAILURE: Identity not found in Database.");
+                    if(String(uSnap.val().pass) !== String(p)) return log("FAILURE: Security Cipher mismatched.");
+                    if(uSnap.val().banned) return log("CRITICAL: Access Denied. Operator Blacklisted.");
 
-                const hwid = navigator.userAgent.length + screen.width;
-                if(kSnap.val().hwid && kSnap.val().hwid !== hwid) return log("SECURITY: HWID Mismatch.");
-                if(!kSnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: hwid });
+                    // Validate License Key
+                    if(!kSnap.exists()) return log("FAILURE: Access License Key invalid.");
+                    
+                    const hwid = navigator.userAgent.length + screen.width + screen.height;
+                    if(kSnap.val().hwid && kSnap.val().hwid != hwid) return log("SECURITY: HWID Mismatch. Unauthorized device.");
+                    if(!kSnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: hwid });
 
-                curU = u;
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('cur-op-name').innerText = u.toUpperCase();
-                document.getElementById('key-exp').innerText = kSnap.val().expiry;
-                
-                if(u === "admin") document.getElementById('admin-tools').classList.remove('hidden');
+                    // Login Success
+                    currentUser = u;
+                    gsap.to("#auth-screen", { opacity: 0, duration: 0.5, onComplete: () => {
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('main-content').classList.remove('hidden');
+                        gsap.to("#main-content", { opacity: 1, duration: 1 });
+                        document.getElementById('cur-op').innerText = u;
+                        document.getElementById('disp-exp').innerText = kSnap.val().expiry;
+                        
+                        // Admin check
+                        if(u === "admin") document.getElementById('admin-panel').classList.remove('hidden');
 
-                log(`ACCESS_GRANTED: Welcome Operator ${u}.`);
-                checkStatus(u); fetchData(); syncChat(); syncMods(); startTimer();
+                        log(`ACCESS_GRANTED: Welcome, Operator ${u}. System online.`);
+                        startSystemFunctions(u);
+                    }});
+                } catch(e) {
+                    log("SYSTEM_ERROR: " + e.message);
+                }
             } else {
+                // Registration
                 const check = await get(ref(db, `Users/${u}`));
-                if(check.exists()) return log("FAILURE: Operator ID already exists.");
-                await set(ref(db, `Users/${u}`), { pass: p, banned: false, verified: false });
-                log("SUCCESS: Identity created. Return to login.");
+                if(check.exists()) return log("FAILURE: Operator ID already registered.");
+                await set(ref(db, `Users/${u}`), { pass: p, banned: false, verified: false, created: Date.now() });
+                log("SUCCESS: Identity provisioned. You may now login.");
                 toggleAuth();
             }
         };
 
-        // 5. ADMIN QUICK PROVISION
-        window.quickAuthCreate = async () => {
-            const qu = document.getElementById('aq-user').value.trim();
-            const qk = document.getElementById('aq-key').value.trim();
-            if(!qu || !qk) return log("ADMIN_ERROR: Missing target info.");
+        // 6. ADMIN PROVISIONING ENGINE
+        window.execAdminProvision = async () => {
+            const au = document.getElementById('adm-u').value.trim();
+            const ap = document.getElementById('adm-p').value.trim();
+            const ak = document.getElementById('adm-k').value.trim();
+
+            if(!au || !ap || !ak) return log("ADMIN_ERROR: All provision fields required.");
             
-            await set(ref(db, `Users/${qu}`), { pass: "123", banned: false, verified: true });
-            await set(ref(db, `Keys/${qk}`), { status: "active", expiry: "31/12/2026", hwid: "" });
-            log(`PROVISIONING_COMPLETE: [${qu}] + [${qk}]`);
+            log(`FORCING_PROVISION: User[${au}] Key[${ak}]...`);
+            try {
+                await set(ref(db, `Users/${au}`), { pass: ap, banned: false, verified: true });
+                await set(ref(db, `Keys/${ak}`), { status: "active", expiry: "31/12/2026", hwid: "" });
+                log(`PROVISION_SUCCESS: Identity [${au}] is now LIVE.`);
+                // Clear inputs
+                document.getElementById('adm-u').value = "";
+                document.getElementById('adm-p').value = "";
+                document.getElementById('adm-k').value = "";
+            } catch(e) {
+                log("PROVISION_FAILED: " + e.message);
+            }
         };
 
-        // 6. RESOURCE MANAGEMENT
-        async function validateLink(id, url) {
-            try {
-                const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-                if(!r.ok) await remove(ref(db, `SharedLinks/${id}`));
-            } catch(e) {}
+        // 7. SYSTEM REFRESH & DATA LOADING
+        async function startSystemFunctions(u) {
+            checkVerification(u);
+            refreshData();
+            syncChat();
+            syncModerators();
+            startTimeTracker();
         }
 
-        window.fetchData = () => {
-            const q = document.getElementById('search').value.toLowerCase();
-            onValue(ref(db, 'SharedLinks'), (s) => {
-                const g = document.getElementById('data-grid');
-                const d = s.val(); g.innerHTML = "";
-                if(!d) { document.getElementById('node-val').innerText = "0 ACTIVE"; return; }
-                const ks = Object.keys(d).reverse();
-                document.getElementById('node-val').innerText = ks.length + " ACTIVE";
+        window.refreshData = () => {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            onValue(ref(db, 'SharedLinks'), (snapshot) => {
+                const grid = document.getElementById('data-grid');
+                const data = snapshot.val();
+                grid.innerHTML = "";
                 
-                ks.forEach(id => {
-                    const o = d[id];
-                    if(o.url.toLowerCase().includes(q) || o.owner.toLowerCase().includes(q)) {
-                        validateLink(id, o.url);
-                        g.innerHTML += `
-                        <div class="cyber-card group">
-                            <div class="flex justify-between mb-4"><span class="text-[8px] bg-neon text-black px-2 font-black italic">BY: ${o.owner}</span><span class="text-[8px] opacity-30">${o.time}</span></div>
-                            <h3 class="text-white text-xs font-bold mb-6 h-10 line-clamp-2">${o.info || o.url}</h3>
-                            <button onclick="window.open('${o.url}')" class="w-full py-3 border border-neon text-neon text-[10px] font-black hover:bg-neon hover:text-black transition-all">ESTABLISH_CONNECTION</button>
+                if(!data) {
+                    document.getElementById('disp-nodes').innerText = "0 ACTIVE";
+                    return;
+                }
+
+                const keys = Object.keys(data).reverse();
+                document.getElementById('disp-nodes').innerText = keys.length + " ACTIVE";
+                
+                keys.forEach(id => {
+                    const item = data[id];
+                    if(item.url.toLowerCase().includes(query) || item.owner.toLowerCase().includes(query) || (item.info && item.info.toLowerCase().includes(query))) {
+                        grid.innerHTML += `
+                        <div class="data-card group">
+                            <div class="flex justify-between items-center mb-6">
+                                <span class="text-[8px] bg-neon text-black px-2 font-black italic tracking-widest">ID: ${item.owner}</span>
+                                <span class="text-[8px] opacity-30 font-mono">${item.time}</span>
+                            </div>
+                            <h3 class="text-white text-xs font-bold mb-8 h-12 line-clamp-2 leading-relaxed tracking-wide">${item.info || item.url}</h3>
+                            <button onclick="window.open('${item.url}')" class="w-full py-4 border border-cyan-500 text-cyan-500 text-[10px] font-black hover:bg-cyan-500 hover:text-black transition-all uppercase tracking-widest">Establish_Link</button>
                         </div>`;
                     }
                 });
             });
         };
 
-        window.commitPayload = async () => {
+        window.commitData = async () => {
             const url = document.getElementById('f-url').value.trim();
             const info = document.getElementById('f-info').value.trim();
-            if(!url) return log("ERROR: Payload URI missing.");
-            await push(ref(db, 'SharedLinks'), { url, info, owner: curU, time: new Date().toLocaleDateString() });
-            document.getElementById('up-box').classList.add('hidden');
-            log("INJECTION_SUCCESS: Data synchronized.");
+            if(!url) return log("ERROR: Payload URL is required.");
+            
+            try {
+                await push(ref(db, 'SharedLinks'), {
+                    url: url,
+                    info: info,
+                    owner: currentUser,
+                    time: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString()
+                });
+                document.getElementById('up-form').classList.add('hidden');
+                document.getElementById('f-url').value = "";
+                document.getElementById('f-info').value = "";
+                log("PAYLOAD_INJECTED: Cloud synchronization complete.");
+            } catch(e) {
+                log("INJECTION_FAILED: " + e.message);
+            }
         };
 
-        // 7. CHAT & IDENTITY
-        async function checkStatus(u) {
-            const s = await get(ref(db, `Users/${u}`));
-            if(s.val().verified) document.getElementById('chat-input-area').classList.remove('hidden');
-            else {
-                document.getElementById('otp-section').classList.remove('hidden');
-                const m = await get(ref(db, `MailConfirm/${u}`));
-                if(m.exists()) {
-                    document.getElementById('otp-req-btn').innerText = "PENDING_APPROVAL";
-                    document.getElementById('otp-req-btn').disabled = true;
+        // 8. CHAT & VERIFICATION
+        async function checkVerification(u) {
+            const snap = await get(ref(db, `Users/${u}`));
+            if(snap.val().verified) {
+                document.getElementById('chat-gate').classList.remove('hidden');
+            } else {
+                document.getElementById('verify-area').classList.remove('hidden');
+                const mailSnap = await get(ref(db, `MailConfirm/${u}`));
+                if(mailSnap.exists()) {
+                    const btn = document.getElementById('otp-btn');
+                    btn.innerText = "AWAITING_VERIFICATION...";
+                    btn.disabled = true;
                 }
             }
         }
 
-        window.sendOTP = async () => {
-            const email = document.getElementById('email-val').value.trim();
-            if(!email.includes("@")) return log("ERROR: Email invalid.");
+        window.requestOTP = async () => {
+            const email = document.getElementById('v-email').value.trim();
+            if(!email.includes("@")) return log("ERROR: Invalid email format.");
             const otp = Math.floor(100000 + Math.random() * 900000);
-            await set(ref(db, `MailConfirm/${curU}`), { email, otp, ts: Date.now() });
-            log("OTP_SENT: Awaiting response.");
-            setTimeout(() => location.reload(), 1200);
+            await set(ref(db, `MailConfirm/${currentUser}`), { email, otp, timestamp: Date.now() });
+            log("OTP_GENERATED: Check your terminal/email.");
+            setTimeout(() => location.reload(), 1500);
         };
 
         window.confirmOTP = async () => {
-            const c = document.getElementById('otp-code').value.trim();
-            const s = await get(ref(db, `MailConfirm/${curU}`));
-            if(s.exists() && s.val().otp == c) {
-                await update(ref(db, `Users/${curU}`), { verified: true });
-                log("IDENTITY_VERIFIED."); location.reload();
-            } else log("ERROR: Handshake code invalid.");
+            const code = document.getElementById('v-otp').value.trim();
+            const snap = await get(ref(db, `MailConfirm/${currentUser}`));
+            if(snap.exists() && snap.val().otp == code) {
+                await update(ref(db, `Users/${currentUser}`), { verified: true });
+                log("IDENTITY_VERIFIED: Full access granted.");
+                location.reload();
+            } else {
+                log("ERROR: Invalid OTP Code.");
+            }
         };
 
         window.syncChat = () => {
-            onValue(ref(db, 'WorldChat'), (s) => {
-                const b = document.getElementById('chat-display');
-                const d = s.val(); b.innerHTML = ""; if(!d) return;
-                Object.values(d).slice(-40).forEach(m => {
-                    b.innerHTML += `<div><span class="text-neon font-black">[${m.u}]:</span> <span class="text-white opacity-60">${m.msg}</span></div>`;
+            onValue(ref(db, 'WorldChat'), (snapshot) => {
+                const box = document.getElementById('chat-content');
+                const data = snapshot.val();
+                box.innerHTML = "";
+                if(!data) return;
+                
+                Object.values(data).slice(-50).forEach(m => {
+                    box.innerHTML += `
+                    <div class="chat-msg">
+                        <span class="text-neon font-black uppercase">[${m.u}]:</span>
+                        <span class="text-zinc-400 ml-2">${m.msg}</span>
+                    </div>`;
                 });
-                b.scrollTop = b.scrollHeight;
+                box.scrollTop = box.scrollHeight;
             });
         };
 
-        document.getElementById('chat-msg').addEventListener('keypress', (e) => {
-            if(e.key === 'Enter' && e.target.value.trim()) {
-                push(ref(db, 'WorldChat'), { u: curU, msg: e.target.value.trim() });
-                e.target.value = "";
-            }
+        window.sendMessage = () => {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+            push(ref(db, 'WorldChat'), { u: currentUser, msg: msg, ts: Date.now() });
+            input.value = "";
+        };
+
+        document.getElementById('chat-input').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') sendMessage();
         });
 
-        // 8. MODERATOR LINK SYNC
-        window.syncMods = () => {
-            onValue(ref(db, 'ModLinks'), (s) => {
-                const d = s.val(); if(!d) return;
-                const ms = ["Thuan", "Loc", "Neko", "King"];
-                ms.forEach(m => {
+        // 9. MODERATOR NODE SYNC
+        window.syncModerators = () => {
+            onValue(ref(db, 'ModLinks'), (snapshot) => {
+                const data = snapshot.val();
+                if(!data) return;
+                const mods = ["Thuan", "Loc", "Neko", "King"];
+                mods.forEach(m => {
                     const el = document.getElementById(`m-${m}`);
-                    if(d[m]) el.innerHTML = `<button onclick="window.open('${d[m]}')" class="mod-status-btn">BẤM VÀO ĐÂY</button>`;
+                    if(data[m]) {
+                        el.innerHTML = `<button onclick="window.open('${data[m]}')" class="bg-neon text-black px-3 py-1 font-black text-[9px] hover:bg-white transition-all">LINK_ACCESS</button>`;
+                    } else {
+                        el.innerText = "OFFLINE";
+                        el.className = "text-[10px] text-red-600 font-black italic";
+                    }
                 });
             });
         };
 
-        // 9. TIMER & SECURITY
-        function startTimer() {
-            let s = 0, m = 0, h = 0;
+        // 10. SYSTEM CLOCK
+        function startTimeTracker() {
+            let sec = 0, min = 0, hr = 0;
             setInterval(() => {
-                s++; if(s==60){s=0; m++;} if(m==60){m=0; h++;}
-                document.getElementById('uptime-val').innerText = `${h}h ${m}m ${s}s`;
+                sec++;
+                if(sec == 60) { sec = 0; min++; }
+                if(min == 60) { min = 0; hr++; }
+                document.getElementById('uptime-clock').innerText = `${hr}h ${min}m ${sec}s`;
             }, 1000);
         }
 
-        // ANTI INSPECT
+        // 11. SECURITY ENFORCEMENT
         document.onkeydown = (e) => {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74))) return false;
+            if(e.keyCode == 123) return false; // F12
+            if(e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) return false; // Ctrl+Shift+I/J
         };
 
-        // Close sidebar
+        // Auto-close Sidebar
         document.addEventListener('click', (e) => {
-            if(!document.getElementById('sidebar').contains(e.target) && e.target.innerText !== '☰') {
-                document.getElementById('sidebar').classList.remove('active');
+            const side = document.getElementById('sidebar');
+            if(!side.contains(e.target) && e.target.innerText !== '☰') {
+                side.classList.remove('active');
             }
         });
 
