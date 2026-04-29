@@ -2,29 +2,28 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Database Control</title>
+    <title>Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background: #000; color: #10b981; font-family: 'JetBrains Mono', monospace; }
-        .admin-card { border: 1px solid #10b981; background: #050505; }
     </style>
 </head>
 <body class="p-10">
     <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-black mb-10 border-b border-emerald-900 pb-4 italic">ROOT@ADMIN_PANEL</h1>
+        <h1 class="text-3xl font-bold mb-10 text-emerald-500">HỆ THỐNG QUẢN TRỊ</h1>
         
-        <div class="admin-card p-8 rounded-2xl mb-12">
-            <h2 class="font-bold mb-6 flex items-center gap-2 underline decoration-emerald-500">NEW_KEY_GENERATION</h2>
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="new-key" placeholder="Key ID" class="bg-black border border-emerald-900 p-4 rounded-xl flex-1 outline-none focus:border-emerald-500">
-                <input type="text" id="expiry" placeholder="Hạn (dd/mm/yyyy)" class="bg-black border border-emerald-900 p-4 rounded-xl flex-1 outline-none focus:border-emerald-500">
-                <button onclick="createKey()" class="bg-emerald-500 text-black px-8 py-4 rounded-xl font-black uppercase hover:bg-white transition-all">Generate</button>
+        <div class="bg-zinc-900 p-6 rounded-2xl mb-10 border border-emerald-900">
+            <h2 class="font-bold mb-4">TẠO KEY TRUY CẬP</h2>
+            <div class="flex gap-4">
+                <input type="text" id="k-name" placeholder="Tên Key..." class="bg-black p-3 rounded-xl flex-1 outline-none border border-emerald-900">
+                <input type="text" id="k-exp" placeholder="Hạn dùng (vd: 30 ngày)" class="bg-black p-3 rounded-xl flex-1 outline-none border border-emerald-900">
+                <button onclick="genKey()" class="bg-emerald-500 text-black px-6 rounded-xl font-bold">LƯU</button>
             </div>
-            <p id="adm-msg" class="mt-4 text-xs font-bold"></p>
+            <p id="adm-msg" class="text-[10px] mt-2 font-bold uppercase"></p>
         </div>
 
-        <h2 class="font-bold mb-6 opacity-50 uppercase tracking-widest text-sm">Node_Management</h2>
-        <div id="admin-list" class="space-y-3"></div>
+        <h2 class="font-bold mb-4 text-white">DANH SÁCH FILE - QUẢN LÝ</h2>
+        <div id="admin-link-list" class="space-y-2"></div>
     </div>
 
     <script type="module">
@@ -35,34 +34,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        window.createKey = () => {
-            const k = document.getElementById('new-key').value;
-            const e = document.getElementById('expiry').value;
-            const msg = document.getElementById('adm-msg');
+        window.genKey = () => {
+            const k = document.getElementById('k-name').value;
+            const e = document.getElementById('k-exp').value;
             if(!k || !e) return;
             set(ref(db, `Keys/${k}`), { expiry: e });
-            msg.innerText = "SYSTEM: NEW KEY CREATED SUCCESSFULLY.";
+            document.getElementById('adm-msg').innerText = "Đã tạo key mới thành công!";
         };
 
         onValue(ref(db, 'SharedLinks'), (snapshot) => {
             const data = snapshot.val();
-            const list = document.getElementById('admin-list');
+            const list = document.getElementById('admin-link-list');
             list.innerHTML = "";
             if(!data) return;
 
-            Object.keys(data).reverse().forEach(id => {
+            Object.keys(data).forEach(id => {
                 const item = data[id];
                 list.innerHTML += `
-                    <div class="admin-card p-4 rounded-xl flex justify-between items-center group hover:bg-emerald-900/10 transition-all">
-                        <span class="text-sm font-bold">${item.name} <span class="opacity-30">(${item.domain})</span></span>
-                        <button onclick="deleteLink('${id}')" class="text-red-500 hover:text-white hover:bg-red-600 px-4 py-2 rounded-lg font-bold text-xs border border-red-900 transition-all">REMOVE</button>
+                    <div class="bg-zinc-900 p-4 rounded-xl flex justify-between items-center border border-emerald-950">
+                        <span class="text-sm">${item.name} (${item.domain})</span>
+                        <button onclick="delLink('${id}')" class="text-red-500 font-bold hover:bg-red-500 hover:text-white px-4 py-1 rounded-lg transition-all">XÓA</button>
                     </div>
                 `;
             });
         });
 
-        window.deleteLink = (id) => {
-            if(confirm("XÁC NHẬN XÓA NODE KHỎI DATABASE?")) remove(ref(db, `SharedLinks/${id}`));
+        window.delLink = (id) => {
+            if(confirm("Bạn có chắc chắn muốn xóa file này không?")) {
+                remove(ref(db, `SharedLinks/${id}`));
+            }
         };
     </script>
 </body>
