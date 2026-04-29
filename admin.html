@@ -1,112 +1,77 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neko Root Admin - Control Panel</title>
+    <meta charset="UTF-8"><title>Neko Root Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
-    <style>
-        body { background: #000; color: #10b981; font-family: 'JetBrains Mono', monospace; }
-        .admin-card { background: #0a0a0a; border: 1px solid #1f2937; border-radius: 20px; padding: 24px; transition: 0.3s; }
-        .admin-card:hover { border-color: #10b981; }
-        .input-dark { background: #000; border: 1px solid #1f2937; color: #10b981; padding: 12px; border-radius: 12px; outline: none; width: 100%; }
-        .input-dark:focus { border-color: #3b82f6; }
-        .btn-green { background: #10b981; color: #000; font-weight: 800; padding: 12px; border-radius: 12px; transition: 0.3s; width: 100%; }
-        .btn-green:hover { background: #fff; }
-    </style>
+    <style>body{background:#000;color:#10b981;font-family:monospace;}</style>
 </head>
-<body class="p-4 md:p-10 max-w-5xl mx-auto">
+<body class="p-4 md:p-10 max-w-6xl mx-auto text-xs">
+    <h1 class="text-2xl font-black mb-8 border-b border-zinc-900 pb-4">ROOT CONTROL</h1>
 
-    <h1 class="text-3xl font-black mb-10 border-b border-zinc-900 pb-6 uppercase italic">ADMIN <span class="text-white">MANAGER</span></h1>
-
-    <div class="admin-card border-2 border-emerald-500 mb-10 bg-emerald-950/10">
-        <h2 class="text-sm font-black mb-2 uppercase text-emerald-400 flex items-center gap-2">
-            🚀 CÀI ĐẶT LINK VƯỢT (LINK4M)
-        </h2>
-        <p class="text-[10px] mb-4 text-white/50 italic">Dán link bạn đã rút gọn từ Link4m vào đây. Khi người dùng bấm "Lấy Key", họ sẽ được dẫn đến link này.</p>
-        
-        <div class="flex flex-col md:flex-row gap-3">
-            <input type="text" id="l4m-input" placeholder="Dán link Link4m của bạn tại đây... (vd: https://link4m.com/xyz)" 
-                   class="input-dark flex-1 border-emerald-800 text-sm">
-            <button onclick="updateMissionLink()" class="btn-green md:w-40 uppercase">Lưu Link</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-zinc-900 p-4 rounded-xl border border-emerald-900">
+            <h2 class="font-bold mb-4">Cài đặt Link Vượt (Link4m)</h2>
+            <input type="text" id="l4m" class="bg-black p-2 rounded border border-emerald-800 w-full mb-3 outline-none">
+            <button onclick="upL()" class="w-full bg-emerald-500 text-black py-2 font-bold">LƯU LINK4M</button>
         </div>
-        <p id="save-msg" class="text-[10px] mt-2 font-bold uppercase"></p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-        <div class="admin-card">
-            <h2 class="text-xs font-black mb-4 uppercase text-white">Tạo Key Truy Cập</h2>
-            <div class="flex gap-2 mb-3">
-                <input type="text" id="k-id" placeholder="Tên Key" class="input-dark text-xs">
-                <input type="text" id="k-exp" placeholder="Hạn (Ngày/Tháng/Năm)" class="input-dark text-xs">
-            </div>
-            <button onclick="generateManualKey()" class="btn-green uppercase text-xs bg-white">Xác nhận tạo Key</button>
-        </div>
-
-        <div class="admin-card border-red-900/30">
-            <h2 class="text-xs font-black mb-4 uppercase text-red-500">Ban User Vi Phạm</h2>
-            <input type="text" id="ban-target" placeholder="Nhập Username cần Ban..." class="input-dark mb-4 text-xs">
-            <div class="flex gap-2">
-                <button onclick="updateBanStatus(true)" class="btn-green bg-red-600 text-white uppercase text-xs">BAN</button>
-                <button onclick="updateBanStatus(false)" class="btn-green bg-zinc-800 text-white uppercase text-xs">Gỡ Ban</button>
-            </div>
+        <div class="bg-zinc-900 p-4 rounded-xl border border-blue-900">
+            <h2 class="font-bold mb-4 text-blue-400 italic">⭐ SPECIAL: GETKEY YSM</h2>
+            <p class="mb-2 opacity-60">https://ysmteam.io.vn/keys/free?admin=YSMTEAM</p>
+            <button onclick="window.open('https://ysmteam.io.vn/keys/free?admin=YSMTEAM')" class="w-full bg-blue-600 text-white py-2">MỞ TRANG YSM</button>
         </div>
     </div>
 
-    <div class="mb-10">
-        <h2 class="text-sm font-black mb-6 uppercase text-red-500">Danh sách báo cáo (Report)</h2>
-        <div id="report-container" class="space-y-3 text-[10px]">
-            <p class="opacity-30 italic">Đang tải dữ liệu báo cáo...</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-zinc-900 p-4 rounded-xl">
+            <h2 class="font-bold mb-3">Tạo Key Manual</h2>
+            <input type="text" id="k-id" placeholder="Tên Key" class="bg-black border border-zinc-800 p-2 w-full mb-2">
+            <input type="text" id="k-exp" placeholder="Hạn (dd/mm/yyyy)" class="bg-black border border-zinc-800 p-2 w-full mb-2">
+            <button onclick="genK()" class="w-full bg-white text-black py-2 font-bold">TẠO</button>
+        </div>
+        <div class="bg-zinc-900 p-4 rounded-xl">
+            <h2 class="font-bold mb-3 text-red-500">Ban User</h2>
+            <input type="text" id="u-ban" placeholder="Username" class="bg-black border border-zinc-800 p-2 w-full mb-2">
+            <button onclick="ban(true)" class="w-full bg-red-600 text-white py-2">BAN</button>
+        </div>
+        <div class="bg-zinc-900 p-4 rounded-xl border border-blue-800">
+            <h2 class="font-bold mb-3 text-blue-400">Xác thực Email (Mail System)</h2>
+            <div id="mail-list" class="space-y-2 h-[100px] overflow-auto"></div>
         </div>
     </div>
+
+    <h2 class="font-bold mb-4 uppercase">Danh sách Link trên Web</h2>
+    <div id="all-links" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        const db = getDatabase(initializeApp({ databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" }));
 
-        const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        const app = initializeApp(config);
-        const db = getDatabase(app);
+        window.upL = () => set(ref(db, 'Config/MissionLink'), document.getElementById('l4m').value);
+        window.genK = () => set(ref(db, `Keys/${document.getElementById('k-id').value}`), { status: "active", expiry: document.getElementById('k-exp').value, hwid: "" });
+        window.ban = (st) => update(ref(db, `Users/${document.getElementById('u-ban').value}`), { banned: st });
 
-        // HÀM LƯU LINK VƯỢT
-        window.updateMissionLink = () => {
-            const url = document.getElementById('l4m-input').value;
-            const msg = document.getElementById('save-msg');
-            if(!url) return alert("Vui lòng dán link!");
-            
-            set(ref(db, 'Config/MissionLink'), url).then(() => {
-                msg.innerText = "✅ ĐÃ LƯU LINK THÀNH CÔNG!";
-                msg.className = "text-[10px] mt-2 font-bold uppercase text-emerald-500";
-                document.getElementById('l4m-input').value = "";
-                setTimeout(() => msg.innerText = "", 3000);
-            });
-        };
-
-        window.generateManualKey = () => {
-            const id = document.getElementById('k-id').value, exp = document.getElementById('k-exp').value;
-            if(!id || !exp) return alert("Điền đủ info!");
-            set(ref(db, `Keys/${id}`), { status: "active", expiry: exp, hwid: "" }).then(() => alert("Xong!"));
-        };
-
-        window.updateBanStatus = (status) => {
-            const username = document.getElementById('ban-target').value;
-            if(!username) return alert("Nhập tên user!");
-            update(ref(db, `Users/${username}`), { banned: status }).then(() => alert("Đã thực hiện!"));
-        };
-
-        onValue(ref(db, 'Reports'), (snap) => {
-            const container = document.getElementById('report-container');
-            container.innerHTML = "";
-            const data = snap.val();
-            if(!data) { container.innerHTML = "Chưa có báo cáo nào."; return; }
+        // Xóa link
+        onValue(ref(db, 'SharedLinks'), (s) => {
+            const box = document.getElementById('all-links'); box.innerHTML = "";
+            const data = s.val(); if(!data) return;
             Object.keys(data).forEach(id => {
-                const r = data[id];
-                container.innerHTML += `
-                    <div class="admin-card border-zinc-900 py-3 flex justify-between items-center">
-                        <span>User <b class="text-red-500">${r.target}</b> bị báo cáo vì: ${r.reason}</span>
-                        <button onclick="remove(ref(db, 'Reports/${id}'))" class="text-red-500 underline">Xóa</button>
-                    </div>`;
+                box.innerHTML += `<div class="bg-zinc-950 p-3 rounded border border-zinc-800">
+                    <p class="text-[9px] mb-2 truncate">${data[id].url}</p>
+                    <button onclick="remove(ref(db, 'SharedLinks/${id}'))" class="text-red-500 font-bold uppercase">XÓA LINK</button>
+                </div>`;
+            });
+        });
+
+        // Duyệt OTP
+        onValue(ref(db, 'MailConfirm'), (s) => {
+            const list = document.getElementById('mail-list'); list.innerHTML = "";
+            const data = s.val(); if(!data) return;
+            Object.keys(data).forEach(u => {
+                list.innerHTML += `<div class="bg-black p-2 border border-blue-900 flex justify-between">
+                    <span>${u} - OTP: <b class="text-white">${data[u].otp}</b></span>
+                    <button onclick="remove(ref(db, 'MailConfirm/${u}'))" class="text-blue-400">X</button>
+                </div>`;
             });
         });
     </script>

@@ -1,165 +1,200 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Neko Cloud - Share & Storage</title>
+    <meta charset="UTF-8"><title>Neko Cloud - System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
     <style>
         body { background: #020617; color: #10b981; font-family: 'JetBrains Mono', monospace; }
-        .matrix-card { background: rgba(15, 23, 42, 0.95); border: 1px solid #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
-        .input-hacker { background: #000; border: 1px solid #064e3b; color: #10b981; padding: 12px; border-radius: 12px; outline: none; width: 100%; margin-bottom: 10px; }
-        .blue-notice { background: rgba(30, 58, 138, 0.9); border: 2px solid #3b82f6; color: #bfdbfe; box-shadow: 0 0 15px #3b82f6; }
+        .matrix-card { background: rgba(15, 23, 42, 0.95); border: 1px solid #10b981; }
+        .input-hacker { background: #000; border: 1px solid #064e3b; color: #10b981; padding: 10px; border-radius: 8px; outline: none; width: 100%; }
         .hidden { display: none; }
+        .blue-notice { background: #1e3a8a; border: 2px solid #3b82f6; color: #fff; }
     </style>
 </head>
-<body class="p-4 md:p-8">
-
-    <div id="notice-box" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4">
-        <div class="blue-notice p-8 rounded-3xl max-w-lg text-center">
-            <h2 class="text-xl font-black mb-4 uppercase">📢 THÔNG BÁO HỆ THỐNG</h2>
-            <p class="text-xs leading-loose mb-6">
-                Đây là web Lưu trữ file và share link với tất cả mọi người đam mê, nơi bạn tìm được những file và up file để chia sẻ với những người chơi khác. Đặc biệt là <b>không vượt link</b>. Nếu thấy link vượt, hãy bấm báo cáo và ghi tên user gắn link vượt, AD sẽ ban và xóa ngay lập tức. Admin sẽ tạo event nếu đủ số lượng nhé!
-            </p>
-            <button onclick="document.getElementById('notice-box').remove()" class="bg-blue-500 text-white px-10 py-3 rounded-full font-black hover:bg-white hover:text-blue-900 transition-all">TÔI ĐÃ HIỂU</button>
+<body class="p-4">
+    <div id="notice-box" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4">
+        <div class="blue-notice p-6 rounded-2xl max-w-lg text-center">
+            <h2 class="font-bold mb-2 uppercase text-blue-300">📢 THÔNG BÁO LƯU TRỮ</h2>
+            <p class="text-[10px] mb-4">Đây là web Lưu trữ file và share link với tất cả mọi người đam mê nơi bạn tìm được những file và up file để chia sẻ với những người chơi khác đặc biệt là không vượt link nếu vượt link hãy bấm báo cáo và ghi tên user gắn link vượt ad sẽ ban và xóa admin sẽ tạo event nếu đủ số lượng nhé</p>
+            <button onclick="document.getElementById('notice-box').remove()" class="bg-blue-500 text-white px-8 py-2 rounded-full font-bold">OK</button>
         </div>
     </div>
 
     <div id="auth-screen" class="fixed inset-0 z-50 bg-black flex items-center justify-center p-6">
-        <div class="matrix-card p-8 rounded-3xl w-full max-w-md">
-            <h1 id="auth-title" class="text-2xl font-black mb-8 text-center uppercase text-white italic">Neko <span class="text-emerald-500">Cloud</span></h1>
-            <input type="text" id="u-user" placeholder="Tên đăng nhập" class="input-hacker">
-            <input type="password" id="u-pass" placeholder="Mật khẩu" class="input-hacker">
-            <input type="text" id="u-key" placeholder="Mã Key Truy Cập" class="input-hacker">
-            <button id="btn-main" onclick="handleAuth()" class="w-full bg-emerald-500 text-black font-black py-4 rounded-xl mb-4 hover:bg-white">ĐĂNG NHẬP</button>
-            <div class="flex justify-between text-[9px] uppercase font-bold">
-                <span onclick="toggleAuth()" class="cursor-pointer text-emerald-400" id="auth-switch">Đăng ký tài khoản</span>
+        <div class="matrix-card p-8 rounded-3xl w-full max-w-md text-center">
+            <h1 class="text-2xl font-black mb-6 italic">NEKO <span class="text-white">AUTH</span></h1>
+            <input type="text" id="u-user" placeholder="Tên đăng nhập" class="input-hacker mb-3">
+            <input type="password" id="u-pass" placeholder="Mật khẩu" class="input-hacker mb-3">
+            <input type="text" id="u-key" placeholder="Nhập Key (24h)" class="input-hacker mb-6">
+            <button onclick="handleAuth()" class="w-full bg-emerald-500 text-black font-black py-3 rounded-xl mb-4">VÀO HỆ THỐNG</button>
+            <div class="flex justify-between text-[10px] font-bold uppercase px-2">
+                <span onclick="toggleMode()" class="cursor-pointer text-emerald-400">Đăng ký ngay</span>
                 <a href="laykey.html" class="underline">Lấy Key tại đây</a>
             </div>
-            <p id="auth-msg" class="mt-4 text-center text-[10px] uppercase font-bold"></p>
+            <p id="auth-msg" class="mt-4 text-[10px] uppercase"></p>
         </div>
     </div>
 
     <div id="main-content" class="hidden max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-3xl font-black italic text-emerald-500 uppercase">NEKO <span class="text-white">NODE</span></h1>
-                <div id="user-info" class="text-[10px] font-bold text-blue-400 mt-1"></div>
-            </div>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-black italic">NEKO <span class="text-white">NODE</span></h1>
             <div class="flex gap-2">
-                <button onclick="document.getElementById('upload-form').classList.toggle('hidden')" class="bg-emerald-500 text-black px-6 py-2 rounded-xl font-bold">ĐĂNG FILE</button>
-                <button onclick="location.reload()" class="border border-red-500 text-red-500 px-4 py-2 rounded-xl font-bold text-xs uppercase">Đăng xuất</button>
+                <button onclick="document.getElementById('up-form').classList.toggle('hidden')" class="bg-emerald-500 text-black px-4 py-2 rounded-lg font-bold text-xs">ĐĂNG LINK</button>
+                <button onclick="location.reload()" class="border border-red-500 text-red-500 px-4 py-2 rounded-lg font-bold text-xs">LOGOUT</button>
             </div>
         </div>
 
-        <div id="upload-form" class="hidden matrix-card p-6 rounded-2xl mb-8">
-            <input type="text" id="f-url" placeholder="Link file..." class="input-hacker">
-            <input type="text" id="f-info" placeholder="Thông tin về file (Tính năng, hướng dẫn...)" class="input-hacker">
-            <button onclick="postLink()" class="w-full bg-emerald-500 text-black font-bold py-3 rounded-xl mt-2">UP FILE LÊN CỘNG ĐỒNG</button>
+        <div class="bg-zinc-950 p-4 rounded-xl mb-6 text-[10px] font-bold border border-blue-900 text-blue-400">
+            💙 Ủng hộ admin: VPBANK - 0867799161 (Võ Minh Long) | SDT: 0867799161
         </div>
 
-        <div class="matrix-card p-4 rounded-xl mb-8 flex flex-col md:flex-row items-center justify-between border-blue-900 bg-blue-950/20">
-            <div class="text-[10px] font-black uppercase text-blue-400 mb-2 md:mb-0 text-center md:text-left">
-                💙 Ủng hộ admin: VPBANK - 0867799161 (Võ Minh Long) | SDT: 0867799161
+        <div id="up-form" class="hidden matrix-card p-4 rounded-xl mb-6">
+            <input type="text" id="f-url" placeholder="Link web/file..." class="input-hacker mb-2 text-xs">
+            <input type="text" id="f-info" placeholder="Thông tin về file..." class="input-hacker mb-2 text-xs">
+            <button onclick="postLink()" class="w-full bg-emerald-500 text-black font-bold py-2 rounded-lg text-xs">UP LINK</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <input type="text" id="search" oninput="loadData()" placeholder="Tìm kiếm file hoặc user..." class="input-hacker mb-4">
+                <div id="list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </div>
-            <div id="key-expiry" class="text-[9px] text-white/50 bg-black/50 px-3 py-1 rounded-full uppercase">Hạn Key: --/--/----</div>
-        </div>
 
-        <input type="text" id="search" oninput="loadData()" placeholder="TÌM KIẾM THEO FILE HOẶC TÊN NGƯỜI ĐĂNG..." class="input-hacker mb-8">
-        <div id="list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <div class="matrix-card p-4 rounded-xl h-[500px] flex flex-col border-zinc-800">
+                <h2 class="text-xs font-bold mb-3 uppercase border-b border-zinc-800 pb-2">World Chat</h2>
+                <div id="chat-box" class="flex-1 overflow-y-auto space-y-2 mb-4 text-[10px] scrollbar-hide"></div>
+                
+                <div id="verify-section" class="hidden">
+                    <p class="text-[9px] mb-2 text-red-400 italic">Xác thực Email để Chat:</p>
+                    <div class="flex gap-1 mb-2">
+                        <input type="email" id="email-val" placeholder="Email..." class="input-hacker text-[10px]">
+                        <button onclick="requestOTP()" class="bg-blue-600 text-white px-2 rounded-lg text-[9px]">Gửi OTP</button>
+                    </div>
+                    <div class="flex gap-1">
+                        <input type="text" id="otp-val" placeholder="Mã 6 số..." class="input-hacker text-[10px]">
+                        <button onclick="verifyOTP()" class="bg-white text-black px-2 rounded-lg text-[9px] font-bold">XÁC MINH</button>
+                    </div>
+                </div>
+
+                <div id="chat-input-section" class="hidden flex gap-2">
+                    <input type="text" id="chat-msg" placeholder="Nhấn Enter để gửi..." class="input-hacker text-[10px]">
+                </div>
+            </div>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, get, update, increment } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
         const config = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
         const app = initializeApp(config);
         const db = getDatabase(app);
 
-        let curUser = "", isLogin = true;
+        let curU = "", isLog = true;
+        const getHWID = () => navigator.userAgent.length + screen.width;
 
-        // Giả lập HWID (Sẽ cố định theo trình duyệt)
-        const getHWID = () => navigator.userAgent.length + navigator.platform + screen.width;
-
-        window.toggleAuth = () => {
-            isLogin = !isLogin;
-            document.getElementById('auth-title').innerText = isLogin ? "Neko Cloud" : "Neko Register";
-            document.getElementById('btn-main').innerText = isLogin ? "ĐĂNG NHẬP" : "ĐĂNG KÝ";
-            document.getElementById('auth-switch').innerText = isLogin ? "Đăng ký tài khoản" : "Đã có tài khoản?";
+        window.toggleMode = () => {
+            isLog = !isLog;
+            document.getElementById('btn-main').innerText = isLog ? "VÀO HỆ THỐNG" : "ĐĂNG KÝ";
         };
 
         window.handleAuth = async () => {
             const u = document.getElementById('u-user').value, p = document.getElementById('u-pass').value, k = document.getElementById('u-key').value;
-            const msg = document.getElementById('auth-msg');
-
-            if (isLogin) {
+            if(isLog) {
                 const uSnap = await get(ref(db, `Users/${u}`));
                 const kSnap = await get(ref(db, `Keys/${k}`));
-                const myHwid = getHWID();
-
-                if (!uSnap.exists() || uSnap.val().pass !== p) { msg.innerText = "Sai TK/MK!"; msg.className="text-red-500"; return; }
-                if (uSnap.val().banned) { msg.innerText = "TÀI KHOẢN BỊ BAN!"; msg.className="text-red-500"; return; }
-                if (!kSnap.exists()) { msg.innerText = "KEY KHÔNG TỒN TẠI!"; msg.className="text-red-500"; return; }
-
-                // Kiểm tra HWID (1 Key / 1 Máy)
-                if (kSnap.val().hwid && kSnap.val().hwid !== myHwid) {
-                    msg.innerText = "KEY ĐÃ ĐƯỢC DÙNG CHO MÁY KHÁC!"; msg.className="text-red-500"; return;
-                }
-
-                // Lưu HWID nếu key mới
-                if (!kSnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: myHwid });
-
-                curUser = u;
+                if(!uSnap.exists() || uSnap.val().pass !== p) return alert("Sai TK/MK!");
+                if(uSnap.val().banned) return alert("BẠN ĐÃ BỊ BAN!");
+                if(!kSnap.exists()) return alert("KEY SAI!");
+                if(kSnap.val().hwid && kSnap.val().hwid !== getHWID()) return alert("KEY ĐÃ KHÓA MÁY KHÁC!");
+                
+                if(!kSnap.val().hwid) await update(ref(db, `Keys/${k}`), { hwid: getHWID() });
+                curU = u;
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
-                document.getElementById('user-info').innerText = "Xin chào: " + curUser;
-                document.getElementById('key-expiry').innerText = "Hết hạn vào: " + (kSnap.val().expiry || "Không xác định");
+                
+                checkChatStatus(uSnap.val().verified);
                 loadData();
+                loadChat();
             } else {
-                await set(ref(db, `Users/${u}`), { pass: p, banned: false });
-                msg.innerText = "Đăng ký thành công!"; msg.className="text-emerald-500";
-                toggleAuth();
+                await set(ref(db, `Users/${u}`), { pass: p, banned: false, verified: false });
+                alert("Xong, hãy đăng nhập!"); toggleMode();
             }
         };
 
+        const checkChatStatus = (isVer) => {
+            if(isVer) document.getElementById('chat-input-section').classList.remove('hidden');
+            else document.getElementById('verify-section').classList.remove('hidden');
+        };
+
+        window.requestOTP = async () => {
+            const email = document.getElementById('email-val').value;
+            if(!email.includes("@")) return alert("Email sai!");
+            const otp = Math.floor(100000 + Math.random() * 900000);
+            await set(ref(db, `MailConfirm/${curU}`), { email, otp });
+            alert("Đã gửi yêu cầu xác thực cho Admin!");
+        };
+
+        window.verifyOTP = async () => {
+            const code = document.getElementById('otp-val').value;
+            const snap = await get(ref(db, `MailConfirm/${curU}`));
+            if(snap.exists() && snap.val().otp == code) {
+                await update(ref(db, `Users/${curU}`), { verified: true, email: snap.val().email });
+                alert("Xác thực thành công!");
+                location.reload();
+            } else alert("Mã OTP sai!");
+        };
+
+        window.loadChat = () => {
+            onValue(ref(db, 'WorldChat'), (s) => {
+                const b = document.getElementById('chat-box'); b.innerHTML = "";
+                const data = s.val(); if(!data) return;
+                Object.values(data).slice(-20).forEach(m => {
+                    b.innerHTML += `<div><b class="text-blue-400">${m.u}:</b> <span class="text-white">${m.msg}</span></div>`;
+                });
+                b.scrollTop = b.scrollHeight;
+            });
+        };
+
+        document.getElementById('chat-msg').addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                const msg = e.target.value;
+                if(msg) push(ref(db, 'WorldChat'), { u: curU, msg });
+                e.target.value = "";
+            }
+        });
+
         window.postLink = async () => {
             const url = document.getElementById('f-url').value, info = document.getElementById('f-info').value;
-            if(!url) return;
-            await push(ref(db, 'SharedLinks'), { url, info, owner: curUser, clicks: 0, time: new Date().toLocaleString() });
-            document.getElementById('f-url').value = ""; document.getElementById('f-info').value = "";
-            document.getElementById('upload-form').classList.add('hidden');
+            await push(ref(db, 'SharedLinks'), { url, info, owner: curU, time: new Date().toLocaleDateString() });
+            document.getElementById('up-form').classList.add('hidden');
         };
 
         window.loadData = () => {
             const term = document.getElementById('search').value.toLowerCase();
-            onValue(ref(db, 'SharedLinks'), (snap) => {
-                const list = document.getElementById('list'); list.innerHTML = "";
-                const data = snap.val(); if(!data) return;
+            onValue(ref(db, 'SharedLinks'), (s) => {
+                const l = document.getElementById('list'); l.innerHTML = "";
+                const data = s.val(); if(!data) return;
                 Object.keys(data).reverse().forEach(id => {
                     const item = data[id];
                     if(item.url.toLowerCase().includes(term) || item.owner.toLowerCase().includes(term)) {
-                        list.innerHTML += `
-                            <div class="matrix-card p-5 rounded-2xl flex flex-col gap-3">
-                                <div class="flex justify-between items-center text-[10px] font-bold">
-                                    <span class="text-blue-400">👤 ${item.owner}</span>
-                                    <span class="text-white/30 uppercase">${item.time}</span>
-                                </div>
-                                <div class="bg-black/50 p-3 rounded-lg text-[11px] text-white/80 border border-emerald-900/50">${item.info || "Không có mô tả."}</div>
-                                <div class="flex gap-2">
-                                    <button onclick="go('${id}','${item.url}')" class="flex-1 bg-emerald-500 text-black py-2 rounded-lg font-black text-xs">MỞ LINK</button>
-                                    <button onclick="report('${id}','${item.owner}')" class="px-3 bg-red-950/50 border border-red-500 text-red-500 rounded-lg text-[10px] font-bold">BÁO CÁO</button>
-                                </div>
-                            </div>`;
+                        l.innerHTML += `<div class="matrix-card p-3 rounded-xl">
+                            <p class="text-[9px] text-blue-400">👤 ${item.owner} - 📅 ${item.time}</p>
+                            <p class="text-[10px] my-2 break-all">${item.info}</p>
+                            <div class="flex gap-1">
+                                <button onclick="window.open('${item.url}')" class="flex-1 bg-emerald-950 border border-emerald-500 py-1 rounded text-[9px]">MỞ</button>
+                                <button onclick="report('${id}','${item.owner}')" class="px-2 border border-red-500 text-red-500 text-[9px]">❗</button>
+                            </div>
+                        </div>`;
                     }
                 });
             });
         };
 
-        window.go = async (id, url) => { await update(ref(db, `SharedLinks/${id}`), { clicks: increment(1) }); window.open(url, '_blank'); };
-        window.report = (id, owner) => {
-            const reason = prompt("Lý do báo cáo User " + owner + " (vd: Link vượt, lừa đảo...):");
-            if(reason) push(ref(db, 'Reports'), { target: owner, reporter: curUser, reason, linkId: id });
+        window.report = (id, o) => {
+            const r = prompt("Lý do báo cáo:");
+            if(r) push(ref(db, 'Reports'), { target: o, reason: r, reporter: curU });
         };
     </script>
 </body>
