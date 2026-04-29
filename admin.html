@@ -2,113 +2,301 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>NEKO ADMIN - SERVER CONTROL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEKO SYSTEM | MASTER COMMAND CENTER</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
     <style>
-        body { background: #000; color: #bc13fe; font-family: monospace; }
-        .cyber-box { border: 1px solid #bc13fe; background: #050505; padding: 30px; margin: 20px; box-shadow: 0 0 20px rgba(188,19,254,0.1); }
-        th, td { border: 1px solid #1a1a1a; padding: 15px; text-align: left; }
-        th { background: #bc13fe; color: #000; font-family: 'Orbitron'; font-size: 10px; }
-        .status-on { color: #00ff41; } .status-off { color: #ff003c; }
-        input { background: #000; border: 1px solid #222; color: #fff; padding: 10px; outline: none; margin-bottom: 10px; width: 100%; }
-        button { border: 1px solid #bc13fe; padding: 10px 20px; transition: 0.3s; }
-        button:hover { background: #bc13fe; color: #000; }
+        :root {
+            --p: #bc13fe;
+            --bg: #020202;
+            --card: #0a0a0a;
+            --border: #1a1a1a;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--p);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 40px;
+            overflow-x: hidden;
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--p); }
+
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--p);
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+            padding: 15px;
+            color: #fff;
+            margin-bottom: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .cyber-input:focus {
+            border-color: var(--p);
+            box-shadow: 0 0 15px rgba(188, 19, 254, 0.2);
+        }
+
+        .btn-action {
+            background: transparent;
+            border: 1px solid var(--p);
+            color: var(--p);
+            padding: 10px 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-action:hover {
+            background: var(--p);
+            color: #000;
+            box-shadow: 0 0 20px var(--p);
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
+        th { background: #111; color: var(--p); padding: 15px; text-align: left; border-bottom: 2px solid var(--p); text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #111; color: #ccc; }
+        tr:hover { background: rgba(188, 19, 254, 0.02); }
+
+        .status-badge { padding: 2px 8px; border-radius: 2px; font-size: 9px; font-weight: 900; }
+        .bg-active { background: #00ff41; color: #000; }
+        .bg-banned { background: #ff003c; color: #fff; }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 1000; }
+        .toast { background: #000; border-left: 4px solid var(--p); padding: 15px 30px; margin-bottom: 10px; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
-    <div class="cyber-box">
-        <h1 class="text-4xl font-black italic mb-2">NEKO_ADMIN_SERVER</h1>
-        <p class="text-[10px] opacity-50 mb-10 uppercase tracking-[5px]">Global User & Key Management Terminal</p>
+    <div id="toast-container"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <div>
-                <h2 class="text-xl font-bold mb-4">LICENSE_KEY_PROVISION</h2>
-                <input type="text" id="k-name" placeholder="New Key Name">
-                <input type="text" id="k-exp" placeholder="Expiry Date (DD/MM/YYYY)" value="31/12/2026">
-                <button onclick="addKey()" class="w-full">GENERATE_KEY</button>
+    <header class="flex justify-between items-end mb-12">
+        <div>
+            <h1 class="text-4xl font-black italic tracking-tighter text-white">COMMAND_CENTER</h1>
+            <p class="text-[10px] opacity-40 uppercase tracking-[8px] mt-2">Neko Cloud Management Infrastructure</p>
+        </div>
+        <div class="text-right">
+            <p id="clock" class="text-xl font-bold text-white"></p>
+            <p class="text-[9px] opacity-30">SYSTEM_UPTIME: STABLE</p>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+        <div class="panel">
+            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">License Generator</h2>
+            <div class="space-y-4">
+                <input type="text" id="key-input" placeholder="LICENSE_STRING" class="cyber-input">
+                <input type="text" id="exp-input" placeholder="EXPIRY (DD/MM/YYYY)" value="31/12/2026" class="cyber-input">
+                <button onclick="generateKey()" class="btn-action w-full">Commit License</button>
             </div>
-            <div>
-                <h2 class="text-xl font-bold mb-4">MODERATOR_OVERRIDE</h2>
-                <div class="grid grid-cols-2 gap-2">
-                    <input type="text" id="m-name" placeholder="Mod Name (Thuan/Loc/Neko/King)">
-                    <input type="text" id="m-url" placeholder="Mod URL">
-                </div>
-                <button onclick="setMod()" class="w-full">UPDATE_MOD_STREAM</button>
+            
+            <div class="mt-8">
+                <h3 class="text-[10px] opacity-30 mb-4">EXISTING_KEYS</h3>
+                <div id="key-list" class="h-40 overflow-y-auto space-y-2">
+                    </div>
             </div>
         </div>
 
-        <div class="mt-20">
-            <h2 class="text-xl font-bold mb-6">USER_STORAGE_DATABASE</h2>
-            <table class="w-full">
+        <div class="panel">
+            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">Stream Configuration</h2>
+            <div class="space-y-4">
+                <select id="mod-target" class="cyber-input">
+                    <option value="Thuan">OPERATOR: Thuan</option>
+                    <option value="Loc">OPERATOR: Loc</option>
+                    <option value="Neko">OPERATOR: Neko</option>
+                    <option value="King">OPERATOR: King</option>
+                </select>
+                <input type="text" id="mod-url" placeholder="PAYLOAD_REDIRECT_URL" class="cyber-input">
+                <button onclick="updateMod()" class="btn-action w-full">Update Node</button>
+            </div>
+            <div class="mt-8 p-4 bg-black/40 text-[10px] italic opacity-50">
+                Lưu ý: Thay đổi link tại đây sẽ cập nhật trực tiếp lên Sidebar của tất cả người dùng đang online.
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 class="text-sm font-black mb-6 uppercase border-b border-zinc-800 pb-2">Neural Logs</h2>
+            <div id="log-box" class="h-[320px] overflow-y-auto space-y-2 font-mono text-[9px]">
+                <div class="text-zinc-600">[00:00:00] Initializing Log Stream...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-sm font-black uppercase">Identity Database</h2>
+            <input type="text" id="user-search" oninput="renderUsers()" placeholder="Search Identity..." class="w-64 bg-black border border-zinc-800 p-2 text-[10px] outline-none">
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table>
                 <thead>
                     <tr>
-                        <th>OPERATOR_ID</th>
-                        <th>CIPHER</th>
-                        <th>VERIFIED</th>
-                        <th>STATUS</th>
-                        <th>REG_DATE</th>
-                        <th>ACTIONS</th>
+                        <th>Operator_ID</th>
+                        <th>Cipher</th>
+                        <th>Reg_Date</th>
+                        <th>Verify</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody id="user-list"></tbody>
+                <tbody id="user-table-body">
+                    </tbody>
             </table>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        import { getDatabase, ref, onValue, set, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
 
-        const fb = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
-        const app = initializeApp(fb);
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // LOAD USERS
+        // UI HELPERS
+        const showToast = (msg) => {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = 'toast';
+            el.innerHTML = `> ${msg}`;
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+            addLog(`Action Performed: ${msg}`);
+        };
+
+        const addLog = (msg) => {
+            const box = document.getElementById('log-box');
+            const time = new Date().toLocaleTimeString();
+            box.innerHTML += `<div class="text-zinc-400">[${time}] ${msg}</div>`;
+            box.scrollTop = box.scrollHeight;
+        };
+
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+
+        // DATA CORE
+        let allUsers = {};
+
+        // 1. Render Users
         onValue(ref(db, 'Users'), (snap) => {
-            const list = document.getElementById('user-list');
-            list.innerHTML = ""; if(!snap.val()) return;
-            Object.keys(snap.val()).forEach(u => {
-                const info = snap.val()[u];
-                list.innerHTML += `
-                    <tr>
-                        <td class="text-white font-bold">${u}</td>
-                        <td>${info.pass}</td>
-                        <td class="${info.verified ? 'status-on' : 'status-off'}">${info.verified}</td>
-                        <td class="${info.banned ? 'status-off' : 'status-on'}">${info.banned ? 'BANNED' : 'ACTIVE'}</td>
-                        <td class="text-[10px] opacity-40">${info.reg_date || 'N/A'}</td>
-                        <td>
-                            <button onclick="updateUser('${u}', 'verified', ${!info.verified})" class="text-[9px]">TOGGLE_V</button>
-                            <button onclick="updateUser('${u}', 'banned', ${!info.banned})" class="text-[9px]">TOGGLE_B</button>
-                            <button onclick="delUser('${u}')" class="text-[9px] text-red-500">DELETE</button>
-                        </td>
-                    </tr>
+            allUsers = snap.val() || {};
+            renderUsers();
+        });
+
+        window.renderUsers = () => {
+            const query = document.getElementById('user-search').value.toLowerCase();
+            const tbody = document.getElementById('user-table-body');
+            tbody.innerHTML = "";
+
+            Object.keys(allUsers).forEach(uid => {
+                const u = allUsers[uid];
+                if(uid.toLowerCase().includes(query)) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="text-white font-bold">${uid}</td>
+                            <td class="font-mono">${u.pass}</td>
+                            <td class="opacity-40">${u.reg_date || 'N/A'}</td>
+                            <td>
+                                <span onclick="toggleField('${uid}', 'verified', ${!u.verified})" class="cursor-pointer ${u.verified ? 'text-green-500' : 'text-zinc-600'}">
+                                    ${u.verified ? '● VERIFIED' : '○ UNVERIFIED'}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge ${u.banned ? 'bg-banned' : 'bg-active'}">
+                                    ${u.banned ? 'BANNED' : 'ACTIVE'}
+                                </span>
+                            </td>
+                            <td class="space-x-2">
+                                <button onclick="toggleField('${uid}', 'banned', ${!u.banned})" class="btn-action">Ban/Unban</button>
+                                <button onclick="deleteNode('${uid}')" class="btn-action !border-red-900 !text-red-900">Purge</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+        };
+
+        // 2. Manage Keys
+        onValue(ref(db, 'Keys'), (snap) => {
+            const box = document.getElementById('key-list');
+            box.innerHTML = "";
+            const keys = snap.val() || {};
+            Object.keys(keys).forEach(k => {
+                box.innerHTML += `
+                    <div class="flex justify-between items-center bg-black p-3 border border-zinc-900">
+                        <div class="text-[10px]">
+                            <span class="text-white font-bold">${k}</span>
+                            <span class="opacity-30 block text-[8px]">${keys[k].expiry}</span>
+                        </div>
+                        <button onclick="removeKey('${k}')" class="text-red-500 text-[10px] hover:underline">Revoke</button>
+                    </div>
                 `;
             });
         });
 
-        window.addKey = async () => {
-            const k = document.getElementById('k-name').value.trim();
-            const ex = document.getElementById('k-exp').value.trim();
+        // ACTIONS
+        window.generateKey = () => {
+            const k = document.getElementById('key-input').value.trim();
+            const e = document.getElementById('exp-input').value.trim();
             if(!k) return;
-            await set(ref(db, `Keys/${k}`), { status: "active", expiry: ex, hwid: "" });
-            alert("KEY_GENERATED: " + k);
+            set(ref(db, `Keys/${k}`), { status: "active", expiry: e });
+            showToast(`Key [${k}] has been deployed.`);
+            document.getElementById('key-input').value = "";
         };
 
-        window.setMod = async () => {
-            const n = document.getElementById('m-name').value.trim();
-            const u = document.getElementById('m-url').value.trim();
-            if(!n || !u) return;
-            await update(ref(db, `ModLinks`), { [n]: u });
-            alert("MOD_STREAM_UPDATED");
+        window.removeKey = (k) => {
+            if(confirm(`Revoke key ${k}?`)) {
+                remove(ref(db, `Keys/${k}`));
+                showToast(`Key [${k}] revoked from system.`);
+            }
         };
 
-        window.updateUser = (u, field, val) => {
-            update(ref(db, `Users/${u}`), { [field]: val });
+        window.updateMod = () => {
+            const target = document.getElementById('mod-target').value;
+            const url = document.getElementById('mod-url').value.trim();
+            if(!url) return;
+            update(ref(db, 'ModLinks'), { [target]: url });
+            showToast(`Operator ${target} node updated.`);
+            document.getElementById('mod-url').value = "";
         };
 
-        window.delUser = (u) => {
-            if(confirm("Xóa Operator " + u + "?")) remove(ref(db, `Users/${u}`));
+        window.toggleField = (uid, field, val) => {
+            update(ref(db, `Users/${uid}`), { [field]: val });
+            showToast(`Identity ${uid} updated: ${field} = ${val}`);
+        };
+
+        window.deleteNode = (uid) => {
+            if(confirm(`Permanent purge operator ${uid}?`)) {
+                remove(ref(db, `Users/${uid}`));
+                showToast(`Identity ${uid} wiped from memory.`);
+            }
         };
     </script>
 </body>
