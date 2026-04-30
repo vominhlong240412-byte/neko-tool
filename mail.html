@@ -1,20 +1,37 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><title>Mail List</title></head>
-<body style="background:#000; color:#10b981; font-family:monospace; padding:20px;">
-    <h2>DANH SÁCH GỬI OTP</h2>
-    <div id="l"></div>
+<head>
+    <meta charset="UTF-8">
+    <title>XÁC MINH CHAT | NEKO CLOUD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #000; color: #bc13fe; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { background: #0a0a0a; border: 1px solid #1a1a1a; padding: 40px; width: 400px; }
+        input { width: 100%; background: #000; border: 1px solid #1a1a1a; padding: 15px; color: #fff; margin-bottom: 15px; outline: none; }
+    </style>
+</head>
+<body>
+    <div class="card text-center">
+        <h2 class="text-xl font-black italic mb-6">XÁC MINH <span class="text-white">MAIL CHAT</span></h2>
+        <input type="text" id="m-user" placeholder="Tên tài khoản đang dùng">
+        <input type="email" id="m-mail" placeholder="Địa chỉ Email của bạn">
+        <button onclick="send()" class="w-full py-4 bg-p text-black font-black uppercase text-xs">Gửi yêu cầu duyệt</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
-        onValue(ref(db, 'MailConfirm'), (s) => {
-            const d = s.val(); if(!d) return;
-            document.getElementById('l').innerHTML = Object.keys(d).map(u => 
-                `<div style="border:1px solid #333; padding:10px; margin:10px;">
-                    USER: ${u} | EMAIL: ${d[u].email} | OTP: <b style="color:yellow">${d[u].otp}</b>
-                </div>`).join('');
-        });
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+
+        window.send = () => {
+            const u = document.getElementById('m-user').value; const m = document.getElementById('m-mail').value;
+            if(!u || !m) return alert("Nhập đủ thông tin!");
+            update(ref(db, `Users/${u}`), { email_request: m, verified: false }).then(() => {
+                alert("Đã gửi! Vui lòng chờ Admin duyệt tại trang Admin.");
+                location.href = 'index.html';
+            });
+        };
     </script>
 </body>
 </html>

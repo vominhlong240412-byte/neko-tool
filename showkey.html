@@ -1,22 +1,51 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><title>Your Key</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-black text-emerald-500 font-mono flex items-center justify-center min-h-screen">
-    <div id="box" class="hidden border border-emerald-500 p-10 rounded-3xl text-center">
-        <h2 class="text-xs italic mb-4">SUCCESS! KEY CỦA BẠN:</h2>
-        <div id="key" class="text-3xl font-black bg-zinc-900 p-6 rounded-2xl border border-emerald-800 mb-6 select-all">...</div>
-        <button onclick="window.location.href='index.html'" class="text-[10px] underline uppercase">Về trang chủ</button>
+<head>
+    <meta charset="UTF-8">
+    <title>KEY REVEAL | NEKO CLOUD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #000; color: #bc13fe; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { background: #050505; border: 1px solid #1a1a1a; padding: 40px; text-align: center; width: 450px; }
+        .key-box { background: #111; border: 2px dashed #bc13fe; padding: 20px; font-family: monospace; font-size: 20px; color: #fff; margin: 30px 0; }
+    </style>
+</head>
+<body>
+    <div id="valid-ui" class="card hidden">
+        <h1 class="text-xl font-black italic text-white uppercase">Mã Key Của Bạn</h1>
+        <div id="my-key" class="key-box">ĐANG TẢI...</div>
+        <button onclick="copy()" class="text-[10px] underline">COPY MÃ TRUY CẬP</button>
     </div>
+    <div id="invalid-ui" class="card hidden">
+        <h1 class="text-red-500 font-black">GIAN LẬN!</h1>
+        <p class="text-xs text-zinc-500 mt-4">Bạn chưa vượt link thành công. Vui lòng quay lại.</p>
+        <button onclick="location.href='laykey.html'" class="mt-6 px-6 py-2 border border-red-500 text-red-500 text-[10px] font-black">QUAY LẠI</button>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
-        if(new URLSearchParams(window.location.search).get('status') === 'success') {
-            document.getElementById('box').classList.remove('hidden');
-            const k = 'NEKO-' + Math.random().toString(36).substring(2, 9).toUpperCase();
-            const exp = new Date(Date.now() + 86400000).toLocaleDateString('vi-VN');
-            set(ref(db, `Keys/${k}`), { status: "active", expiry: exp, hwid: "" }).then(()=>document.getElementById('key').innerText = k);
-        } else { window.location.href = 'laykey.html'; }
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+
+        const token = sessionStorage.getItem('bypass_token');
+        const last = localStorage.getItem('cooldown');
+        const now = Date.now();
+
+        if(!token || (last && now - last < 300000)) {
+            document.getElementById('invalid-ui').classList.remove('hidden');
+        } else {
+            document.getElementById('valid-ui').classList.remove('hidden');
+            get(ref(db, 'Keys')).then(s => {
+                if(s.exists()){
+                    const keys = Object.keys(s.val());
+                    document.getElementById('my-key').innerText = keys[keys.length - 1];
+                    localStorage.setItem('cooldown', now);
+                    sessionStorage.removeItem('bypass_token');
+                }
+            });
+        }
+        window.copy = () => { navigator.clipboard.writeText(document.getElementById('my-key').innerText); alert("Đã Copy!"); };
     </script>
 </body>
 </html>

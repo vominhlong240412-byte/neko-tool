@@ -3,526 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QUẢN TRỊ VIÊN CẤP CAO | NEKO CLOUD</title>
-
+    <title>NEKO OS | KERNEL V9 ULTRA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&family=Be+Vietnam+Pro:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* --- ĐỊNH NGHĨA BIẾN HỆ THỐNG --- */
         :root {
             --p: #bc13fe;
-            --p-glow: rgba(188, 19, 254, 0.5);
-            --bg: #000000;
-            --surface: #050505;
-            --border: #1a1a1a;
-            --cyan: #00f3ff;
-            --red: #ff003c;
-            --green: #00ff41;
-            --yellow: #ffae00;
+            --p-dark: #6a0b8e;
+            --p-glow: rgba(188, 19, 254, 0.6);
+            --bg: #030303;
+            --panel: #0a0a0a;
+            --danger: #ff003c;
+            --success: #00ff00;
         }
 
-        /* --- CẤU HÌNH CƠ BẢN --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            cursor: crosshair !important;
-            user-select: none;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--p); 
+            font-family: 'Be Vietnam Pro', sans-serif; 
+            overflow: hidden; 
         }
 
-        body {
-            background-color: var(--bg);
-            color: var(--p);
-            font-family: 'Be Vietnam Pro', sans-serif;
-            line-height: 1.5;
-            overflow-x: hidden;
+        /* ----- TYPOGRAPHY & GLITCH EFFECTS ----- */
+        .font-cyber { font-family: 'Orbitron', sans-serif; }
+        .font-code { font-family: 'JetBrains Mono', monospace; }
+        
+        .neon-text { text-shadow: 0 0 10px var(--p), 0 0 20px var(--p), 0 0 40px var(--p-dark); }
+        .neon-danger { text-shadow: 0 0 10px var(--danger); color: var(--danger); }
+        
+        .glitch-wrapper { position: relative; }
+        .glitch-wrapper::before, .glitch-wrapper::after {
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        }
+        .glitch-wrapper::before { left: 2px; text-shadow: -1px 0 red; animation: glitch-anim-1 2s infinite linear alternate-reverse; }
+        .glitch-wrapper::after { left: -2px; text-shadow: -1px 0 blue; animation: glitch-anim-2 3s infinite linear alternate-reverse; }
+        
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); }
+            20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(40% 0 50% 0); }
+            60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 70% 0); }
+            100% { clip-path: inset(30% 0 20% 0); }
         }
 
-        /* --- HIỆU ỨNG THỊ GIÁC --- */
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            opacity: 0.15;
-        }
-
-        .scanline {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.3) 50%);
-            background-size: 100% 4px;
-            z-index: 10000;
-            pointer-events: none;
-        }
-
-        /* --- THIẾT KẾ PANEL --- */
+        /* ----- UI COMPONENTS ----- */
         .cyber-panel {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            transition: 0.4s;
-        }
-
-        .cyber-panel:hover {
-            border-color: var(--p);
-            box-shadow: 0 0 40px var(--p-glow);
-        }
-
-        .panel-header {
-            border-bottom: 1px solid var(--border);
-            padding: 20px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255,255,255,0.02);
-        }
-
-        .panel-title {
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-        }
-
-        /* --- NHẬP LIỆU --- */
-        .cyber-input {
-            width: 100%;
-            background: #000;
+            background: var(--panel);
             border: 1px solid #1a1a1a;
-            padding: 15px 20px;
-            color: #fff;
-            font-family: 'JetBrains Mono';
-            font-size: 13px;
-            outline: none;
-            border-left: 4px solid #111;
-            transition: 0.3s;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            transition: all 0.3s ease;
         }
+        .cyber-panel:hover { border-color: var(--p-dark); box-shadow: inset 0 0 20px rgba(188, 19, 254, 0.05); }
 
-        .cyber-input:focus {
-            border-left-color: var(--p);
-            background: rgba(188, 19, 254, 0.05);
+        .hacker-input {
+            width: 100%; background: rgba(0,0,0,0.8); border: 1px solid #333;
+            padding: 16px 20px; color: #fff; font-family: 'JetBrains Mono'; font-size: 13px;
+            outline: none; transition: 0.3s; border-left: 4px solid #333;
         }
+        .hacker-input:focus { border-left-color: var(--p); border-top-color: var(--p); background: rgba(188, 19, 254, 0.05); box-shadow: 0 0 15px var(--p-glow); }
 
-        /* --- NÚT BẤM --- */
-        .btn-supreme {
-            padding: 15px 25px;
-            background: var(--p);
-            color: #000;
-            font-weight: 900;
-            font-family: 'Orbitron';
-            text-transform: uppercase;
-            font-size: 11px;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-            transition: 0.3s;
-            border: none;
+        .btn-cyber {
+            width: 100%; padding: 18px; background: var(--p); color: #000;
+            font-family: 'Orbitron'; font-weight: 900; font-size: 14px; text-transform: uppercase;
+            letter-spacing: 3px; cursor: pointer; border: none; position: relative;
+            clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); transition: 0.3s;
         }
+        .btn-cyber:hover { background: #fff; box-shadow: 0 0 30px var(--p); transform: translateY(-2px); }
+        .btn-cyber:disabled { background: #333; color: #666; cursor: not-allowed; box-shadow: none; }
 
-        .btn-supreme:hover {
-            background: #fff;
-            box-shadow: 0 0 30px #fff;
-            transform: scale(1.05);
+        /* ----- LAYOUT ----- */
+        #app-layout { display: flex; height: 100vh; width: 100vw; background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); }
+        #sidebar { width: 280px; background: #050505; border-right: 1px solid #1a1a1a; display: flex; flex-direction: column; z-index: 10; }
+        #main-content { flex: 1; display: flex; flex-direction: column; position: relative; }
+        
+        .nav-item {
+            padding: 18px 25px; color: #666; font-family: 'Orbitron'; font-weight: 700; font-size: 12px;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 15px; border-left: 3px solid transparent;
         }
+        .nav-item:hover { color: #fff; background: rgba(188, 19, 254, 0.05); }
+        .nav-item.active { color: #fff; background: rgba(188, 19, 254, 0.1); border-left-color: var(--p); text-shadow: 0 0 10px var(--p); }
 
-        .btn-red { background: var(--red); color: #fff; }
-        .btn-red:hover { background: #ff4d4d; box-shadow: 0 0 30px var(--red); }
+        .tab-content { display: none; animation: fadeIn 0.4s ease; height: 100%; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- BẢNG DỮ LIỆU --- */
-        .table-container {
-            width: 100%;
-            overflow-x: auto;
+        /* ----- CHAT SYSTEM ----- */
+        .chat-container { display: flex; flex-direction: column; height: 100%; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        .msg-row { display: flex; flex-direction: column; max-width: 80%; }
+        .msg-row.me { align-self: flex-end; align-items: flex-end; }
+        .msg-row.other { align-self: flex-start; align-items: flex-start; }
+        .msg-author { font-size: 10px; font-family: 'Orbitron'; margin-bottom: 5px; opacity: 0.7; }
+        .msg-row.me .msg-author { color: var(--p); }
+        .msg-row.other .msg-author { color: #fff; }
+        .msg-bubble { padding: 12px 18px; border-radius: 8px; font-size: 13px; line-height: 1.5; word-break: break-word; }
+        .msg-row.me .msg-bubble { background: var(--p); color: #000; border-bottom-right-radius: 0; font-weight: 600; }
+        .msg-row.other .msg-bubble { background: #111; color: #eee; border: 1px solid #333; border-bottom-left-radius: 0; }
+
+        /* ----- SYSTEM & EFFECTS ----- */
+        #matrix-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.15; }
+        .scanline {
+            width: 100%; height: 100px; background: linear-gradient(0deg, rgba(0,0,0,0) 0%, var(--p-glow) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1; position: absolute; bottom: 100%; animation: scanline 8s linear infinite; pointer-events: none; z-index: 99;
         }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100px; } }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #050505; border-left: 1px solid #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--p); }
 
-        th {
-            background: #080808;
-            color: var(--p);
-            text-align: left;
-            padding: 20px;
-            text-transform: uppercase;
-            font-family: 'Orbitron';
-            font-size: 10px;
-            border-bottom: 2px solid var(--p);
-        }
-
-        td {
-            padding: 20px;
-            border-bottom: 1px solid #111;
-            color: #ccc;
-        }
-
-        tr:hover {
-            background: rgba(188, 19, 254, 0.03);
-        }
-
-        /* --- TRẠNG THÁI --- */
-        .badge {
-            padding: 4px 10px;
-            font-size: 9px;
-            font-weight: 900;
-            border-radius: 2px;
-            text-transform: uppercase;
-        }
-
-        .badge-pending { background: var(--yellow); color: #000; }
-        .badge-verified { background: var(--green); color: #000; }
-        .badge-banned { background: var(--red); color: #fff; }
-
-        /* --- THÔNG BÁO --- */
-        #notify-area {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 99999;
-            width: 350px;
-        }
-
-        .toast {
-            background: rgba(5,5,5,0.95);
-            border-left: 5px solid var(--p);
-            padding: 20px;
-            margin-bottom: 10px;
-            color: #fff;
-            font-size: 11px;
-            backdrop-filter: blur(10px);
-            animation: slideIn 0.5s ease-out forwards;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* --- SCROLLBAR --- */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--p); }
-
+        /* Toast Notification */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #000; border-left: 4px solid var(--p); color: #fff; padding: 15px 20px; font-family: 'JetBrains Mono'; font-size: 11px; box-shadow: 0 0 20px rgba(0,0,0,0.8); animation: slideIn 0.3s forwards; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;" onkeydown="if(event.keyCode==123) return false;">
 
-    <canvas id="bg-canvas"></canvas>
     <div class="scanline"></div>
-    <div id="notify-area"></div>
+    <div id="toast-container"></div>
 
-    <nav class="border-b border-zinc-900 bg-black/90 p-8 sticky top-0 z-[1000] backdrop-blur-xl">
-        <div class="max-w-[1800px] mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-10">
-                <h1 class="text-3xl font-black italic text-white tracking-tighter">BẢN ĐIỀU KHIỂN <span class="text-p">ADMIN</span></h1>
-                <div class="h-8 w-[1px] bg-zinc-800"></div>
-                <div class="hidden md:flex gap-8 text-[10px] font-black opacity-30 uppercase tracking-[4px]">
-                    <a href="#section-stats" class="hover:text-p transition-all">Thống_Kê</a>
-                    <a href="#section-users" class="hover:text-p transition-all">Người_Dùng</a>
-                    <a href="#section-keys" class="hover:text-p transition-all">Mã_License</a>
-                    <a href="#section-chat" class="hover:text-p transition-all">Quản_Lý_Chat</a>
-                </div>
-            </div>
-            <div class="flex items-center gap-8">
-                <div class="text-right border-r border-zinc-800 pr-8">
-                    <p class="text-[8px] opacity-30 uppercase font-black">Thời gian máy chủ</p>
-                    <p id="server-time" class="text-lg font-black italic text-white tracking-widest">00:00:00</p>
-                </div>
-                <button onclick="location.reload()" class="btn-supreme !py-3 !px-6">LÀM MỚI</button>
-            </div>
+    <div id="boot-screen" class="fixed inset-0 bg-black z-[9999] flex flex-col justify-center p-10 font-code">
+        <h1 class="text-p font-black text-6xl mb-8 font-cyber glitch-wrapper" data-text="NEKO KERNEL">NEKO KERNEL</h1>
+        <div id="boot-logs" class="h-64 overflow-hidden relative text-green-500 text-[11px] leading-relaxed"></div>
+        <div class="w-full bg-zinc-900 h-1 mt-8 relative overflow-hidden">
+            <div id="boot-progress" class="bg-p h-full w-0 transition-all duration-75 absolute left-0 top-0"></div>
         </div>
-    </nav>
+        <p class="text-[10px] text-zinc-600 mt-4 animate-pulse">ESTABLISHING SECURE PROTOCOLS...</p>
+    </div>
 
-    <main class="max-w-[1800px] mx-auto p-10 lg:p-16">
+    <div id="auth-screen" class="hidden min-h-screen flex items-center justify-center relative">
+        <canvas id="matrix-canvas"></canvas>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black z-0"></div>
+        
+        <div class="cyber-panel w-full max-w-md p-10 relative z-10 backdrop-blur-md bg-black/80">
+            <div class="text-center mb-8 border-b border-zinc-900 pb-8">
+                <div class="inline-block p-4 rounded-full bg-p/10 mb-4 border border-p/30">
+                    <i class="fa-solid fa-fingerprint text-4xl text-p"></i>
+                </div>
+                <h2 class="text-3xl font-black font-cyber text-white tracking-widest uppercase">Gate<span class="text-p">way</span></h2>
+                <p class="text-[9px] font-code text-zinc-500 mt-2">TRIPLE-LAYER AUTHENTICATION REQUIRED</p>
+            </div>
 
-        <div id="section-stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div class="cyber-panel p-10">
-                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Tổng Operator</p>
-                <div class="flex items-end gap-4">
-                    <span id="stat-total-users" class="text-5xl font-black text-white italic">0</span>
-                    <span class="text-[10px] mb-2 text-p">IDENTITY</span>
+            <div class="space-y-4">
+                <div class="relative group">
+                    <i class="fa-solid fa-user absolute left-5 top-5 text-zinc-600 group-focus-within:text-p transition-colors"></i>
+                    <input type="text" id="u-user" placeholder="SYS_USERNAME" class="hacker-input pl-12" autocomplete="off">
+                </div>
+                <div class="relative group">
+                    <i class="fa-solid fa-lock absolute left-5 top-5 text-zinc-600 group-focus-within:text-p transition-colors"></i>
+                    <input type="password" id="u-pass" placeholder="SYS_PASSWORD" class="hacker-input pl-12">
+                </div>
+                <div class="relative group mt-6">
+                    <div class="absolute -top-3 left-4 bg-black px-2 text-[9px] font-black text-red-500 z-10">LICENSE KEY</div>
+                    <i class="fa-solid fa-key absolute left-5 top-5 text-red-900 group-focus-within:text-red-500 transition-colors"></i>
+                    <input type="text" id="u-key" placeholder="XXXX-XXXX-XXXX" class="hacker-input pl-12 border-red-900/50 focus:border-red-500 text-red-400">
                 </div>
             </div>
-            <div class="cyber-panel p-10">
-                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Chờ Duyệt Mail</p>
-                <div class="flex items-end gap-4">
-                    <span id="stat-pending-mail" class="text-5xl font-black text-yellow-500 italic">0</span>
-                    <span class="text-[10px] mb-2 text-yellow-500">REQUESTS</span>
-                </div>
-            </div>
-            <div class="cyber-panel p-10">
-                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Mã Key Hoạt Động</p>
-                <div class="flex items-end gap-4">
-                    <span id="stat-active-keys" class="text-5xl font-black text-cyan-400 italic">0</span>
-                    <span class="text-[10px] mb-2 text-cyan-400">LICENSE</span>
-                </div>
-            </div>
-            <div class="cyber-panel p-10">
-                <p class="text-[10px] font-black opacity-30 uppercase mb-4 tracking-widest">Lưu Lượng Dữ Liệu</p>
-                <div class="flex items-end gap-4">
-                    <span id="stat-total-links" class="text-5xl font-black text-green-500 italic">0</span>
-                    <span class="text-[10px] mb-2 text-green-500">PAYLOADS</span>
-                </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <button onclick="SystemCore.login()" id="btn-login" class="btn-cyber mt-8">
+                <i class="fa-solid fa-terminal mr-2"></i> INITIATE LOGIN
+            </button>
             
-            <div class="xl:col-span-8 space-y-10">
+            <div class="flex justify-between mt-6 text-[9px] font-code text-zinc-500">
+                <a href="laykey.html" class="hover:text-p cursor-pointer"><i class="fa-solid fa-link"></i> Get License Token</a>
+                <span>Node: <span class="text-green-500">VN-HCM-01</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-layout" class="hidden">
+        
+        <aside id="sidebar">
+            <div class="p-8 text-center border-b border-zinc-900 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-p to-transparent"></div>
+                <h2 class="text-3xl font-black font-cyber text-white neon-text uppercase tracking-tighter">NEKO<span class="text-p">V9</span></h2>
+            </div>
+            
+            <nav class="flex-1 py-6 flex flex-col gap-1">
+                <p class="px-6 text-[9px] uppercase font-black text-zinc-700 mb-2 tracking-[3px]">System Modules</p>
+                <div class="nav-item active" onclick="SystemCore.switchTab('tab-dash', this)">
+                    <i class="fa-solid fa-gauge-high w-6 text-center"></i> Main Dashboard
+                </div>
+                <div class="nav-item" onclick="SystemCore.switchTab('tab-payload', this)">
+                    <i class="fa-solid fa-server w-6 text-center"></i> Payload Cloud
+                </div>
+                <div class="nav-item" onclick="SystemCore.switchTab('tab-chat', this)">
+                    <i class="fa-solid fa-comments w-6 text-center"></i> World Chat Live
+                </div>
                 
-                <div id="section-users" class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Cơ Sở Dữ Liệu Operator</span>
-                        <input type="text" id="user-search" oninput="renderUsers()" placeholder="TÌM KIẾM THEO TÊN HOẶC EMAIL..." class="w-64 bg-black border border-zinc-900 p-3 text-[10px] outline-none focus:border-p">
+                <p class="px-6 text-[9px] uppercase font-black text-zinc-700 mt-6 mb-2 tracking-[3px]">External Tools</p>
+                <div class="nav-item" onclick="SystemCore.switchTab('tab-roblox', this)">
+                    <i class="fa-solid fa-gamepad w-6 text-center"></i> Roblox Extractor
+                </div>
+                
+                <p class="px-6 text-[9px] uppercase font-black text-zinc-700 mt-6 mb-2 tracking-[3px]">User Config</p>
+                <div class="nav-item" onclick="SystemCore.switchTab('tab-settings', this)">
+                    <i class="fa-solid fa-gear w-6 text-center"></i> Account Settings
+                </div>
+            </nav>
+
+            <div class="p-6 bg-[#030303] border-t border-zinc-900">
+                <div class="flex items-center gap-4 mb-4">
+                    <div id="avatar-box" class="w-12 h-12 bg-zinc-900 rounded-sm flex items-center justify-center text-white font-cyber text-xl border border-p shadow-[0_0_10px_rgba(188,19,254,0.3)]"></div>
+                    <div>
+                        <p id="disp-user" class="text-sm font-black text-white uppercase font-cyber"></p>
+                        <p id="disp-status" class="text-[10px] font-bold font-code mt-1"></p>
                     </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Định Danh</th>
-                                    <th>Email Yêu Cầu</th>
-                                    <th>Xác Minh Chat</th>
-                                    <th>Ngày Tham Gia</th>
-                                    <th>Trạng Thái</th>
-                                    <th class="text-right">Thao Tác</th>
-                                </tr>
-                            </thead>
-                            <tbody id="user-table-body">
-                                </tbody>
-                        </table>
+                </div>
+                <button onclick="location.reload()" class="w-full py-2 bg-red-950/30 text-red-500 font-code text-[10px] border border-red-900/50 hover:bg-red-600 hover:text-white transition-all">
+                    LOGOUT SESSION
+                </button>
+            </div>
+        </aside>
+
+        <main id="main-content">
+            <marquee id="sys-notice" class="bg-[#050505] text-zinc-400 font-code text-[11px] py-2 border-b border-zinc-900 tracking-widest">
+                <i class="fa-solid fa-satellite-dish text-p mr-2"></i> WAITING FOR SYSTEM BROADCAST...
+            </marquee>
+            
+            <div class="flex-1 overflow-y-auto p-8 relative">
+                
+                <div id="tab-dash" class="tab-content active h-full">
+                    <h3 class="text-2xl font-cyber font-black text-white mb-6 uppercase"><i class="fa-solid fa-microchip text-p mr-3"></i>System Overview</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="cyber-panel p-6 border-t-4 border-t-p">
+                            <p class="text-[10px] font-code text-zinc-500 mb-2">NETWORK LATENCY</p>
+                            <h4 class="text-3xl font-black text-white font-cyber">14<span class="text-sm text-p ml-1">ms</span></h4>
+                        </div>
+                        <div class="cyber-panel p-6 border-t-4 border-t-blue-500">
+                            <p class="text-[10px] font-code text-zinc-500 mb-2">LICENSE STATUS</p>
+                            <h4 class="text-2xl font-black text-white font-cyber mt-1">VERIFIED</h4>
+                        </div>
+                        <div class="cyber-panel p-6 border-t-4 border-t-green-500">
+                            <p class="text-[10px] font-code text-zinc-500 mb-2">SYSTEM LOAD</p>
+                            <div class="w-full bg-zinc-900 h-2 mt-4 rounded-full overflow-hidden">
+                                <div class="bg-green-500 h-full w-[24%]"></div>
+                            </div>
+                            <p class="text-right text-[9px] mt-1 text-green-500">24%</p>
+                        </div>
+                    </div>
+
+                    <div class="cyber-panel p-8 h-[300px] flex items-center justify-center">
+                        <div class="text-center opacity-30">
+                            <i class="fa-solid fa-chart-network text-6xl mb-4 text-p"></i>
+                            <p class="font-code text-xs uppercase">Telemetry Data Graph Offline</p>
+                        </div>
                     </div>
                 </div>
 
-                <div id="section-chat" class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Giám Sát World Chat (Live)</span>
-                        <button onclick="clearAllChat()" class="text-[10px] text-red-500 font-black hover:underline">XOÁ TOÀN BỘ TIN NHẮN</button>
+                <div id="tab-payload" class="tab-content h-full">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-cyber font-black text-white uppercase"><i class="fa-solid fa-cloud-arrow-down text-p mr-3"></i>Payload Cloud</h3>
+                        <span class="bg-p text-black font-code text-[10px] px-3 py-1 font-bold">AUTO-SYNC</span>
                     </div>
-                    <div id="admin-chat-box" class="h-[500px] overflow-y-auto p-8 space-y-4 font-mono text-xs bg-black/40">
+                    <div id="payload-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         </div>
                 </div>
 
-                <div class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Quản Lý Payload / Shared Links</span>
-                    </div>
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Chủ Sở Hữu</th>
-                                    <th>Nội Dung / Mô Tả</th>
-                                    <th>Thời Gian</th>
-                                    <th class="text-right">Hành Động</th>
-                                </tr>
-                            </thead>
-                            <tbody id="link-table-body">
-                                </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="xl:col-span-4 space-y-10">
-                
-                <div id="section-keys" class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Phát Hành License Key</span>
-                    </div>
-                    <div class="p-8 space-y-6">
-                        <div>
-                            <label class="text-[9px] uppercase font-black opacity-30 block mb-3">Tên Key (Mã Định Danh)</label>
-                            <div class="flex gap-4">
-                                <input type="text" id="k-name" placeholder="VD: NEKO-XXXX" class="cyber-input">
-                                <button onclick="randomKey()" class="bg-zinc-900 px-4 text-p border border-zinc-800 hover:bg-p hover:text-black transition-all">RAND</button>
+                <div id="tab-chat" class="tab-content h-full">
+                    <div class="cyber-panel h-full flex flex-col relative overflow-hidden">
+                        <div class="p-4 bg-[#050505] border-b border-zinc-900 flex justify-between items-center z-10">
+                            <h3 class="font-cyber text-sm text-white uppercase"><i class="fa-solid fa-walkie-talkie text-p mr-2"></i>Global Comms</h3>
+                            <div class="flex items-center gap-2 text-[9px] font-code text-green-500">
+                                <i class="fa-solid fa-circle text-[6px] animate-pulse"></i> SECURE CHANNEL
                             </div>
                         </div>
-                        <div>
-                            <label class="text-[9px] uppercase font-black opacity-30 block mb-3">Ngày Hết Hạn</label>
-                            <input type="text" id="k-exp" placeholder="31/12/2026" value="31/12/2026" class="cyber-input">
+
+                        <div id="chat-box" class="chat-messages">
+                            </div>
+
+                        <div id="chat-locked" class="absolute inset-0 bg-black/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-10 text-center">
+                            <i class="fa-solid fa-lock text-6xl text-zinc-800 mb-6"></i>
+                            <h2 class="text-xl font-cyber text-white mb-2">COMMS LINK SEVERED</h2>
+                            <p class="text-[11px] font-code text-zinc-500 mb-8 max-w-sm">Your account lacks the necessary clearance to access the global communication network. Verify your email to lift this restriction.</p>
+                            <button onclick="location.href='mail.html'" class="px-8 py-3 bg-p text-black font-cyber font-black text-[11px] uppercase hover:bg-white transition-colors">
+                                Request Clearance
+                            </button>
                         </div>
-                        <button onclick="taoKey()" class="btn-supreme w-full !py-4">PHÁT HÀNH KEY MỚI</button>
-                        
-                        <div class="mt-10 border-t border-zinc-900 pt-8">
-                            <h3 class="text-[10px] font-black uppercase mb-6 opacity-40">Mã Key Đang Tồn Tại</h3>
-                            <div id="key-scroller" class="h-64 overflow-y-auto space-y-2 pr-2">
+
+                        <div id="chat-input-area" class="p-4 bg-[#050505] border-t border-zinc-900 flex gap-3 z-10 hidden">
+                            <input type="text" id="msg-input" onkeypress="if(event.key==='Enter') SystemCore.sendMsg()" placeholder="Broadcast message..." class="flex-1 bg-black border border-zinc-800 text-white font-code text-[12px] px-4 outline-none focus:border-p transition-colors">
+                            <button onclick="SystemCore.sendMsg()" class="bg-p text-black px-6 font-black hover:bg-white transition-colors">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-roblox" class="tab-content h-full">
+                    <h3 class="text-2xl font-cyber font-black text-white mb-6 uppercase"><i class="fa-solid fa-cube text-p mr-3"></i>Roblox Data Extractor</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="cyber-panel p-8">
+                            <p class="text-[11px] font-code text-zinc-400 mb-6 leading-relaxed">Sử dụng công cụ này để trích xuất thông tin public của người chơi Roblox thông qua API Gateway của Neko System.</p>
+                            <label class="text-[9px] text-zinc-500 font-code mb-2 block">ROBLOX USERNAME / ID</label>
+                            <input type="text" id="rbx-input" placeholder="Nhập tên nhân vật..." class="hacker-input mb-4">
+                            <button onclick="SystemCore.fetchRoblox()" id="btn-rbx" class="btn-cyber !py-3 !text-[11px]">TRÍCH XUẤT DỮ LIỆU</button>
+                        </div>
+                        <div class="cyber-panel p-8 bg-black/50" id="rbx-result">
+                            <div class="h-full flex flex-col items-center justify-center opacity-30">
+                                <i class="fa-solid fa-radar text-4xl mb-4 text-p fa-spin"></i>
+                                <p class="font-code text-[10px] uppercase">Awaiting Target Input...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-settings" class="tab-content h-full">
+                    <h3 class="text-2xl font-cyber font-black text-white mb-6 uppercase"><i class="fa-solid fa-sliders text-p mr-3"></i>Security Settings</h3>
+                    <div class="max-w-xl">
+                        <div class="cyber-panel p-8 border-l-4 border-l-p">
+                            <h4 class="text-sm font-cyber text-white mb-6 uppercase">Cập Nhật Mật Khẩu Khách Hàng</h4>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-[9px] text-zinc-500 font-code mb-1 block">MẬT KHẨU HIỆN TẠI</label>
+                                    <input type="password" id="set-pass-old" class="hacker-input !p-3">
                                 </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-500 font-code mb-1 block">MẬT KHẨU MỚI</label>
+                                    <input type="password" id="set-pass-new" class="hacker-input !p-3 !border-p/30">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-zinc-500 font-code mb-1 block">XÁC NHẬN MẬT KHẨU MỚI</label>
+                                    <input type="password" id="set-pass-confirm" class="hacker-input !p-3 !border-p/30">
+                                </div>
+                            </div>
+                            
+                            <button onclick="SystemCore.changePassword()" class="mt-6 px-6 py-3 bg-white text-black font-cyber font-black text-[11px] uppercase hover:bg-p transition-colors w-full">
+                                CẬP NHẬT MẬT KHẨU CƠ SỞ DỮ LIỆU
+                            </button>
                         </div>
                     </div>
-                </div>
-
-                <div class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Thông Báo Hệ Thống</span>
-                    </div>
-                    <div class="p-8">
-                        <textarea id="global-notice" placeholder="Nhập thông báo gửi tới toàn bộ người dùng..." class="cyber-input h-32 resize-none !mb-6"></textarea>
-                        <button onclick="sendGlobalNotice()" class="btn-supreme w-full !py-4 bg-cyan-500">PHÁT THÔNG BÁO</button>
-                    </div>
-                </div>
-
-                <div class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Cấu Hình Node Redirect</span>
-                    </div>
-                    <div class="p-8 space-y-6">
-                        <select id="mod-select" class="cyber-input">
-                            <option value="Thuan">Operator: Thuan</option>
-                            <option value="Loc">Operator: Loc</option>
-                            <option value="Neko">Operator: Neko</option>
-                            <option value="King">Operator: King</option>
-                        </select>
-                        <input type="text" id="mod-link-url" placeholder="Link Bypass / Redirect..." class="cyber-input">
-                        <button onclick="updateModNode()" class="btn-supreme w-full !py-4 bg-green-600">LƯU CẤU HÌNH</button>
-                    </div>
-                </div>
-
-                <div class="cyber-panel">
-                    <div class="panel-header">
-                        <span class="panel-title">Nhật Ký Truy Truy Cập</span>
-                    </div>
-                    <div id="admin-logs" class="p-8 h-64 overflow-y-auto font-mono text-[10px] space-y-2 text-zinc-600">
-                        </div>
                 </div>
 
             </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-        import { getDatabase, ref, set, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-
-        // Cấu hình Firebase (Sếp cần thay đúng URL của mình vào đây)
-        const firebaseConfig = { 
-            databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" 
-        };
-        const app = initializeApp(firebaseConfig);
+        import { getDatabase, ref, get, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig); 
         const db = getDatabase(app);
 
-        /* --- HỆ THỐNG HIỂU THỊ THÔNG BÁO --- */
-        window.toast = (msg) => {
-            const area = document.getElementById('notify-area');
-            const el = document.createElement('div');
-            el.className = 'toast';
-            el.innerHTML = `> HỆ THỐNG: ${msg}`;
-            area.appendChild(el);
-            setTimeout(() => el.remove(), 5000);
-            logSystem(msg);
-        };
-
-        function logSystem(msg) {
-            const l = document.getElementById('admin-logs');
-            l.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-            l.scrollTop = l.scrollHeight;
-        }
-
-        /* --- ĐỒ HỌA NỀN --- */
-        const canvas = document.getElementById('bg-canvas');
+        // ================= MATRIX BACKGROUND EFFECT =================
+        const canvas = document.getElementById('matrix-canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
 
-        function drawHex() {
-            ctx.clearRect(0,0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#bc13fe';
-            ctx.lineWidth = 0.5;
-            const size = 50;
-            for(let y=0; y<canvas.height + size; y+=size*1.5) {
-                for(let x=0; x<canvas.width + size; x+=size*1.73) {
-                    drawHexagon(x + (y%(size*3) ? size*0.86 : 0), y, size);
-                }
-            }
-        }
-        function drawHexagon(x, y, s) {
-            ctx.beginPath();
-            for(let i=0; i<6; i++) {
-                ctx.lineTo(x + s * Math.cos(i * Math.PI/3), y + s * Math.sin(i * Math.PI/3));
-            }
-            ctx.closePath();
-            ctx.stroke();
-        }
-        drawHex();
-
-        /* --- SERVER CLOCK --- */
-        setInterval(() => {
-            document.getElementById('server-time').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-
-        /* --- QUẢN LÝ NGƯỜI DÙNG (USERS) --- */
-        let cacheUsers = {};
-        function renderUsers() {
-            const tbody = document.getElementById('user-table-body');
-            const search = document.getElementById('user-search').value.toLowerCase();
-            tbody.innerHTML = "";
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#bc13fe";
+            ctx.font = fontSize + "px 'JetBrains Mono'";
             
-            let stats = { total: 0, pending: 0, banned: 0 };
-
-            Object.keys(cacheUsers).forEach(id => {
-                const u = cacheUsers[id];
-                stats.total++;
-                if(u.verify_status === 'Pending') stats.pending++;
-                if(u.banned) stats.banned++;
-
-                if(id.toLowerCase().includes(search) || (u.email_request && u.email_request.toLowerCase().includes(search))) {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td><span class="text-white font-bold">${id}</span></td>
-                            <td><span class="italic text-zinc-500">${u.email_request || '---'}</span></td>
-                            <td>
-                                <span class="badge ${u.verified ? 'badge-verified' : 'badge-pending'}">
-                                    ${u.verified ? 'ĐÃ XÁC MINH' : 'CHỜ DUYỆT'}
-                                </span>
-                            </td>
-                            <td class="opacity-30 text-[10px]">${u.reg_date || 'N/A'}</td>
-                            <td>
-                                <span class="badge ${u.banned ? 'badge-banned' : 'badge-verified'}">
-                                    ${u.banned ? 'BỊ KHÓA' : 'HOẠT ĐỘNG'}
-                                </span>
-                            </td>
-                            <td class="text-right space-x-2">
-                                ${!u.verified ? `<button onclick="duyetMail('${id}')" class="btn-supreme !py-1 !px-3 !text-[9px]">DUYỆT</button>` : ''}
-                                <button onclick="toggleBan('${id}', ${!u.banned})" class="btn-supreme btn-red !py-1 !px-3 !text-[9px]">
-                                    ${u.banned ? 'MỞ KHÓA' : 'BAN'}
-                                </button>
-                                <button onclick="deleteUser('${id}')" class="text-zinc-600 hover:text-white transition-all text-[15px]">✕</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-
-            document.getElementById('stat-total-users').innerText = stats.total;
-            document.getElementById('stat-pending-mail').innerText = stats.pending;
-            document.getElementById('stat-banned').innerText = stats.banned;
+            for(let i = 0; i < drops.length; i++) {
+                const text = letters.charAt(Math.floor(Math.random() * letters.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
         }
+        setInterval(drawMatrix, 33);
 
-        onValue(ref(db, 'Users'), snap => {
-            cacheUsers = snap.val() || {};
-            renderUsers();
-        });
+        // ================= BOOT SEQUENCE ANIMATION =================
+        const bootLogs = [
+            "Initializing Neko Kernel v9.0.2...", "Loading CSS Matrix engines...",
+            "Connecting to Firebase Realtime Database...", "Bypassing standard security protocols...",
+            "Validating local token cache...", "Fetching system parameters...",
+            "WARNING: Unauthorized access detected. Overriding...", "System ready."
+        ];
+        let bootIndex = 0;
+        const bootInterval = setInterval(() => {
+            if(bootIndex < bootLogs.length) {
+                const logDiv = document.getElementById('boot-logs');
+                logDiv.innerHTML += `<div><span class="text-zinc-500">[${new Date().toISOString().split('T')[1].slice(0,-1)}]</span> ${bootLogs[bootIndex]}</div>`;
+                document.getElementById('boot-progress').style.width = `${(bootIndex + 1) * (100 / bootLogs.length)}%`;
+                logDiv.scrollTop = logDiv.scrollHeight;
+                bootIndex++;
+            } else {
+                clearInterval(bootInterval);
+                setTimeout(() => {
+                    document.getElementById('boot-screen').style.display = 'none';
+                    document.getElementById('auth-screen').classList.remove('hidden');
+                }, 800);
+            }
+        }, 150);
 
-        window.duyetMail = (id) => {
-            update(ref(db, `Users/${id}`), { verified: true, verify_status: "Verified" });
-            toast(`Đã cấp quyền chat cho Operator: ${id}`);
-        };
+        // ================= SYSTEM CORE LOGIC =================
+        window.SystemCore = {
+            currentUser: null,
+            userData: null,
 
-        window.toggleBan = (id, val) => {
-            update(ref(db, `Users/${id}`), { banned: val });
-            toast(`${val ? 'Đã khóa' : 'Đã mở khóa'} Operator: ${id}`);
-        };
+            showToast: (msg, type = 'normal') => {
+                const box = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                t.className = `toast ${type === 'error' ? '!border-red-500 !text-red-400' : type === 'success' ? '!border-green-500 !text-green-400' : ''}`;
+                t.innerHTML = `<i class="fa-solid fa-${type === 'error' ? 'triangle-exclamation' : type === 'success' ? 'check' : 'info-circle'} mr-2"></i> ${msg}`;
+                box.appendChild(t);
+                setTimeout(() => t.remove(), 4000);
+            },
 
-        window.deleteUser = (id) => {
-            if(confirm(`Hành động này sẽ xóa vĩnh viễn Operator ${id}. Tiếp tục?`)) {
-                remove(ref(db, `Users/${id}`));
-                toast(`Đ
+            login: async () => {
+                const u = document.getElementById('u-user').value.trim();
+                const p = document.getElementById('u-pass').value.trim();
+                const k = document.getElementById('u-key').value.trim();
+                const btn = document.getElementById('btn-login');
+
+                if(!u || !p || !k) return SystemCore.showToast('Thiếu thông số đăng nhập!', 'error');
+
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> AUTHENTICATING...'; btn.disabled = true;
+
+                try {
+                    const uSnap = await get(ref(db, `Users/${u}`));
+                    if(!uSnap.exists() || uSnap.val().pass !== p) throw new Error("Sai Tên Đăng Nhập hoặc Mật Khẩu");
+                    if(uSnap.val().banned) throw new Error("Tài khoản đã bị cấm khỏi Hệ Thống");
+
+                    const kSnap = await get(ref(db, `Keys/${k}`));
+                    if(!kSnap.exists()) throw new Error("License Key không tồn tại hoặc đã bị thu hồi");
+
+                    // SUCCESS
+                    SystemCore.currentUser = u;
+                    SystemCore.userData = uSnap.val();
+                    
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    document.getElementById('app-layout').classList.remove('hidden');
+                    
+                    // Populate User Data
+                    document.getElementById('disp-user').innerText = u;
+                    document.getElementById('avatar-box').innerText = u.charAt(0).toUpperCase();
+                    
+                    const st = document.getElementById('disp-status');
+                    if(SystemCore.userData.verified) {
+                        st.innerHTML = '<i class="fa-solid fa-shield-check mr-1"></i> VERIFIED MEMBER';
+                        st.className = "text-[10px] font-bold font-code mt-1 text-green-500";
+                        document.getElementById('chat-locked').style.display = 'none';
+                        document.getElementById('chat-input-area').classList.remove('hidden');
+                    } else {
+                        st.innerHTML = '<i class="fa-solid fa-triangle-exclamation mr-1"></i> GUEST / UNVERIFIED';
+                        st.className = "text-[10px] font-bold font-code mt-1 text-red-500";
+                    }
+
+                    SystemCore.initStreams();
+                    SystemCore.showToast(`Welcome back, ${u}`, 'success');
+
+                } catch (err) {
+                    SystemCore.showToast(err.message, 'error');
+                    btn.innerHTML = '<i class="fa-solid fa-terminal mr-2"></i> INITIATE LOGIN'; btn.disabled = false;
+                }
+            },
+
+            switchTab: (tabId, el) => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                el.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            },
+
+            initStreams: () => {
+                // Notice
+                onValue(ref(db, 'SystemNotice'), s => {
+                    if(s.exists()) document.getElementById('sys-notice').innerHTML = `<i class="fa-solid fa-bullhorn text-p mr-2"></i> SYSTEM NOTICE: <span class="text-white">${s.val().msg}</span>`;
+                });
+
+                // Payload
+                onValue(ref(db, 'SharedLinks'), s => {
+                    const grid = document.getElementById('payload-grid'); grid.innerHTML = "";
+                    if(s.exists()) {
+                        Object.values(s.val()).forEach(item => {
+                            grid.innerHTML += `
+                                <div class="cyber-panel p-5 group flex flex-col">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <i class="fa-solid fa-file-code text-2xl text-zinc-600 group-hover:text-p transition-colors"></i>
+                                        <span class="text-[8px] font-code bg-zinc-900 px-2 py-1 text-zinc-400">PUBLIC</span>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-white mb-1 line-clamp-1">${item.info}</h4>
+                                    <p class="text-[9px] font-code text-zinc-500 mb-6 flex-1"><i class="fa-solid fa-user-astronaut mr-1"></i> ${item.owner}</p>
+                                    <button onclick="window.open('${item.url}')" class="w-full py-2 bg-black border border-zinc-800 text-[10px] font-cyber text-zinc-400 hover:text-white hover:border-p hover:bg-p/20 transition-all">
+                                        <i class="fa-solid fa-download mr-1"></i> ACCESS PAYLOAD
+                                    </button>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+
+                // Chat
+                onValue(ref(db, 'WorldChat'), s => {
+                    const box = document.getElementById('chat-box'); box.innerHTML = "";
+                    if(s.exists()) {
+                        Object.values(s.val()).slice(-40).forEach(m => {
+                            const isMe = m.u === SystemCore.currentUser;
+                            box.innerHTML += `
+                                <div class="msg-row ${isMe ? 'me' : 'other'}">
+                                    <span class="msg-author">${m.u}</span>
+                                    <div class="msg-bubble">${m.msg}</div>
+                                </div>
+                            `;
+                        });
+                        box.scrollTop = box.scrollHeight;
+                    }
+                });
+            },
+
+            sendMsg: () => {
+                const inp = document.getElementById('msg-input');
+                const val = inp.value.trim();
+                if(!val) return;
+                push(ref(db, 'WorldChat'), { u: SystemCore.currentUser, msg: val });
+                inp.value = ""; inp.focus();
+            },
+
+            // TÍNH NĂNG MỚI 1: Trích xuất Roblox (Mock API)
+            fetchRoblox: () => {
+                const u = document.getElementById('rbx-input').value.trim();
+                const res = document.getElementById('rbx-result');
+                const btn = document.getElementById('btn-rbx');
+                
+                if(!u) return SystemCore.showToast('Vui lòng nhập Username Roblox', 'error');
+                
+                btn.innerText = "ĐANG QUÉT..."; btn.disabled = true;
+                res.innerHTML = `<div class="h-full flex flex-col items-center justify-center opacity-50"><i class="fa-solid fa-circle-notch text-4xl mb-4 text-p fa-spin"></i><p class="font-code text-[10px] uppercase">Connecting to Roblox API Gateway...</p></div>`;
+
+                // Giả lập delay gọi API thực tế
+                setTimeout(() => {
+                    btn.innerText = "TRÍCH XUẤT DỮ LIỆU"; btn.disabled = false;
+                    const mockId = Math.floor(Math.random() * 900000000) + 100000000;
+                    res.innerHTML = `
+                        <div class="flex items-start gap-6 border-b border-zinc-800 pb-6 mb-6">
+                            <div class="w-20 h-20 bg-zinc-900 border border-zinc-700 flex items-center justify-center">
+                                <i class="fa-solid fa-user-robot text-3xl text-zinc-500"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-2xl font-black text-white font-cyber">${u}</h4>
+                                <p class="text-[10px] font-code text-zinc-400 mt-1">ID: ${mockId}</p>
+                                <span class="inline-block mt-2 px-2 py-1 bg-green-900/30 text-green-500 border border-green-900 text-[9px] font-bold">ONLINE</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 font-code text-[11px]">
+                            <div class="bg-black p-3 border border-zinc-900"><p class="text-zinc-500 text-[9px] mb-1">FRIENDS</p><p class="text-white">${Math.floor(Math.random() * 200)}</p></div>
+                            <div class="bg-black p-3 border border-zinc-900"><p class="text-zinc-500 text-[9px] mb-1">FOLLOWERS</p><p class="text-white">${Math.floor(Math.random() * 10000)}</p></div>
+                            <div class="bg-black p-3 border border-zinc-900"><p class="text-zinc-500 text-[9px] mb-1">ACCOUNT AGE</p><p class="text-white">${Math.floor(Math.random() * 5)+1} Years</p></div>
+                            <div class="bg-black p-3 border border-zinc-900"><p class="text-zinc-500 text-[9px] mb-1">BANNED</p><p class="text-green-500">FALSE</p></div>
+                        </div>
+                    `;
+                    SystemCore.showToast('Trích xuất dữ liệu thành công', 'success');
+                }, 1500);
+            },
+
+            // TÍNH NĂNG MỚI 2: Giả lập Đổi Mật Khẩu (Cập nhật Firebase)
+            changePassword: async () => {
+                const oldP = document.getElementById('set-pass-old').value;
+                const newP = document.getElementById('set-pass-new').value;
+                const confP = document.getElementById('set-pass-confirm').value;
+
+                if(!oldP || !newP || !confP) return SystemCore.showToast('Vui lòng điền đủ thông tin', 'error');
+                if(oldP !== SystemCore.userData.pass) return SystemCore.showToast('Mật khẩu cũ không chính xác', 'error');
+                if(newP !== confP) return SystemCore.showToast('Mật khẩu xác nhận không khớp', 'error');
+                if(newP.length < 6) return SystemCore.showToast('Mật khẩu mới phải dài hơn 6 ký tự', 'error');
+
+                try {
+                    await update(ref(db, `Users/${SystemCore.currentUser}`), { pass: newP });
+                    SystemCore.userData.pass = newP; // Update local cache
+                    SystemCore.showToast('Đã thay đổi mật khẩu Database thành công!', 'success');
+                    document.getElementById('set-pass-old').value = '';
+                    document.getElementById('set-pass-new').value = '';
+                    document.getElementById('set-pass-confirm').value = '';
+                } catch (e) {
+                    SystemCore.showToast('Lỗi máy chủ khi cập nhật mật khẩu', '

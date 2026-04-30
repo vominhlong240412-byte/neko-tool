@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head><meta charset="UTF-8"><title>Get Key</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-black text-emerald-500 font-mono flex items-center justify-center min-h-screen">
-    <div class="border border-emerald-500 p-10 rounded-3xl text-center">
-        <h2 class="text-xl font-black mb-6">MISSION SYSTEM</h2>
-        <button onclick="start()" class="bg-emerald-500 text-black px-10 py-4 rounded-xl font-bold uppercase">LẤY KEY NGAY</button>
-        <div id="t" class="text-6xl font-black mt-6 hidden">10</div>
+<head>
+    <meta charset="UTF-8">
+    <title>GET LICENSE | NEKO CLOUD</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background: #000; color: #bc13fe; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; }
+        .box { background: #050505; border: 1px solid #1a1a1a; padding: 50px; width: 400px; text-align: center; }
+        .btn-gen { width: 100%; padding: 20px; background: #bc13fe; color: #000; font-weight: 900; letter-spacing: 2px; margin-top: 30px; cursor: pointer; border: none; }
+        .btn-gen:hover { transform: scale(1.05); box-shadow: 0 0 30px #bc13fe; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1 class="text-3xl font-black italic mb-4">GET <span class="text-white">KEY</span></h1>
+        <p class="text-[10px] opacity-40 uppercase tracking-widest">Hệ thống cấp mã tự động</p>
+        <button id="gen-btn" onclick="goLink()" class="btn-gen">TẠO KEY MỚI NGAY</button>
+        <p class="mt-6 text-[9px] opacity-20 italic">Vui lòng hoàn thành vượt link Link4M để nhận key</p>
     </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
-        const db = getDatabase(initializeApp({databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/"}));
-        window.start = async () => {
-            const s = await get(ref(db, 'Config/MissionLink'));
-            if(s.exists()){ 
-                window.open(s.val(), '_blank');
-                document.getElementById('t').classList.remove('hidden');
-                let c = 10;
-                setInterval(() => { if(c>0){c--; document.getElementById('t').innerText=c;} else location.reload(); }, 1000);
-            }
+        const firebaseConfig = { databaseURL: "https://keysytem-4af25-default-rtdb.asia-southeast1.firebasedatabase.app/" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+
+        window.goLink = async () => {
+            const btn = document.getElementById('gen-btn');
+            btn.innerText = "ĐANG KHỞI TẠO..."; btn.disabled = true;
+
+            const snap = await get(ref(db, 'ModLinks/Current'));
+            const link = snap.exists() ? snap.val() : "https://link4m.co/default";
+
+            // Tạo Token Anti-Buff
+            sessionStorage.setItem('bypass_token', 'NEKO_VERIFIED_' + Date.now());
+            setTimeout(() => { window.location.href = link; }, 1000);
         };
     </script>
 </body>
