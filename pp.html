@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cờ Vua - Gợi Ý Nước Đi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<style>
+  :root{
+    --light:#eeeed2;
+    --dark:#769656;
+    --sel:#f6f669;
+    --legal:#b9ca43;
+    --best:#4aa3ff;
+    --bg:#1b1b1f;
+    --panel:#26262c;
+    --text:#e9e9ee;
+    --muted:#9a9aa3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:16px; background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+  }
+  h1{font-size:1.1rem; margin:4px 0; color:var(--text); font-weight:600;}
+  .board-wrap{
+    width:min(94vw, 480px);
+    aspect-ratio:1/1;
+    display:grid;
+    grid-template-columns:repeat(8,1fr);
+    grid-template-rows:repeat(8,1fr);
+    border:3px solid #444;
+    border-radius:6px;
+    overflow:hidden;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  }
+  .sq{
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    font-size:min(9vw, 40px);
+    user-select:none;
+    cursor:pointer;
+  }
+  .sq.light{background:var(--light);}
+  .sq.dark{background:var(--dark);}
+  .sq.selected{background:var(--sel) !important;}
+  .sq.legal::after{
+    content:"";
+    position:absolute;
+    width:28%; height:28%;
+    border-radius:50%;
+    background:rgba(0,0,0,0.25);
+  }
+  .sq.legal.capture::after{
+    width:80%; height:80%;
+    border-radius:50%;
+    background:transparent;
+    border:5px solid rgba(0,0,0,0.3);
+  }
+  .sq.best-from{ box-shadow: inset 0 0 0 4px var(--best); }
+  .sq.best-to{ box-shadow: inset 0 0 0 4px var(--best); }
+  .piece{ line-height:1; pointer-events:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
+  .panel{
+    width:min(94vw, 480px);
+    background:var(--panel);
+    border-radius:10px;
+    padding:14px 16px;
+    display:flex; flex-direction:column; gap:10px;
+  }
+  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  button{
+    background:#3a3a42; color:var(--text); border:none; border-radius:8px;
+    padding:9px 14px; font-size:0.9rem; cursor:pointer; font-weight:600;
+  }
+  button:active{transform:scale(0.97);}
+  button.primary{background:var(--best); color:#08141f;}
+  select{
+    background:#3a3a42; color:var(--text); border:none; border-radius:8px;
+    padding:9px 10px; font-size:0.9rem;
+  }
+  .status{font-size:0.95rem; color:var(--text); min-height:1.3em;}
+  .suggestion{
+    background:#1f2937; border-left:4px solid var(--best);
+    padding:10px 12px; border-radius:6px; font-size:0.9rem; line-height:1.5;
+  }
+  .suggestion b{color:var(--best);}
+  .muted{color:var(--muted); font-size:0.82rem;}
+  .turn-badge{
+    display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:700;
+  }
+  .turn-white{background:#eeeed2; color:#222;}
+  .turn-black{background:#333; color:#eee; border:1px solid #555;}
+  .history{
+    max-height:90px; overflow-y:auto; font-size:0.82rem; color:var(--muted);
+    background:#1f1f24; border-radius:6px; padding:8px 10px;
+  }
+</style>
+</head>
+<body>
+
+<h1>♟️ Bàn Cờ Vua — Gợi Ý Nước Đi</h1>
+
+<div class="panel">
+  <div class="row">
+    <span class="muted">Bạn chơi phe:</span>
+    <select id="mySide">
+      <option value="w">Trắng</option>
+      <option value="b">Đen</option>
+    </select>
+    <button id="newGameBtn">Ván Mới</button>
+    <button id="undoBtn">Hoàn Tác</button>
+  </div>
+  <div class="row">
+    <span class="status" id="status">Lượt đi: <span class="turn-badge turn-white">Trắng</span></span>
+  </div>
+</div>
+
+<div class="board-wrap" id="board"></div>
+
+<div class="panel">
+  <div class="row" style="justify-content:space-between;">
+    <b style="font-size:0.9rem;">Gợi ý nước đi an toàn</b>
+    <button class="primary" id="suggestBtn">🔍 Gợi Ý</button>
+  </div>
+  <div class="suggestion" id="suggestionBox">Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.</div>
+  <div class="muted" id="depthInfo"></div>
+</div>
+
+<div class="panel">
+  <b style="font-size:0.9rem;">Lịch sử nước đi</b>
+  <div class="history" id="historyBox">—</div>
+</div>
+
+<script>
+const game = new Chess();
+const boardEl = document.getElementById('board');
+const statusEl = document.getElementById('status');
+const suggestionBox = document.getElementById('suggestionBox');
+const historyBox = document.getElementById('historyBox');
+const mySideSelect = document.getElementById('mySide');
+const depthInfo = document.getElementById('depthInfo');
+
+let selectedSquare = null;
+let legalTargets = [];
+let bestMoveHighlight = null; // {from, to}
+let isSuggesting = false;     // cờ chống gọi chồng chéo
+
+const PIECE_UNICODE = {
+  p:{w:'♙', b:'♟'}, n:{w:'♘', b:'♞'}, b:{w:'♗', b:'♝'},
+  r:{w:'♖', b:'♜'}, q:{w:'♕', b:'♛'}, k:{w:'♔', b:'♚'}
+};
+
+const FILES = ['a','b','c','d','e','f','g','h'];
+const RANKS = ['8','7','6','5','4','3','2','1'];
+
+function squareId(fileIdx, rankIdx){
+  return FILES[fileIdx] + RANKS[rankIdx];
+}
+
+function renderBoard(){
+  boardEl.innerHTML = '';
+  bestMoveHighlight = bestMoveHighlight; // preserved across render unless cleared
+  for(let r=0; r<8; r++){
+    for(let f=0; f<8; f++){
+      const sqName = squareId(f, r);
+      const div = document.createElement('div');
+      const isLight = (r+f) % 2 === 0;
+      div.className = 'sq ' + (isLight ? 'light' : 'dark');
+      div.dataset.square = sqName;
+
+      const piece = game.get(sqName);
+      if(piece){
+        const span = document.createElement('span');
+        span.className = 'piece';
+        span.textContent = PIECE_UNICODE[piece.type][piece.color];
+        div.appendChild(span);
+      }
+
+      if(selectedSquare === sqName) div.classList.add('selected');
+      if(legalTargets.includes(sqName)){
+        div.classList.add('legal');
+        if(piece) div.classList.add('capture');
+      }
+      if(bestMoveHighlight){
+        if(bestMoveHighlight.from === sqName) div.classList.add('best-from');
+        if(bestMoveHighlight.to === sqName) div.classList.add('best-to');
+      }
+
+      div.addEventListener('click', onSquareClick);
+      boardEl.appendChild(div);
+    }
+  }
+}
+
+function onSquareClick(e){
+  const sq = e.currentTarget.dataset.square;
+
+  if(selectedSquare){
+    if(legalTargets.includes(sq)){
+      makeMove(selectedSquare, sq);
+      selectedSquare = null;
+      legalTargets = [];
+      bestMoveHighlight = null;
+      renderBoard();
+      updateStatus();
+      autoSuggestIfTurn();  // tự động gợi ý nếu đến lượt người dùng
+      return;
+    }
+    // clicking another own piece switches selection
+    const piece = game.get(sq);
+    if(piece && piece.color === game.turn()){
+      selectSquare(sq);
+    } else {
+      selectedSquare = null;
+      legalTargets = [];
+      renderBoard();
+    }
+    return;
+  }
+
+  const piece = game.get(sq);
+  if(piece && piece.color === game.turn()){
+    selectSquare(sq);
+  }
+}
+
+function selectSquare(sq){
+  selectedSquare = sq;
+  const moves = game.moves({square: sq, verbose:true});
+  legalTargets = moves.map(m => m.to);
+  renderBoard();
+}
+
+function makeMove(from, to){
+  // detect promotion
+  const piece = game.get(from);
+  let promotion = undefined;
+  if(piece && piece.type === 'p' && (to[1] === '8' || to[1] === '1')){
+    promotion = 'q'; // auto-promote to queen for simplicity
+  }
+  const move = game.move({from, to, promotion});
+  if(move){
+    suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
+    depthInfo.textContent = '';
+    updateHistory();
+  }
+}
+
+function updateHistory(){
+  const hist = game.history();
+  if(hist.length === 0){
+    historyBox.textContent = '—';
+    return;
+  }
+  let s = '';
+  for(let i=0; i<hist.length; i+=2){
+    const num = (i/2)+1;
+    s += `${num}. ${hist[i]||''} ${hist[i+1]||''}   `;
+  }
+  historyBox.textContent = s.trim();
+}
+
+function updateStatus(){
+  let turnHtml;
+  if(game.turn() === 'w'){
+    turnHtml = '<span class="turn-badge turn-white">Trắng</span>';
+  } else {
+    turnHtml = '<span class="turn-badge turn-black">Đen</span>';
+  }
+
+  if(game.in_checkmate()){
+    const winner = game.turn() === 'w' ? 'Đen' : 'Trắng';
+    statusEl.innerHTML = `♚ Chiếu bí! ${winner} thắng.`;
+    return;
+  }
+  if(game.in_stalemate()){
+    statusEl.innerHTML = 'Hòa cờ (hết nước đi hợp lệ).';
+    return;
+  }
+  if(game.in_threefold_repetition()){
+    statusEl.innerHTML = 'Hòa cờ (lặp lại 3 lần).';
+    return;
+  }
+  if(game.insufficient_material()){
+    statusEl.innerHTML = 'Hòa cờ (không đủ quân để chiếu bí).';
+    return;
+  }
+  if(game.in_draw()){
+    statusEl.innerHTML = 'Hòa cờ.';
+    return;
+  }
+
+  let extra = '';
+  if(game.in_check()) extra = ' — <b>Đang bị chiếu!</b>';
+  statusEl.innerHTML = `Lượt đi: ${turnHtml}${extra}`;
+}
+
+// ---------- Move suggestion engine (iterative deepening + alpha-beta + quiescence) ----------
+
+const PIECE_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+const MVV_LVA_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
+
+// simple piece-square tables (from white's perspective, row0=rank8)
+const PST = {
+  p: [
+    0,0,0,0,0,0,0,0,
+    50,50,50,50,50,50,50,50,
+    10,10,20,30,30,20,10,10,
+    5,5,10,25,25,10,5,5,
+    0,0,0,20,20,0,0,0,
+    5,-5,-10,0,0,-10,-5,5,
+    5,10,10,-20,-20,10,10,5,
+    0,0,0,0,0,0,0,0
+  ],
+  n: [
+    -50,-40,-30,-30,-30,-30,-40,-50,
+    -40,-20,0,0,0,0,-20,-40,
+    -30,0,10,15,15,10,0,-30,
+    -30,5,15,20,20,15,5,-30,
+    -30,0,15,20,20,15,0,-30,
+    -30,5,10,15,15,10,5,-30,
+    -40,-20,0,5,5,0,-20,-40,
+    -50,-40,-30,-30,-30,-30,-40,-50
+  ],
+  b: [
+    -20,-10,-10,-10,-10,-10,-10,-20,
+    -10,0,0,0,0,0,0,-10,
+    -10,0,5,10,10,5,0,-10,
+    -10,5,5,10,10,5,5,-10,
+    -10,0,10,10,10,10,0,-10,
+    -10,10,10,10,10,10,10,-10,
+    -10,5,0,0,0,0,5,-10,
+    -20,-10,-10,-10,-10,-10,-10,-20
+  ],
+  r: [
+    0,0,0,0,0,0,0,0,
+    5,10,10,10,10,10,10,5,
+    -5,0,0,0,0,0,0,-5,
+    -5,0,0,0,0,0,0,-5,
+    -5,0,0,0,0,0,0,-5,
+    -5,0,0,0,0,0,0,-5,
+    -5,0,0,0,0,0,0,-5,
+    0,0,0,5,5,0,0,0
+  ],
+  q: [
+    -20,-10,-10,-5,-5,-10,-10,-20,
+    -10,0,0,0,0,0,0,-10,
+    -10,0,5,5,5,5,0,-10,
+    -5,0,5,5,5,5,0,-5,
+    0,0,5,5,5,5,0,-5,
+    -10,5,5,5,5,5,0,-10,
+    -10,0,5,0,0,0,0,-10,
+    -20,-10,-10,-5,-5,-10,-10,-20
+  ],
+  k: [
+    -30,-40,-40,-50,-50,-40,-40,-30,
+    -30,-40,-40,-50,-50,-40,-40,-30,
+    -30,-40,-40,-50,-50,-40,-40,-30,
+    -30,-40,-40,-50,-50,-40,-40,-30,
+    -20,-30,-30,-40,-40,-30,-30,-20,
+    -10,-20,-20,-20,-20,-20,-20,-10,
+    20,20,0,0,0,0,20,20,
+    20,30,10,0,0,10,30,20
+  ]
+};
+
+function squareToIndex(sq){
+  const file = FILES.indexOf(sq[0]);
+  const rank = 8 - parseInt(sq[1]); // rank8 -> row0
+  return rank*8 + file;
+}
+
+// how many non-pawn/king pieces remain, used to detect endgame phase
+function countMaterialPhase(board){
+  let count = 0;
+  for(let r=0;r<8;r++) for(let f=0;f<8;f++){
+    const c = board[r][f];
+    if(c && c.type !== 'p' && c.type !== 'k') count++;
+  }
+  return count; // 0..14, low = endgame
+}
+
+// king safety: penalize open files/lack of pawn shield near king in middlegame
+function kingSafetyPenalty(board, color, isEndgame){
+  if(isEndgame) return 0; // king activity matters more than safety in endgame
+  let kr=-1, kf=-1;
+  for(let r=0;r<8;r++) for(let f=0;f<8;f++){
+    const c = board[r][f];
+    if(c && c.type==='k' && c.color===color){ kr=r; kf=f; }
+  }
+  if(kr===-1) return 0;
+  let penalty = 0;
+  const shieldRow = color==='w' ? kr-1 : kr+1;
+  if(shieldRow>=0 && shieldRow<8){
+    for(let df=-1; df<=1; df++){
+      const ff = kf+df;
+      if(ff<0||ff>7) continue;
+      const c = board[shieldRow][ff];
+      if(!c || c.type!=='p' || c.color!==color) penalty += 12;
+    }
+  }
+  return penalty;
+}
+
+function evaluateBoard(chessInstance){
+  const board = chessInstance.board();
+  const phase = countMaterialPhase(board);
+  const isEndgame = phase <= 6;
+  let score = 0;
+
+  for(let r=0; r<8; r++){
+    for(let f=0; f<8; f++){
+      const cell = board[r][f];
+      if(!cell) continue;
+      const idx = r*8+f;
+      const val = PIECE_VALUES[cell.type];
+      const pstIdx = cell.color === 'w' ? idx : (63-idx);
+      const pstVal = PST[cell.type][pstIdx];
+      const total = val + pstVal;
+      score += cell.color === 'w' ? total : -total;
+    }
+  }
+
+  // king safety
+  score -= kingSafetyPenalty(board, 'w', isEndgame);
+  score += kingSafetyPenalty(board, 'b', isEndgame);
+
+  // mobility: more legal moves = more active position (cheap approximation via move count)
+  const turn = chessInstance.turn();
+  const mobility = chessInstance.moves().length;
+  score += (turn === 'w' ? mobility : -mobility) * 2;
+
+  return score; // positive favors white
+}
+
+function scoreMoveForOrdering(chessInstance, move){
+  // MVV-LVA: capturing a high-value piece with a low-value piece scores highest
+  let score = 0;
+  if(move.captured){
+    score += 10000 + (MVV_LVA_VALUES[move.captured] - MVV_LVA_VALUES[move.piece]/10);
+  }
+  if(move.promotion){
+    score += 8000;
+  }
+  if(move.san && move.san.includes('+')){
+    score += 500; // checks are worth exploring first
+  }
+  return score;
+}
+
+function orderMoves(chessInstance, moves){
+  return moves
+    .map(m => ({m, s: scoreMoveForOrdering(chessInstance, m)}))
+    .sort((a,b) => b.s - a.s)
+    .map(x => x.m);
+}
+
+// Quiescence search: at leaf nodes, keep resolving captures until the position is "quiet"
+function quiescence(chessInstance, alpha, beta, maximizing, qDepth){
+  const standPat = evaluateBoard(chessInstance);
+
+  if(maximizing){
+    if(standPat >= beta) return beta;
+    alpha = Math.max(alpha, standPat);
+  } else {
+    if(standPat <= alpha) return alpha;
+    beta = Math.min(beta, standPat);
+  }
+
+  if(qDepth <= 0) return standPat;
+
+  const captures = orderMoves(chessInstance, chessInstance.moves({verbose:true}).filter(m => m.captured));
+
+  for(const m of captures){
+    chessInstance.move(m.san);
+    const ev = quiescence(chessInstance, alpha, beta, !maximizing, qDepth-1);
+    chessInstance.undo();
+
+    if(maximizing){
+      if(ev > alpha) alpha = ev;
+      if(alpha >= beta) return beta;
+    } else {
+      if(ev < beta) beta = ev;
+      if(beta <= alpha) return alpha;
+    }
+  }
+  return maximizing ? alpha : beta;
+}
+
+function minimax(chessInstance, depth, alpha, beta, maximizing){
+  if(chessInstance.in_checkmate()){
+    return maximizing ? -100000 - depth : 100000 + depth;
+  }
+  if(chessInstance.in_draw() || chessInstance.in_stalemate() || chessInstance.in_threefold_repetition()){
+    return 0;
+  }
+  if(depth === 0){
+    return quiescence(chessInstance, alpha, beta, maximizing, 4);
+  }
+
+  const moves = orderMoves(chessInstance, chessInstance.moves({verbose:true}));
+
+  if(maximizing){
+    let maxEval = -Infinity;
+    for(const m of moves){
+      chessInstance.move(m.san);
+      const ev = minimax(chessInstance, depth-1, alpha, beta, false);
+      chessInstance.undo();
+      maxEval = Math.max(maxEval, ev);
+      alpha = Math.max(alpha, ev);
+      if(beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for(const m of moves){
+      chessInstance.move(m.san);
+      const ev = minimax(chessInstance, depth-1, alpha, beta, true);
+      chessInstance.undo();
+      minEval = Math.min(minEval, ev);
+      beta = Math.min(beta, ev);
+      if(beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+// Iterative deepening within a time budget
+function findBestMove(chessInstance, timeBudgetMs){
+  const side = chessInstance.turn();
+  const maximizing = side === 'w';
+  const startTime = Date.now();
+
+  let bestMove = null;
+  let bestScore = maximizing ? -Infinity : Infinity;
+  let reachedDepth = 0;
+
+  const rootMovesRaw = chessInstance.moves({verbose:true});
+  if(rootMovesRaw.length === 0) return {move:null, score:0, depth:0};
+  if(rootMovesRaw.length === 1) return {move: rootMovesRaw[0], score:0, depth:1};
+
+  let depth = 1;
+  while(Date.now() - startTime < timeBudgetMs && depth <= 6){
+    const rootMoves = orderMoves(chessInstance, chessInstance.moves({verbose:true}));
+    let currentBest = null;
+    let currentBestScore = maximizing ? -Infinity : Infinity;
+    let alpha = -Infinity, beta = Infinity;
+    let timedOut = false;
+
+    for(const m of rootMoves){
+      chessInstance.move(m.san);
+      const ev = minimax(chessInstance, depth-1, alpha, beta, !maximizing);
+      chessInstance.undo();
+
+      if(maximizing && ev > currentBestScore){ currentBestScore = ev; currentBest = m; }
+      if(!maximizing && ev < currentBestScore){ currentBestScore = ev; currentBest = m; }
+
+      if(maximizing) alpha = Math.max(alpha, currentBestScore);
+      else beta = Math.min(beta, currentBestScore);
+
+      if(Date.now() - startTime > timeBudgetMs){ timedOut = true; break; }
+    }
+
+    if(currentBest && !timedOut){
+      bestMove = currentBest;
+      bestScore = currentBestScore;
+      reachedDepth = depth;
+    } else if(currentBest && timedOut && !bestMove){
+      bestMove = currentBest;
+      bestScore = currentBestScore;
+      reachedDepth = depth;
+    }
+
+    if(timedOut) break;
+    depth++;
+  }
+
+  return {move: bestMove, score: bestScore, depth: reachedDepth};
+}
+
+function describeSafety(chessInstance, move){
+  chessInstance.move(move.san);
+  const opponentMoves = chessInstance.moves({verbose:true});
+  const isAttacked = opponentMoves.some(m => m.to === move.to);
+  chessInstance.undo();
+  return isAttacked;
+}
+
+function pieceNameVN(type){
+  const names = {p:'Tốt', n:'Mã', b:'Tượng', r:'Xe', q:'Hậu', k:'Vua'};
+  return names[type] || type;
+}
+
+function suggestMove(){
+  if (isSuggesting) return;
+  if (game.game_over()) {
+    suggestionBox.textContent = 'Ván đã kết thúc.';
+    return;
+  }
+  const mySide = mySideSelect.value;
+  if (game.turn() !== mySide) {
+    suggestionBox.textContent = `Chưa đến lượt bạn (bạn đang chơi phe ${mySide==='w'?'Trắng':'Đen'}).`;
+    bestMoveHighlight = null;
+    renderBoard();
+    return;
+  }
+
+  isSuggesting = true;
+  suggestionBox.textContent = 'Đang tính toán...';
+  depthInfo.textContent = '';
+
+  setTimeout(() => {
+    try {
+      const t0 = performance.now();
+      const TIME_BUDGET_MS = 1200;
+      const result = findBestMove(game, TIME_BUDGET_MS);
+      const elapsed = Math.round(performance.now() - t0);
+
+      if (!result.move) {
+        suggestionBox.textContent = 'Không có nước đi hợp lệ.';
+        return;
+      }
+
+      const m = result.move;
+      const isCapture = !!m.captured;
+      const isDangerous = describeSafety(game, m);
+      const givesCheck = m.san && m.san.includes('+');
+      const givesMate = m.san && m.san.includes('#');
+
+      let safetyNote;
+      if (givesMate) {
+        safetyNote = '🏆 Nước này dẫn tới chiếu bí — kết thúc ván!';
+      } else if (isDangerous) {
+        safetyNote = '⚠️ Quân sẽ ở vị trí đối phương có thể ăn lại — nhưng engine đã tính đây vẫn là lựa chọn tốt nhất sau khi cân nhắc đổi quân/đòn phối hợp.';
+      } else {
+        safetyNote = '✅ Nước đi an toàn, quân không bị ăn ngay lập tức.';
+      }
+      if (givesCheck && !givesMate) {
+        safetyNote += ' Nước này chiếu vua đối phương.';
+      }
+
+      const pieceVN = pieceNameVN(m.piece);
+      const captureText = isCapture ? ` (ăn quân ${pieceNameVN(m.captured)} đối phương)` : '';
+
+      suggestionBox.innerHTML = `<b>${pieceVN} ${m.from} → ${m.to}</b>${captureText}<br>${safetyNote}`;
+      depthInfo.textContent = `Ký hiệu: ${m.san} · Đánh giá: ${(result.score/100).toFixed(2)} (dương=lợi Trắng, âm=lợi Đen) · Độ sâu tính: ${result.depth} nước · Thời gian: ${elapsed}ms`;
+
+      bestMoveHighlight = {from: m.from, to: m.to};
+      renderBoard();
+    } finally {
+      isSuggesting = false; // đảm bảo cờ được reset kể cả khi có lỗi
+    }
+  }, 30);
+}
+
+// Tự động gợi ý nếu đến lượt người dùng
+function autoSuggestIfTurn() {
+  const mySide = mySideSelect.value;
+  if (!game.game_over() && game.turn() === mySide) {
+    suggestMove();
+  }
+}
+
+document.getElementById('suggestBtn').addEventListener('click', suggestMove);
+
+document.getElementById('newGameBtn').addEventListener('click', () => {
+  game.reset();
+  selectedSquare = null;
+  legalTargets = [];
+  bestMoveHighlight = null;
+  suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
+  depthInfo.textContent = '';
+  renderBoard();
+  updateStatus();
+  updateHistory();
+  autoSuggestIfTurn(); // tự động gợi ý nếu người dùng là người đi trước
+});
+
+document.getElementById('undoBtn').addEventListener('click', () => {
+  game.undo();
+  selectedSquare = null;
+  legalTargets = [];
+  bestMoveHighlight = null;
+  renderBoard();
+  updateStatus();
+  updateHistory();
+  autoSuggestIfTurn(); // kiểm tra lại lượt sau khi hoàn tác
+});
+
+mySideSelect.addEventListener('change', () => {
+  suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
+  depthInfo.textContent = '';
+  bestMoveHighlight = null;
+  renderBoard();
+  autoSuggestIfTurn(); // nếu đúng lượt người dùng mới thì gợi ý
+});
+
+// init
+renderBoard();
+updateStatus();
+updateHistory();
+autoSuggestIfTurn(); // gợi ý ngay khi mở trang nếu đến lượt người dùng
+</script>
+
+</body>
+</html>
