@@ -2,697 +2,1000 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ddos Flycam v1</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLYCTRL v2</title>
+
+<!-- Font: một mono có cá tính + một display sans gọn -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Archivo:wght@600;800&display=swap" rel="stylesheet">
+
 <style>
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body {
-    font-family: 'Courier New', monospace;
-    background: #000;
-    color: #fff;
-    min-height: 100vh;
-    overflow-x: hidden;
-    user-select: none;
+/* ============================================================
+   FLYCTRL v2 — signal interface
+   Bảng màu: nền đen ngả xanh, chữ trắng ngà, 1 accent phosphor
+   Signature: cột số thứ tự serif-mono bên trái, lệch trục có chủ ý
+   ============================================================ */
+
+:root{
+    --bg:        #07090b;
+    --bg-soft:   #0d1014;
+    --line:      #1a1f26;
+    --line-hi:   #2a323c;
+    --ink:       #e8e6df;
+    --ink-dim:   #8a8f95;
+    --ink-mute:  #4b525a;
+    --accent:    #b6ff3d;   /* phosphor, dùng rất tiết chế */
+    --warn:      #ffb347;
+    --bad:       #ff5c5c;
 }
-#app {
-    max-width: 520px;
+
+*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html,body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* nền có texture rất nhẹ, không gradient màu mè */
+body::before{
+    content:"";
+    position: fixed; inset: 0;
+    background:
+        radial-gradient(ellipse at 15% 0%, rgba(182,255,61,0.035), transparent 55%),
+        radial-gradient(ellipse at 90% 100%, rgba(255,255,255,0.025), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ---------- Layout ---------- */
+.wrap{
+    max-width: 720px;
     margin: 0 auto;
-    min-height: 100vh;
-    padding: 16px;
+    padding: 28px 20px 80px;
     position: relative;
+    z-index: 1;
 }
 
-/* ============ PERMISSION DIALOGS ============ */
-.perm-overlay {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    animation: fadeIn 0.3s ease;
-}
-.perm-overlay.hidden { display: none; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.perm-box {
-    background: #fff;
-    color: #000;
-    border-radius: 12px;
-    padding: 26px 22px;
-    max-width: 380px;
-    width: 100%;
-    box-shadow: 0 0 60px rgba(255,255,255,0.15);
-    border: 2px solid #fff;
-    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
-}
-@keyframes popIn {
-    from { transform: scale(0.85); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-}
-.perm-title {
-    font-size: 1rem;
-    font-weight: bold;
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    font-family: 'Courier New', monospace;
-}
-.perm-desc {
-    font-size: 0.82rem;
-    text-align: center;
-    color: #333;
-    line-height: 1.5;
-    margin-bottom: 22px;
-}
-.perm-buttons {
-    display: flex;
-    gap: 10px;
-}
-.perm-btn {
-    flex: 1;
-    padding: 14px 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    font-weight: bold;
-    border: 2px solid #000;
-    background: #000;
-    color: #fff;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.perm-btn.deny {
-    background: #fff;
-    color: #000;
-}
-.perm-btn:active {
-    transform: scale(0.96);
-}
-
-/* ============ MAIN UI ============ */
-.header {
-    text-align: center;
-    padding: 18px 0 14px;
-    border-bottom: 1px solid #222;
-    margin-bottom: 18px;
-}
-.header h1 {
-    font-size: 1.3rem;
-    letter-spacing: 4px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-.header .sub {
-    font-size: 0.65rem;
-    color: #666;
-    letter-spacing: 3px;
-    margin-top: 6px;
-}
-.header .status {
-    font-size: 0.65rem;
-    color: #fff;
-    margin-top: 8px;
-}
-.blink { animation: blink 1.2s step-start infinite; }
-@keyframes blink { 50% { opacity: 0.2; } }
-
-.panel {
-    background: #0a0a0a;
-    border: 1px solid #222;
-    border-radius: 10px;
-    padding: 16px;
-    margin-bottom: 14px;
-}
-.panel-title {
-    font-size: 0.7rem;
-    color: #888;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-    border-left: 3px solid #fff;
-    padding-left: 8px;
-}
-
-.btn {
-    width: 100%;
-    padding: 14px;
-    background: #000;
-    color: #fff;
-    border: 1px solid #fff;
-    border-radius: 8px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    font-weight: bold;
-    letter-spacing: 2px;
-    cursor: pointer;
-    text-transform: uppercase;
-    transition: all 0.15s;
-    margin-bottom: 8px;
-}
-.btn:active { transform: scale(0.98); background: #fff; color: #000; }
-.btn.primary { background: #fff; color: #000; }
-.btn.primary:active { background: #000; color: #fff; }
-.btn.danger { border-color: #fff; }
-.btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-.field {
-    margin-bottom: 12px;
-}
-.field label {
-    display: block;
-    font-size: 0.68rem;
-    color: #888;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-.field input, .field select {
-    width: 100%;
-    padding: 12px;
-    background: #000;
-    border: 1px solid #333;
-    border-radius: 6px;
-    color: #fff;
-    font-family: 'Courier New', monospace;
-    font-size: 0.95rem;
-    outline: none;
-}
-.field input:focus, .field select:focus { border-color: #fff; }
-.field select option { background: #000; color: #fff; }
-
-.row { display: flex; gap: 10px; }
-.row .field { flex: 1; }
-
-/* ============ LOG TERMINAL ============ */
-.terminal {
-    background: #000;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 14px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.78rem;
-    height: 180px;
-    overflow-y: auto;
-    line-height: 1.5;
-    margin-bottom: 12px;
-}
-.terminal::-webkit-scrollbar { width: 4px; }
-.terminal::-webkit-scrollbar-thumb { background: #333; }
-.log-line {
-    color: #fff;
-    white-space: pre-wrap;
-    word-break: break-all;
-}
-.log-line.err { color: #fff; font-weight: bold; }
-.log-line.ok::before { content: '[OK] '; color: #666; }
-.log-line.info::before { content: '[..] '; color: #666; }
-
-/* ============ FULLSCREEN ATTACK TERMINAL ============ */
-#attackScreen {
-    position: fixed;
-    inset: 0;
-    background: #000;
-    z-index: 500;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-}
-#attackScreen.hidden { display: none; }
-
-.attack-header {
-    border-bottom: 1px solid #222;
-    padding-bottom: 12px;
-    margin-bottom: 14px;
+/* ---------- Header ---------- */
+.top{
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 44px;
+}
+.brand{
+    font-family: 'Archivo', sans-serif;
+    font-weight: 800;
+    font-size: 1.65rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    line-height: 1;
+}
+.brand span{
+    color: var(--accent);
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: 500;
+    font-size: 0.9rem;
+    margin-left: 6px;
+    letter-spacing: 0;
+    vertical-align: 6px;
+}
+.meta{
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    text-align: right;
+    line-height: 1.4;
+}
+.meta b{ color: var(--ink-dim); font-weight: 500; }
+.meta .dot{
+    display: inline-block; width: 6px; height: 6px;
+    background: var(--accent); border-radius: 50%;
+    margin-right: 5px; vertical-align: 1px;
+    animation: pulse 2s infinite ease-in-out;
+}
+@keyframes pulse{ 50%{ opacity:0.25; } }
+
+/* ---------- Section: cột số signature ---------- */
+.sec{
+    position: relative;
+    padding-left: 52px;
+    margin-bottom: 56px;
+}
+.sec::before{
+    content: attr(data-num);
+    position: absolute;
+    left: 0; top: 2px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--ink-mute);
+    letter-spacing: 0.08em;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    height: 60px;
+}
+.sec-title{
+    font-family: 'Archivo', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 3px;
+}
+.sec-desc{
+    font-size: 0.72rem;
+    color: var(--ink-mute);
+    margin-bottom: 20px;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--line-hi);
+    border-radius: 3px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .15s, border-color .15s, color .15s;
+}
+.btn:hover{ border-color: var(--ink-dim); background: rgba(255,255,255,0.02); }
+.btn:active{ background: rgba(255,255,255,0.05); }
+.btn.solid{
+    background: var(--ink);
+    color: var(--bg);
+    border-color: var(--ink);
+}
+.btn.solid:hover{ background: var(--accent); border-color: var(--accent); }
+.btn.danger{ border-color: rgba(255,92,92,0.5); color: var(--bad); }
+.btn.danger:hover{ background: rgba(255,92,92,0.08); border-color: var(--bad); }
+.btn[disabled]{ opacity: 0.3; cursor: not-allowed; }
+.btn-row{ display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- Radar ---------- */
+.radar-wrap{
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 22px;
+    align-items: start;
+    margin-bottom: 18px;
+}
+.radar{
+    position: relative;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid var(--line-hi);
+    background: radial-gradient(circle, rgba(182,255,61,0.03), transparent 70%);
+    overflow: hidden;
+}
+.radar::before, .radar::after{
+    content:"";
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+}
+.radar::before{ inset: 25%; }
+.radar::after{ inset: 45%; }
+.radar .cross-h, .radar .cross-v{
+    position: absolute;
+    background: var(--line);
+}
+.radar .cross-h{ left:0; right:0; top: 50%; height:1px; }
+.radar .cross-v{ top:0; bottom:0; left: 50%; width:1px; }
+.radar .sweep{
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg,
+        rgba(182,255,61,0.35) 0deg,
+        rgba(182,255,61,0.02) 40deg,
+        transparent 60deg,
+        transparent 360deg);
+    animation: spin 3s linear infinite;
+    opacity: 0;
+    transition: opacity .3s;
+}
+.radar.on .sweep{ opacity: 1; }
+@keyframes spin{ to{ transform: rotate(360deg); } }
+.radar .blip{
+    position: absolute;
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--accent);
+    opacity: 0;
+    transform: translate(-50%,-50%);
+    transition: opacity .4s;
+}
+.radar.on .blip{ opacity: 1; animation: blip-fade 3s infinite; }
+@keyframes blip-fade{ 0%,20%{opacity:1;} 60%{opacity:0.2;} 100%{opacity:1;} }
+
+.radar-info{
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    line-height: 1.7;
+}
+.radar-info .k{ color: var(--ink-mute); }
+.radar-info .v{ color: var(--ink); }
+
+/* ---------- Device list ---------- */
+.device-list{
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--bg-soft);
+}
+.device-list .head{
+    display: grid;
+    grid-template-columns: 1fr 80px 70px;
+    padding: 8px 14px;
+    font-size: 0.68rem;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.01);
+}
+.device-row{
+    display: grid;
+    grid-template-columns: 1fr 80px 70px;
+    padding: 11px 14px;
+    font-size: 0.83rem;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background .12s;
     align-items: center;
 }
-.attack-header .title {
-    font-size: 0.85rem;
-    letter-spacing: 3px;
-    color: #fff;
+.device-row:last-child{ border-bottom: none; }
+.device-row:hover{ background: rgba(255,255,255,0.02); }
+.device-row.picked{
+    background: rgba(182,255,61,0.05);
+    border-left: 2px solid var(--accent);
+    padding-left: 12px;
 }
-.attack-header .live {
+.device-row .name{ color: var(--ink); }
+.device-row .rssi{ color: var(--ink-dim); font-size: 0.75rem; }
+.device-row .stat{
+    color: var(--accent);
     font-size: 0.65rem;
-    color: #fff;
-    border: 1px solid #fff;
-    padding: 3px 8px;
-    border-radius: 4px;
-    letter-spacing: 2px;
+    letter-spacing: 0.1em;
+    text-align: right;
+}
+.device-row.picked .stat::after{ content:" ◉"; }
+.device-row:not(.picked) .stat{ color: var(--ink-mute); }
+.device-list .empty{
+    padding: 22px 14px;
+    font-size: 0.78rem;
+    color: var(--ink-mute);
+    text-align: center;
 }
 
-.phase-display {
-    background: #0a0a0a;
-    border: 1px solid #222;
-    border-radius: 8px;
-    padding: 14px;
-    margin-bottom: 14px;
-    min-height: 120px;
+/* ---------- Forms ---------- */
+.field{ margin-bottom: 16px; }
+.field label{
+    display: block;
+    font-size: 0.68rem;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 6px;
 }
-.phase-line {
-    font-size: 0.82rem;
-    color: #fff;
-    padding: 5px 0;
-    letter-spacing: 1px;
-    opacity: 0;
-    animation: phaseIn 0.35s forwards;
+.field input[type=text],
+.field input[type=number],
+.field select,
+.field textarea{
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-hi);
+    border-radius: 3px;
+    color: var(--ink);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.88rem;
+    outline: none;
+    transition: border-color .15s;
 }
-.phase-line.done::before { content: 'DONE  '; color: #666; }
-.phase-line.active::before { content: 'RUN   '; animation: blink 0.8s infinite; }
-.phase-line.wait::before { content: 'WAIT  '; color: #444; }
-@keyframes phaseIn { to { opacity: 1; } }
+.field input:focus, .field select:focus, .field textarea:focus{
+    border-color: var(--accent);
+}
+.field .hint{
+    font-size: 0.68rem;
+    color: var(--ink-mute);
+    margin-top: 5px;
+}
+.field .hint.warn{ color: var(--warn); }
+.grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-.attack-terminal {
-    flex: 1;
-    background: #000;
-    border: 1px solid #222;
-    border-radius: 8px;
-    padding: 14px;
+/* Radio group dạng thanh — không bo tròn đều */
+.radio-bar{
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border: 1px solid var(--line-hi);
+    border-radius: 3px;
+    overflow: hidden;
+}
+.radio-bar label{
+    padding: 11px 12px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: var(--bg-soft);
+    color: var(--ink-dim);
+    border-right: 1px solid var(--line);
+    transition: background .12s, color .12s;
+    display: flex; align-items: center; gap: 8px;
+    letter-spacing: 0.02em;
+}
+.radio-bar label:nth-child(2n){ border-right: none; }
+.radio-bar label:nth-child(-n+2){ border-bottom: 1px solid var(--line); }
+.radio-bar input{ display: none; }
+.radio-bar input:checked + span{ color: var(--ink); }
+.radio-bar label:has(input:checked){
+    background: rgba(182,255,61,0.06);
+    color: var(--ink);
+    box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* ---------- Terminal ---------- */
+.term{
+    background: #050607;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 14px 16px;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    height: 210px;
     overflow-y: auto;
-    font-family: 'Courier New', monospace;
-    font-size: 0.75rem;
-    line-height: 1.55;
-    margin-bottom: 14px;
+    color: var(--ink-dim);
+    margin-bottom: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-hi) transparent;
 }
-.attack-terminal::-webkit-scrollbar { width: 4px; }
-.attack-terminal::-webkit-scrollbar-thumb { background: #333; }
-.attack-terminal .line {
-    color: #fff;
-    white-space: pre-wrap;
+.term::-webkit-scrollbar{ width: 6px; }
+.term::-webkit-scrollbar-thumb{ background: var(--line-hi); border-radius: 3px; }
+.term .l{ white-space: pre-wrap; word-break: break-all; }
+.term .l.ok::before{ content:"ok  "; color: var(--accent); }
+.term .l.i::before{ content:"..  "; color: var(--ink-mute); }
+.term .l.e::before{ content:"!!  "; color: var(--bad); }
+.term .l.e{ color: var(--bad); }
+.term.big{ height: 320px; font-size: 0.82rem; }
+
+/* ---------- Wave editor ---------- */
+.wave-editor{
+    background: #050607;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    height: 260px;
+    color: var(--ink-dim);
+    width: 100%;
+    resize: vertical;
+    outline: none;
     word-break: break-all;
+    letter-spacing: 0.02em;
+}
+.wave-editor:focus{ border-color: var(--accent); color: var(--ink); }
+
+/* ---------- Status pill ---------- */
+.pill{
+    display: inline-block;
+    padding: 3px 8px;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    border: 1px solid var(--line-hi);
+    border-radius: 2px;
+    color: var(--ink-dim);
+}
+.pill.on{ border-color: var(--accent); color: var(--accent); }
+.pill.busy{ border-color: var(--warn); color: var(--warn); }
+
+/* ---------- Toast ---------- */
+#toasts{
+    position: fixed;
+    bottom: 20px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    display: flex; flex-direction: column; gap: 8px;
+    pointer-events: none;
+}
+.toast{
+    background: #0d1014;
+    border: 1px solid var(--line-hi);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    font-size: 0.8rem;
+    border-radius: 2px;
+    color: var(--ink);
+    animation: tin .25s ease;
+    min-width: 220px;
+}
+.toast.e{ border-left-color: var(--bad); }
+.toast.w{ border-left-color: var(--warn); }
+@keyframes tin{ from{ transform: translateY(10px); opacity: 0; } }
+
+/* ---------- Separator mảnh ---------- */
+.hr{
+    height: 1px; background: var(--line);
+    margin: 34px 0;
+    position: relative;
+}
+.hr::after{
+    content:"";
+    position: absolute; left: 0; top: -2px;
+    width: 40px; height: 5px;
+    background: var(--accent);
 }
 
-.attack-footer {
-    display: flex;
-    gap: 10px;
-}
-.attack-footer .btn { margin-bottom: 0; }
-
-@media (max-width: 400px) {
-    .header h1 { font-size: 1.1rem; letter-spacing: 3px; }
-    .field input, .field select { font-size: 0.85rem; }
-    .btn { font-size: 0.8rem; padding: 12px; }
+/* ---------- Responsive ---------- */
+@media (max-width: 560px){
+    .wrap{ padding: 20px 16px 70px; }
+    .radar-wrap{ grid-template-columns: 1fr; }
+    .radar{ margin: 0 auto; }
+    .sec{ padding-left: 42px; }
+    .grid-2{ grid-template-columns: 1fr; }
+    .radio-bar{ grid-template-columns: 1fr; }
+    .radio-bar label{ border-right: none; border-bottom: 1px solid var(--line); }
+    .radio-bar label:last-child{ border-bottom: none; }
+    .brand{ font-size: 1.35rem; }
+    .meta{ font-size: 0.66rem; }
+    .device-list .head,
+    .device-row{ grid-template-columns: 1fr 60px 50px; font-size: 0.76rem; }
 }
 </style>
 </head>
 <body>
 
-<!-- ============ PERMISSION 1 ============ -->
-<div class="perm-overlay" id="perm1">
-    <div class="perm-box">
-        <div class="perm-title">Yêu cầu quyền truy cập</div>
-        <div class="perm-desc">
-            Cho phép ứng dụng truy cập vào <b>Tệp và Hình ảnh</b> trên thiết bị của bạn để lưu log và dữ liệu quét?
-        </div>
-        <div class="perm-buttons">
-            <button class="perm-btn deny" onclick="PermissionManager.deny(1)">Từ chối</button>
-            <button class="perm-btn" onclick="PermissionManager.allow(1)">Cho phép</button>
-        </div>
-    </div>
-</div>
+<div id="toasts"></div>
 
-<!-- ============ PERMISSION 2 ============ -->
-<div class="perm-overlay hidden" id="perm2">
-    <div class="perm-box">
-        <div class="perm-title">Yêu cầu quyền hệ thống</div>
-        <div class="perm-desc">
-            Cho phép ứng dụng <b>thay đổi mức sóng điện thoại</b> và can thiệp vào các thiết bị không dây xung quanh?
-        </div>
-        <div class="perm-buttons">
-            <button class="perm-btn deny" onclick="PermissionManager.deny(2)">Từ chối</button>
-            <button class="perm-btn" onclick="PermissionManager.allow(2)">Cho phép</button>
-        </div>
-    </div>
-</div>
+<div class="wrap">
 
-<!-- ============ PERMISSION 3 ============ -->
-<div class="perm-overlay hidden" id="perm3">
-    <div class="perm-box">
-        <div class="perm-title">Yêu cầu quyền kết nối</div>
-        <div class="perm-desc">
-            Cho phép ứng dụng <b>quản lý kết nối Bluetooth</b> và <b>thay đổi mức sóng WiFi / mạng di động</b>?
+    <!-- ============ TOP ============ -->
+    <header class="top">
+        <div class="brand">FLYCTRL<span>v2</span></div>
+        <div class="meta">
+            <div><span class="dot"></span><b>SESSION</b> ACTIVE</div>
+            <div id="clock">--:--:--</div>
         </div>
-        <div class="perm-buttons">
-            <button class="perm-btn deny" onclick="PermissionManager.deny(3)">Từ chối</button>
-            <button class="perm-btn" onclick="PermissionManager.allow(3)">Cho phép</button>
-        </div>
-    </div>
-</div>
+    </header>
 
-<!-- ============ MAIN APP ============ -->
-<div id="app" style="display:none;">
-    <div class="header">
-        <h1>DDOS FLYCAM</h1>
-        <div class="sub">v1 · SIGNAL INTERFERENCE</div>
-        <div class="status"><span class="blink">ONLINE</span> · SECURE</div>
-    </div>
+    <!-- =====================================================
+         SECTION 01 — QUÉT & TÌM THIẾT BỊ
+         ===================================================== -->
+    <section class="sec" data-num="01">
+        <h2 class="sec-title">Quét & tìm thiết bị bay</h2>
+        <p class="sec-desc">Bật radar để dò tín hiệu quanh khu vực. Danh sách cập nhật theo thời gian thực.</p>
 
-    <!-- SCAN -->
-    <div class="panel">
-        <div class="panel-title">Quét thiết bị bay</div>
-        <button class="btn" id="scanBtn" onclick="App.scan()">BẮT ĐẦU QUÉT</button>
-    </div>
-
-    <!-- LAG -->
-    <div class="panel">
-        <div class="panel-title">Lag Fly</div>
-        <button class="btn danger" id="lagBtn" onclick="App.lagFly()">KÍCH HOẠT LAG</button>
-    </div>
-
-    <!-- WAVE -->
-    <div class="panel">
-        <div class="panel-title">Can thiệp sóng</div>
-        <div class="field">
-            <label>Mức sóng can thiệp</label>
-            <input type="number" id="waveLevel" placeholder="Nhập số (0-100)" min="0" max="100" value="85">
-        </div>
-        <div class="row">
-            <div class="field">
-                <label>Thời gian delay</label>
-                <select id="delaySelect">
-                    <option value="1">1 giây</option>
-                    <option value="2">2 giây</option>
-                    <option value="3">3 giây</option>
-                    <option value="4">4 giây</option>
-                    <option value="5" selected>5 giây</option>
-                    <option value="6">6 giây</option>
-                    <option value="7">7 giây</option>
-                    <option value="8">8 giây</option>
-                    <option value="9">9 giây</option>
-                    <option value="10">10 giây</option>
-                </select>
+        <div class="radar-wrap">
+            <div class="radar" id="radar">
+                <div class="cross-h"></div>
+                <div class="cross-v"></div>
+                <div class="sweep"></div>
+                <!-- blips sẽ được chèn bằng JS -->
             </div>
-            <div class="field">
-                <label>Mục tiêu</label>
-                <select id="targetSelect">
-                    <option value="flycam">Flycam (Bay)</option>
-                    <option value="drone">Drone</option>
-                    <option value="uav">UAV</option>
-                </select>
+            <div class="radar-info">
+                <div><span class="k">RADAR &nbsp;</span><span class="v" id="radarState">IDLE</span></div>
+                <div><span class="k">BÁN KÍNH</span> <span class="v">500 m</span></div>
+                <div><span class="k">DẢI QUÉT</span> <span class="v">2.4 / 5.8 GHz</span></div>
+                <div><span class="k">THIẾT BỊ</span> <span class="v" id="devCount">0</span></div>
+                <div><span class="k">TÍN HIỆU</span> <span class="v" id="sigLevel">—</span></div>
             </div>
         </div>
+
+        <div class="btn-row" style="margin-bottom:16px;">
+            <button class="btn solid" id="btnRadar">Bật radar</button>
+            <button class="btn" id="btnScan">Quét thiết bị</button>
+        </div>
+
+        <div class="device-list" id="devList">
+            <div class="head">
+                <span>Tên thiết bị</span>
+                <span>RSSI</span>
+                <span>Trạng thái</span>
+            </div>
+            <div class="empty">Chưa có thiết bị nào. Bấm "Quét thiết bị" để bắt đầu.</div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <!-- =====================================================
+         SECTION 02 — TẤN CÔNG TẦN SỐ
+         ===================================================== -->
+    <section class="sec" data-num="02">
+        <h2 class="sec-title">Tấn công tần số</h2>
+        <p class="sec-desc">Chọn kiểu can thiệp, số luồng và thiết bị mục tiêu trước khi bắt đầu.</p>
+
         <div class="field">
-            <label>Chế độ</label>
-            <select id="modeSelect">
-                <option value="default">Mặc định</option>
-            </select>
+            <label>Kiểu can thiệp</label>
+            <div class="radio-bar" id="freqType">
+                <label><input type="radio" name="ftype" value="spam" checked><span>Spam gói sóng</span></label>
+                <label><input type="radio" name="ftype" value="noise"><span>Nhiễu loạn sóng</span></label>
+                <label><input type="radio" name="ftype" value="shift"><span>Chuyển hóa sóng</span></label>
+                <label><input type="radio" name="ftype" value="split"><span>Bẻ đôi sóng</span></label>
+            </div>
         </div>
-        <button class="btn primary" onclick="App.run()">CHẠY</button>
-    </div>
 
-    <!-- TERMINAL -->
-    <div class="panel">
-        <div class="panel-title">Log hệ thống</div>
-        <div class="terminal" id="terminal">
-            <div class="log-line info">Ddos Flycam v1 đã khởi tạo...</div>
-            <div class="log-line ok">Kết nối module sóng thành công</div>
-            <div class="log-line info">Sẵn sàng.</div>
+        <div class="field">
+            <label>Số luồng</label>
+            <input type="number" id="threads" min="1" max="9999" value="150">
+            <div class="hint warn">Khuyến nghị dưới 100 luồng để tránh quá tải thiết bị.</div>
         </div>
-    </div>
-</div>
 
-<!-- ============ ATTACK SCREEN ============ -->
-<div id="attackScreen" class="hidden">
-    <div class="attack-header">
-        <div class="title">DANG TAN CONG</div>
-        <div class="live blink">LIVE</div>
-    </div>
+        <div class="field">
+            <label>Mục tiêu</label>
+            <div class="radio-bar" id="targetMode">
+                <label><input type="radio" name="tmode" value="single" checked><span>Tấn công riêng</span></label>
+                <label><input type="radio" name="tmode" value="all"><span>Tấn công tất cả</span></label>
+            </div>
+            <div class="hint" id="pickedHint">Chưa chọn thiết bị nào ở mục 01.</div>
+        </div>
 
-    <div class="phase-display" id="phaseDisplay">
-        <div class="phase-line wait" data-phase="1">Đang thiết lập</div>
-        <div class="phase-line wait" data-phase="2">Đang phủ sóng</div>
-        <div class="phase-line wait" data-phase="3">Đang tấn công</div>
-        <div class="phase-line wait" data-phase="4">Phát hiện sóng</div>
-        <div class="phase-line wait" data-phase="5">Phát hiện mục tiêu</div>
-    </div>
+        <div class="btn-row" style="margin-bottom:18px;">
+            <button class="btn solid" id="btnWork">Bắt đầu làm việc</button>
+            <button class="btn danger" id="btnStop" disabled>Dừng</button>
+        </div>
 
-    <div class="attack-terminal" id="attackTerminal"></div>
+        <div class="term" id="term">
+            <div class="l i">hệ thống đã sẵn sàng</div>
+            <div class="l i">chờ lệnh…</div>
+        </div>
+    </section>
 
-    <div class="attack-footer">
-        <button class="btn danger" onclick="App.stop()">DỪNG</button>
-    </div>
+    <div class="hr"></div>
+
+    <!-- =====================================================
+         SECTION 03 — XỬ LÝ SÓNG
+         ===================================================== -->
+    <section class="sec" data-num="03">
+        <h2 class="sec-title">Xử lý sóng Flycam</h2>
+        <p class="sec-desc">Quét để lấy mẫu sóng thô. Bạn có thể chỉnh sửa chuỗi và lưu lại dưới dạng profile.</p>
+
+        <div class="btn-row" style="margin-bottom:16px;">
+            <button class="btn solid" id="btnWaveScan">Quét sóng Flycam</button>
+            <button class="btn" id="btnWaveNew" disabled>Bắt sóng mới</button>
+            <button class="btn" id="btnWaveSave" disabled>Lưu</button>
+        </div>
+
+        <div class="field">
+            <label>Mẫu sóng thô <span class="pill" id="wavePill" style="margin-left:8px;">trống</span></label>
+            <textarea class="wave-editor" id="waveEditor" spellcheck="false" placeholder="Chưa có dữ liệu sóng. Nhấn 'Quét sóng Flycam'."></textarea>
+            <div class="hint"><span id="waveLen">0</span> ký tự · có thể chỉnh sửa trực tiếp</div>
+        </div>
+
+        <div class="term big" id="waveTerm">
+            <div class="l i">module xử lý sóng · chờ lệnh</div>
+        </div>
+    </section>
+
 </div>
 
 <script>
 // ============================================================
-// DDOS FLYCAM v1 - UI MOCKUP
-// Lưu ý: đây chỉ là giao diện mô phỏng, trình duyệt web
-// KHÔNG có quyền can thiệp sóng, bluetooth hay phần cứng.
-// Mọi "quyền" và "tấn công" đều là hiệu ứng hiển thị.
+// FLYCTRL v2
+// Lưu ý kỹ thuật: toàn bộ "tấn công" và "quét sóng" dưới đây là
+// mô phỏng hiển thị (terminal stream + animation). Không có bất kỳ
+// network request nào được gửi tới máy chủ hay URL bên ngoài.
 // ============================================================
 
-// --- PERMISSION MANAGER ---
-const PermissionManager = {
-    current: 1,
-    granted: { 1: false, 2: false, 3: false },
+/* ---------- Toast ---------- */
+const Toast = (() => {
+    const box = document.getElementById('toasts');
+    return function(msg, kind=''){
+        const t = document.createElement('div');
+        t.className = 'toast ' + kind;
+        t.textContent = msg;
+        box.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; t.style.transition='opacity .3s'; }, 2200);
+        setTimeout(() => t.remove(), 2600);
+    };
+})();
 
-    allow(n) {
-        this.granted[n] = true;
-        document.getElementById('perm' + n).classList.add('hidden');
-        if (n < 3) {
-            this.current = n + 1;
-            document.getElementById('perm' + (n + 1)).classList.remove('hidden');
-        } else {
-            // Cả 3 đã đồng ý
-            this.enterApp();
-        }
-    },
+/* ---------- Clock ---------- */
+(function clock(){
+    const el = document.getElementById('clock');
+    const pad = n => String(n).padStart(2,'0');
+    setInterval(() => {
+        const d = new Date();
+        el.textContent = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
+    }, 1000);
+})();
 
-    deny(n) {
-        document.body.innerHTML =
-            '<div style="display:flex;height:100vh;align-items:center;justify-content:center;' +
-            'background:#000;color:#fff;font-family:Courier New,monospace;text-align:center;padding:20px;">' +
-            '<div>' +
-            '<div style="letter-spacing:3px;font-size:1.1rem;">UNG DUNG DA DONG</div>' +
-            '<div style="color:#666;margin-top:12px;font-size:0.75rem;">Từ chối quyền · Không thể tiếp tục</div>' +
-            '</div></div>';
-        // Không thể làm gì thêm
-        throw new Error('denied');
-    },
+/* ============================================================
+   MODULE 01 — DEVICE SCANNER + RADAR
+   ============================================================ */
+const Scanner = (() => {
+    const radar = document.getElementById('radar');
+    const stateEl = document.getElementById('radarState');
+    const countEl = document.getElementById('devCount');
+    const sigEl = document.getElementById('sigLevel');
+    const listEl = document.getElementById('devList');
+    const btnRadar = document.getElementById('btnRadar');
+    const btnScan = document.getElementById('btnScan');
 
-    enterApp() {
-        document.getElementById('app').style.display = 'block';
-        App.log('Đã cấp đầy đủ quyền hệ thống', 'ok');
-        App.log('Module sóng: ACTIVE', 'ok');
-        App.log('Module bluetooth: ACTIVE', 'ok');
-        App.log('Module mạng: ACTIVE', 'ok');
+    // Danh sách tên "cố định" theo yêu cầu — lặp lại có chủ ý để giống thực tế
+    const NAMES = ['FlyUnknow','Fly no name','Fly no name','Fly no name','Fly'];
+    let devices = [];
+    let radarOn = false;
+    let scanning = false;
+    let picked = null;       // index thiết bị được chọn
+    let blipTimer = null;
+
+    function setBlips(){
+        radar.querySelectorAll('.blip').forEach(b => b.remove());
+        devices.forEach(() => {
+            const b = document.createElement('div');
+            b.className = 'blip';
+            const ang = Math.random() * Math.PI * 2;
+            const rad = 30 + Math.random() * 55;
+            b.style.left = (50 + Math.cos(ang) * rad) + '%';
+            b.style.top  = (50 + Math.sin(ang) * rad) + '%';
+            radar.appendChild(b);
+        });
     }
-};
 
-// --- APP ---
-const App = {
-    scanning: false,
-    attacking: false,
-    randomTimer: null,
-    phaseTimers: [],
+    function renderList(){
+        if (!devices.length){
+            listEl.innerHTML =
+                '<div class="head"><span>Tên thiết bị</span><span>RSSI</span><span>Trạng thái</span></div>' +
+                '<div class="empty">Chưa có thiết bị nào. Bấm "Quét thiết bị" để bắt đầu.</div>';
+            return;
+        }
+        let html = '<div class="head"><span>Tên thiết bị</span><span>RSSI</span><span>Trạng thái</span></div>';
+        devices.forEach((d, i) => {
+            const cls = picked === i ? 'picked' : '';
+            html += `<div class="device-row ${cls}" data-i="${i}">
+                <span class="name">${d.name}</span>
+                <span class="rssi">${d.rssi} dBm</span>
+                <span class="stat">${d.status}</span>
+            </div>`;
+        });
+        listEl.innerHTML = html;
 
-    log(msg, type = 'info') {
-        const term = document.getElementById('terminal');
-        if (!term) return;
-        const line = document.createElement('div');
-        line.className = 'log-line ' + type;
-        const t = new Date().toLocaleTimeString('vi-VN', { hour12: false });
-        line.textContent = '[' + t + '] ' + msg;
-        term.appendChild(line);
-        term.scrollTop = term.scrollHeight;
-        while (term.children.length > 200) term.removeChild(term.firstChild);
-    },
+        listEl.querySelectorAll('.device-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const i = +row.dataset.i;
+                picked = (picked === i) ? null : i;
+                renderList();
+                Frequency.refreshHint();
+            });
+        });
+    }
 
-    // Quét thiết bị bay → luôn báo lỗi
-    scan() {
-        if (this.scanning) return;
-        this.scanning = true;
-        const btn = document.getElementById('scanBtn');
-        btn.disabled = true;
-        btn.textContent = 'DANG QUET...';
-        this.log('Bắt đầu quét thiết bị bay trong bán kính 500m...', 'info');
+    function startRadar(){
+        radarOn = true;
+        radar.classList.add('on');
+        stateEl.textContent = 'QUÉT';
+        btnRadar.textContent = 'Tắt radar';
+        // nhấp nháy chỉ số tín hiệu
+        blipTimer = setInterval(() => {
+            const dbm = -(40 + Math.floor(Math.random() * 40));
+            sigEl.textContent = dbm + ' dBm';
+        }, 700);
+    }
+    function stopRadar(){
+        radarOn = false;
+        radar.classList.remove('on');
+        stateEl.textContent = 'IDLE';
+        btnRadar.textContent = 'Bật radar';
+        sigEl.textContent = '—';
+        if (blipTimer) clearInterval(blipTimer);
+    }
 
-        let step = 0;
-        const steps = [
-            'Khởi tạo sóng quét 2.4GHz...',
-            'Khởi tạo sóng quét 5.8GHz...',
-            'Phân tích tín hiệu phản hồi...',
-            'Đồng bộ ăng-ten...',
-            'Đang dò tần số mục tiêu...'
-        ];
-        const interval = setInterval(() => {
-            if (step < steps.length) {
-                this.log(steps[step], 'info');
-                step++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => {
-                    this.log('LỖI KẾT NỐI SÓNG PHỦ RỘNG', 'err');
-                    this.log('Không thể kết nối module phủ sóng', 'err');
-                    this.log('Mã lỗi: ERR_SIGNAL_RANGE_0x4F', 'err');
-                    App.scanning = false;
-                    btn.disabled = false;
-                    btn.textContent = 'BẮT ĐẦU QUÉT';
-                }, 500);
-            }
-        }, 500);
-    },
+    btnRadar.addEventListener('click', () => radarOn ? stopRadar() : startRadar());
 
-    // Lag Fly
-    lagFly() {
-        this.log('Kích hoạt Lag Fly...', 'info');
-        this.log('Đang chèn gói tin trễ vào luồng dữ liệu...', 'info');
+    btnScan.addEventListener('click', () => {
+        if (scanning) return;
+        scanning = true;
+        btnScan.disabled = true;
+        btnScan.textContent = 'Đang quét…';
+
+        // Mô phỏng: lần lượt "phát hiện" từng thiết bị
+        const discovered = [];
         let i = 0;
-        const interval = setInterval(() => {
+        const iv = setInterval(() => {
+            discovered.push({
+                name: NAMES[i],
+                rssi: -(35 + Math.floor(Math.random() * 55)),
+                status: 'detected'
+            });
+            devices = discovered.slice();
+            countEl.textContent = devices.length;
+            renderList();
+            setBlips();
             i++;
-            this.log('Lag packet #' + i + ' · jitter +' + (Math.floor(Math.random() * 400) + 100) + 'ms', 'info');
-            if (i >= 6) {
-                clearInterval(interval);
-                this.log('Lag Fly: HOÀN TẤT', 'ok');
+            if (i >= NAMES.length){
+                clearInterval(iv);
+                scanning = false;
+                btnScan.disabled = false;
+                btnScan.textContent = 'Quét thiết bị';
+                Toast('Đã quét xong ' + devices.length + ' thiết bị');
             }
-        }, 350);
-    },
+        }, 380);
+    });
 
-    // Chạy tấn công
-    run() {
-        const level = parseInt(document.getElementById('waveLevel').value) || 0;
-        const delay = parseInt(document.getElementById('delaySelect').value) || 5;
-        const target = document.getElementById('targetSelect').value;
-        const mode = document.getElementById('modeSelect').value;
+    return {
+        getDevices: () => devices,
+        getPicked: () => picked
+    };
+})();
 
-        if (level < 0 || level > 100) {
-            this.log('Mức sóng không hợp lệ (0-100)', 'err');
+/* ============================================================
+   MODULE 02 — FREQUENCY "ATTACK" (SIMULATION ONLY)
+   ============================================================ */
+const Frequency = (() => {
+    const term = document.getElementById('term');
+    const btnWork = document.getElementById('btnWork');
+    const btnStop = document.getElementById('btnStop');
+    const threads = document.getElementById('threads');
+    const pickedHint = document.getElementById('pickedHint');
+    const freqType = document.getElementById('freqType');
+    const targetMode = document.getElementById('targetMode');
+
+    const LABEL = {
+        spam:  'SPAM-GOI-SONG',
+        noise: 'NHIEU-LOAN-SONG',
+        shift: 'CHUYEN-HOA-SONG',
+        split: 'BE-DOI-SONG'
+    };
+
+    let running = false;
+    let streamTimer = null;
+    let uptimeTimer = null;
+    let startedAt = 0;
+    let sent = 0;
+
+    function log(line, cls){
+        const el = document.createElement('div');
+        el.className = 'l ' + (cls || 'i');
+        el.textContent = line;
+        term.appendChild(el);
+        // giữ terminal không phình vô hạn
+        while (term.children.length > 220) term.removeChild(term.firstChild);
+        term.scrollTop = term.scrollHeight;
+    }
+
+    function refreshHint(){
+        const p = Scanner.getPicked();
+        const devs = Scanner.getDevices();
+        if (!devs.length){
+            pickedHint.textContent = 'Chưa có thiết bị nào ở mục 01.';
+            return;
+        }
+        if (targetMode.querySelector('input[value=all]').checked){
+            pickedHint.textContent = 'Sẽ áp dụng cho toàn bộ ' + devs.length + ' thiết bị trong danh sách.';
+        } else if (p === null){
+            pickedHint.textContent = 'Nhấp vào một dòng ở mục 01 để chọn thiết bị mục tiêu.';
+        } else {
+            pickedHint.textContent = 'Mục tiêu: ' + devs[p].name;
+        }
+    }
+    targetMode.addEventListener('change', refreshHint);
+
+    // Sinh dòng log ngẫu nhiên
+    const FRAGS = [
+        'spam-packet','freq-shift','carrier-lock','band-split',
+        'burst','rf-noise','tx-burst','phase-jam','ghost-link',
+        'channel-kill','packet-shuffle','signal-mask'
+    ];
+    const hex = '0123456789ABCDEF';
+    const randHex = n => Array.from({length:n}, () => hex[Math.floor(Math.random()*16)]).join('');
+
+    function tick(){
+        if (!running) return;
+        // mỗi "tick" mô phỏng 1 batch
+        const batch = 40 + Math.floor(Math.random() * 90);
+        sent += batch;
+
+        const f = FRAGS[Math.floor(Math.random() * FRAGS.length)];
+        const line = `[${LABEL[currentFreq()]}] ${f} #${randHex(4)}:${randHex(4)} · batch ${batch} · total ${sent}`;
+        log(line, '');
+
+        // thỉnh thoảng có dòng trạng thái
+        if (Math.random() < 0.07){
+            const stat = ['link stable','jitter +' + (50+Math.floor(Math.random()*300)) + 'ms',
+                          'carrier drift','echo suppressed','node ack'][Math.floor(Math.random()*5)];
+            log('· ' + stat, 'ok');
+        }
+
+        streamTimer = setTimeout(tick, 40 + Math.random() * 90);
+    }
+
+    function currentFreq(){
+        const el = freqType.querySelector('input:checked');
+        return el ? el.value : 'spam';
+    }
+
+    function start(){
+        if (running) return;
+        const devs = Scanner.getDevices();
+        if (!devs.length){
+            Toast('Chưa có thiết bị nào để tấn công', 'e');
+            return;
+        }
+        const mode = targetMode.querySelector('input:checked').value;
+        if (mode === 'single' && Scanner.getPicked() === null){
+            Toast('Chọn 1 thiết bị ở mục 01 hoặc đổi sang "Tấn công tất cả"', 'w');
             return;
         }
 
-        this.log('=== CẤU HÌNH TẤN CÔNG ===', 'ok');
-        this.log('Mức sóng: ' + level, 'info');
-        this.log('Delay: ' + delay + 's', 'info');
-        this.log('Mục tiêu: ' + target.toUpperCase(), 'info');
-        this.log('Chế độ: ' + mode, 'info');
-        this.log('Bắt đầu chạy...', 'info');
+        // số luồng hiển thị mang tính mô tả, không điều khiển gì thật
+        const flow = Math.max(1, Math.min(9999, +threads.value || 100));
 
-        this.startAttackScreen(level, delay, target);
-    },
+        running = true;
+        sent = 0;
+        startedAt = Date.now();
+        btnWork.disabled = true;
+        btnStop.disabled = false;
 
-    startAttackScreen(level, delay, target) {
-        this.attacking = true;
-        document.getElementById('attackScreen').classList.remove('hidden');
-        const terminal = document.getElementById('attackTerminal');
-        terminal.innerHTML = '';
+        log('── phiên làm việc bắt đầu ──', 'ok');
+        log('kiểu        : ' + LABEL[currentFreq()], '');
+        log('luồng       : ' + flow, '');
+        log('chế độ      : ' + (mode === 'all' ? 'TẤT CẢ' : 'RIÊNG'), '');
+        log('mục tiêu    : ' + (mode === 'all'
+            ? (devs.length + ' thiết bị')
+            : devs[Scanner.getPicked()].name), '');
 
-        // Reset phases
-        const phases = document.querySelectorAll('.phase-line');
-        phases.forEach(p => {
-            p.className = 'phase-line wait';
-            p.style.animation = 'none';
-            void p.offsetWidth;
-            p.style.animation = '';
-        });
-
-        // Phase durations (ms)
-        const phaseDurations = [1200, 1500, 1800, 1400, 1600];
-        let acc = 0;
-        phases.forEach((p, idx) => {
-            this.phaseTimers.push(setTimeout(() => {
-                phases.forEach((x, i) => {
-                    if (i < idx) x.className = 'phase-line done';
-                    else if (i === idx) x.className = 'phase-line active';
-                    else x.className = 'phase-line wait';
-                });
-            }, acc));
-            acc += phaseDurations[idx];
-        });
-
-        // Sau khi hoàn thành tất cả phase → chạy dòng chữ ngẫu nhiên
-        this.phaseTimers.push(setTimeout(() => {
-            phases.forEach(x => x.className = 'phase-line done');
-            this.startRandomStream(level, target);
-        }, acc));
-    },
-
-    startRandomStream(level, target) {
-        const terminal = document.getElementById('attackTerminal');
-        const fragments = [
-            'ATTACK VECTOR', 'SIGNAL LOCK', 'PACKET INJECT', 'FREQ HOP',
-            'TX POWER', 'RX GAIN', 'JAMMING', 'OVERFLOW', 'SPOOF',
-            'DRONE ID', 'GPS LOSS', 'TELEMETRY', 'RC LINK', 'FCC BAND',
-            'RF SWEEP', 'CHANNEL', 'NODE', 'BEACON', 'HANDSHAKE', 'PING',
-            'INJECT PAYLOAD', 'TX BURST', 'INTERFERENCE', 'DECRYPT',
-            'SCAN 2.4G', 'SCAN 5.8G', 'LOCK TARGET', 'KILL SIGNAL',
-            'BROADCAST', 'SATURATE', 'DROP PACKET', 'MASS PING'
-        ];
-        const hexChars = '0123456789ABCDEF';
-        const randHex = (n) => {
-            let s = '';
-            for (let i = 0; i < n; i++) s += hexChars[Math.floor(Math.random() * 16)];
-            return s;
-        };
-
-        const tick = () => {
-            if (!this.attacking) return;
-
-            const lines = Math.floor(Math.random() * 3) + 1;
-            for (let i = 0; i < lines; i++) {
-                const frag = fragments[Math.floor(Math.random() * fragments.length)];
-                const num = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
-                const val = randHex(4) + ':' + randHex(4);
-                const lvl = Math.floor(Math.random() * 100);
-                let line = '[' + frag + '] #' + num + ' → ' + val + ' | LVL ' + lvl + '%';
-                if (Math.random() < 0.3) line += ' | ' + target.toUpperCase() + ' TARGET';
-                if (Math.random() < 0.15) line += ' | OVERFLOW';
-                line += ' | SIGNAL ' + level + '%';
-
-                const el = document.createElement('div');
-                el.className = 'line';
-                el.textContent = line;
-                terminal.appendChild(el);
+        uptimeTimer = setInterval(() => {
+            const s = Math.floor((Date.now() - startedAt) / 1000);
+            // cập nhật lại dòng đầu? đơn giản: log mỗi 5s
+            if (s && s % 5 === 0){
+                log('· uptime ' + s + 's · đã gửi ' + sent + ' batch', 'ok');
             }
-
-            // Giới hạn số dòng
-            while (terminal.children.length > 300) {
-                terminal.removeChild(terminal.firstChild);
-            }
-            terminal.scrollTop = terminal.scrollHeight;
-
-            // Delay ngẫu nhiên để trông tự nhiên
-            const nextDelay = 30 + Math.random() * 120;
-            this.randomTimer = setTimeout(tick, nextDelay);
-        };
+        }, 1000);
 
         tick();
-    },
-
-    stop() {
-        this.attacking = false;
-        if (this.randomTimer) {
-            clearTimeout(this.randomTimer);
-            this.randomTimer = null;
-        }
-        this.phaseTimers.forEach(t => clearTimeout(t));
-        this.phaseTimers = [];
-
-        const terminal = document.getElementById('attackTerminal');
-        const line = document.createElement('div');
-        line.className = 'line';
-        line.style.color = '#fff';
-        line.style.fontWeight = 'bold';
-        line.textContent = 'DUNG TAN CONG · SESSION TERMINATED';
-        terminal.appendChild(line);
-        terminal.scrollTop = terminal.scrollHeight;
-
-        setTimeout(() => {
-            document.getElementById('attackScreen').classList.add('hidden');
-            this.log('Đã dừng phiên tấn công', 'info');
-        }, 800);
     }
-};
 
-// Khởi tạo - hiển thị permission 1
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('perm1').classList.remove('hidden');
-});
+    function stop(){
+        if (!running) return;
+        running = false;
+        if (streamTimer) clearTimeout(streamTimer);
+        if (uptimeTimer) clearInterval(uptimeTimer);
+        btnWork.disabled = false;
+        btnStop.disabled = true;
+        log('── dừng phiên ──', 'e');
+        Toast('Đã dừng phiên làm việc', 'w');
+    }
+
+    btnWork.addEventListener('click', start);
+    btnStop.addEventListener('click', stop);
+
+    // khởi tạo hint
+    setTimeout(refreshHint, 100);
+
+    return { refreshHint };
+})();
+
+/* ============================================================
+   MODULE 03 — WAVE PROCESSING
+   ============================================================ */
+const WaveLab = (() => {
+    const editor = document.getElementById('waveEditor');
+    const lenEl = document.getElementById('waveLen');
+    const pill = document.getElementById('wavePill');
+    const term = document.getElementById('waveTerm');
+    const btnScan = document.getElementById('btnWaveScan');
+    const btnNew = document.getElementById('btnWaveNew');
+    const btnSave = document.getElementById('btnWaveSave');
+
+    const POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}<>;:,.?/\\|~';
+    let hasWave = false;
+
+    function log(line, cls){
+        const el = document.createElement('div');
+        el.className = 'l ' + (cls || 'i');
+        el.textContent = line;
+        term.appendChild(el);
+        while (term.children.length > 80) term.removeChild(term.firstChild);
+        term.scrollTop = term.scrollHeight;
+    }
+
+    function updateLen(){
+        lenEl.textContent = editor.value.length;
+    }
+
+    function genWave(){
+        // sinh 1000 ký tự ngẫu nhiên
+        let out = '';
+        const buf = new Uint32Array(256);
+        crypto.getRandomValues(buf);
+        for (let i = 0; i < 1000; i++){
+            if (i && i % 50 === 0) out += '\n';
+            out += POOL[Math.floor(Math.random() * POOL.length)];
+        }
+        editor.value = out;
+        updateLen();
+    }
+
+    editor.addEventListener('input', updateLen);
+
+    btnScan.addEventListener('click', () => {
+        btnScan.disabled = true;
+        btnScan.textContent = 'Đang quét…';
+        log('─ bắt đầu quét sóng flycam ─', '');
+        const steps = [
+            'mở kênh thu 2.4 GHz',
+            'mở kênh thu 5.8 GHz',
+            'đồng bộ pha',
+            'lọc nhiễu nền',
+            'giải mã khung tín hiệu',
+            'trích xuất mẫu thô'
+        ];
+        let i = 0;
+        const iv = setInterval(() => {
+            if (i < steps.length){
+                log('· ' + steps[i], 'i');
+                i++;
+            } else {
+                clearInterval(iv);
+                genWave();
+                hasWave = true;
+                pill.textContent = 'có dữ liệu';
+                pill.classList.add('on');
+                btnScan.disabled = false;
+                btnScan.textContent = 'Quét sóng Flycam';
+                btnNew.disabled = false;
+                btnSave.disabled = false;
+                log('ok thu được 1000 ký tự mẫu', 'ok');
+                Toast('Đã lấy mẫu sóng (1000 ký tự)');
+            }
+        }, 350);
+    });
+
+    btnNew.addEventListener('click', () => {
+        if (!hasWave) return;
+        genWave();
+        log('· tạo mẫu sóng mới', 'ok');
+        Toast('Đã tạo mẫu sóng mới');
+    });
+
+    btnSave.addEventListener('click', () => {
+        if (!hasWave) return;
+        try {
+            localStorage.setItem('flyctrl_wave_profile', editor.value);
+            log('ok lưu profile (' + editor.value.length + ' ký tự)', 'ok');
+            Toast('Đã lưu profile');
+        } catch(e){
+            log('!! không thể lưu: ' + e.message, 'e');
+            Toast('Không lưu được profile', 'e');
+        }
+    });
+
+    // tự nạp profile cũ nếu có
+    try {
+        const saved = localStorage.getItem('flyctrl_wave_profile');
+        if (saved){
+            editor.value = saved;
+            updateLen();
+            hasWave = true;
+            pill.textContent = 'đã nạp';
+            pill.classList.add('on');
+            btnNew.disabled = false;
+            btnSave.disabled = false;
+            log('· nạp profile đã lưu', 'ok');
+        }
+    } catch(e){}
+
+    updateLen();
+    return {};
+})();
 </script>
 </body>
 </html>
