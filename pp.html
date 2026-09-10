@@ -2,706 +2,697 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Cờ Vua - Gợi Ý Nước Đi</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ddos Flycam v1</title>
 <style>
-  :root{
-    --light:#eeeed2;
-    --dark:#769656;
-    --sel:#f6f669;
-    --legal:#b9ca43;
-    --best:#4aa3ff;
-    --bg:#1b1b1f;
-    --panel:#26262c;
-    --text:#e9e9ee;
-    --muted:#9a9aa3;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0; padding:16px; background:var(--bg); color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    display:flex; flex-direction:column; align-items:center; gap:14px;
-  }
-  h1{font-size:1.1rem; margin:4px 0; color:var(--text); font-weight:600;}
-  .board-wrap{
-    width:min(94vw, 480px);
-    aspect-ratio:1/1;
-    display:grid;
-    grid-template-columns:repeat(8,1fr);
-    grid-template-rows:repeat(8,1fr);
-    border:3px solid #444;
-    border-radius:6px;
-    overflow:hidden;
-    box-shadow:0 8px 24px rgba(0,0,0,0.5);
-  }
-  .sq{
-    position:relative;
-    display:flex; align-items:center; justify-content:center;
-    font-size:min(9vw, 40px);
-    user-select:none;
-    cursor:pointer;
-  }
-  .sq.light{background:var(--light);}
-  .sq.dark{background:var(--dark);}
-  .sq.selected{background:var(--sel) !important;}
-  .sq.legal::after{
-    content:"";
-    position:absolute;
-    width:28%; height:28%;
-    border-radius:50%;
-    background:rgba(0,0,0,0.25);
-  }
-  .sq.legal.capture::after{
-    width:80%; height:80%;
-    border-radius:50%;
-    background:transparent;
-    border:5px solid rgba(0,0,0,0.3);
-  }
-  .sq.best-from{ box-shadow: inset 0 0 0 4px var(--best); }
-  .sq.best-to{ box-shadow: inset 0 0 0 4px var(--best); }
-  .piece{ line-height:1; pointer-events:none; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.4)); }
-  .panel{
-    width:min(94vw, 480px);
-    background:var(--panel);
-    border-radius:10px;
-    padding:14px 16px;
-    display:flex; flex-direction:column; gap:10px;
-  }
-  .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
-  button{
-    background:#3a3a42; color:var(--text); border:none; border-radius:8px;
-    padding:9px 14px; font-size:0.9rem; cursor:pointer; font-weight:600;
-  }
-  button:active{transform:scale(0.97);}
-  button.primary{background:var(--best); color:#08141f;}
-  select{
-    background:#3a3a42; color:var(--text); border:none; border-radius:8px;
-    padding:9px 10px; font-size:0.9rem;
-  }
-  .status{font-size:0.95rem; color:var(--text); min-height:1.3em;}
-  .suggestion{
-    background:#1f2937; border-left:4px solid var(--best);
-    padding:10px 12px; border-radius:6px; font-size:0.9rem; line-height:1.5;
-  }
-  .suggestion b{color:var(--best);}
-  .muted{color:var(--muted); font-size:0.82rem;}
-  .turn-badge{
-    display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:700;
-  }
-  .turn-white{background:#eeeed2; color:#222;}
-  .turn-black{background:#333; color:#eee; border:1px solid #555;}
-  .history{
-    max-height:90px; overflow-y:auto; font-size:0.82rem; color:var(--muted);
-    background:#1f1f24; border-radius:6px; padding:8px 10px;
-  }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+    font-family: 'Courier New', monospace;
+    background: #000;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+}
+#app {
+    max-width: 520px;
+    margin: 0 auto;
+    min-height: 100vh;
+    padding: 16px;
+    position: relative;
+}
+
+/* ============ PERMISSION DIALOGS ============ */
+.perm-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+.perm-overlay.hidden { display: none; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.perm-box {
+    background: #fff;
+    color: #000;
+    border-radius: 12px;
+    padding: 26px 22px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: 0 0 60px rgba(255,255,255,0.15);
+    border: 2px solid #fff;
+    animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+.perm-title {
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-family: 'Courier New', monospace;
+}
+.perm-desc {
+    font-size: 0.82rem;
+    text-align: center;
+    color: #333;
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+.perm-buttons {
+    display: flex;
+    gap: 10px;
+}
+.perm-btn {
+    flex: 1;
+    padding: 14px 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    border: 2px solid #000;
+    background: #000;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.perm-btn.deny {
+    background: #fff;
+    color: #000;
+}
+.perm-btn:active {
+    transform: scale(0.96);
+}
+
+/* ============ MAIN UI ============ */
+.header {
+    text-align: center;
+    padding: 18px 0 14px;
+    border-bottom: 1px solid #222;
+    margin-bottom: 18px;
+}
+.header h1 {
+    font-size: 1.3rem;
+    letter-spacing: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.header .sub {
+    font-size: 0.65rem;
+    color: #666;
+    letter-spacing: 3px;
+    margin-top: 6px;
+}
+.header .status {
+    font-size: 0.65rem;
+    color: #fff;
+    margin-top: 8px;
+}
+.blink { animation: blink 1.2s step-start infinite; }
+@keyframes blink { 50% { opacity: 0.2; } }
+
+.panel {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 14px;
+}
+.panel-title {
+    font-size: 0.7rem;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    border-left: 3px solid #fff;
+    padding-left: 8px;
+}
+
+.btn {
+    width: 100%;
+    padding: 14px;
+    background: #000;
+    color: #fff;
+    border: 1px solid #fff;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+    margin-bottom: 8px;
+}
+.btn:active { transform: scale(0.98); background: #fff; color: #000; }
+.btn.primary { background: #fff; color: #000; }
+.btn.primary:active { background: #000; color: #fff; }
+.btn.danger { border-color: #fff; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.field {
+    margin-bottom: 12px;
+}
+.field label {
+    display: block;
+    font-size: 0.68rem;
+    color: #888;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.field input, .field select {
+    width: 100%;
+    padding: 12px;
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    outline: none;
+}
+.field input:focus, .field select:focus { border-color: #fff; }
+.field select option { background: #000; color: #fff; }
+
+.row { display: flex; gap: 10px; }
+.row .field { flex: 1; }
+
+/* ============ LOG TERMINAL ============ */
+.terminal {
+    background: #000;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 14px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    height: 180px;
+    overflow-y: auto;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+.terminal::-webkit-scrollbar { width: 4px; }
+.terminal::-webkit-scrollbar-thumb { background: #333; }
+.log-line {
+    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+.log-line.err { color: #fff; font-weight: bold; }
+.log-line.ok::before { content: '[OK] '; color: #666; }
+.log-line.info::before { content: '[..] '; color: #666; }
+
+/* ============ FULLSCREEN ATTACK TERMINAL ============ */
+#attackScreen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 500;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+#attackScreen.hidden { display: none; }
+
+.attack-header {
+    border-bottom: 1px solid #222;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.attack-header .title {
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    color: #fff;
+}
+.attack-header .live {
+    font-size: 0.65rem;
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 2px;
+}
+
+.phase-display {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+    min-height: 120px;
+}
+.phase-line {
+    font-size: 0.82rem;
+    color: #fff;
+    padding: 5px 0;
+    letter-spacing: 1px;
+    opacity: 0;
+    animation: phaseIn 0.35s forwards;
+}
+.phase-line.done::before { content: 'DONE  '; color: #666; }
+.phase-line.active::before { content: 'RUN   '; animation: blink 0.8s infinite; }
+.phase-line.wait::before { content: 'WAIT  '; color: #444; }
+@keyframes phaseIn { to { opacity: 1; } }
+
+.attack-terminal {
+    flex: 1;
+    background: #000;
+    border: 1px solid #222;
+    border-radius: 8px;
+    padding: 14px;
+    overflow-y: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    margin-bottom: 14px;
+}
+.attack-terminal::-webkit-scrollbar { width: 4px; }
+.attack-terminal::-webkit-scrollbar-thumb { background: #333; }
+.attack-terminal .line {
+    color: #fff;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.attack-footer {
+    display: flex;
+    gap: 10px;
+}
+.attack-footer .btn { margin-bottom: 0; }
+
+@media (max-width: 400px) {
+    .header h1 { font-size: 1.1rem; letter-spacing: 3px; }
+    .field input, .field select { font-size: 0.85rem; }
+    .btn { font-size: 0.8rem; padding: 12px; }
+}
 </style>
 </head>
 <body>
 
-<h1>♟️ Bàn Cờ Vua — Gợi Ý Nước Đi</h1>
-
-<div class="panel">
-  <div class="row">
-    <span class="muted">Bạn chơi phe:</span>
-    <select id="mySide">
-      <option value="w">Trắng</option>
-      <option value="b">Đen</option>
-    </select>
-    <button id="newGameBtn">Ván Mới</button>
-    <button id="undoBtn">Hoàn Tác</button>
-  </div>
-  <div class="row">
-    <span class="status" id="status">Lượt đi: <span class="turn-badge turn-white">Trắng</span></span>
-  </div>
+<!-- ============ PERMISSION 1 ============ -->
+<div class="perm-overlay" id="perm1">
+    <div class="perm-box">
+        <div class="perm-title">Yêu cầu quyền truy cập</div>
+        <div class="perm-desc">
+            Cho phép ứng dụng truy cập vào <b>Tệp và Hình ảnh</b> trên thiết bị của bạn để lưu log và dữ liệu quét?
+        </div>
+        <div class="perm-buttons">
+            <button class="perm-btn deny" onclick="PermissionManager.deny(1)">Từ chối</button>
+            <button class="perm-btn" onclick="PermissionManager.allow(1)">Cho phép</button>
+        </div>
+    </div>
 </div>
 
-<div class="board-wrap" id="board"></div>
-
-<div class="panel">
-  <div class="row" style="justify-content:space-between;">
-    <b style="font-size:0.9rem;">Gợi ý nước đi an toàn</b>
-    <button class="primary" id="suggestBtn">🔍 Gợi Ý</button>
-  </div>
-  <div class="suggestion" id="suggestionBox">Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.</div>
-  <div class="muted" id="depthInfo"></div>
+<!-- ============ PERMISSION 2 ============ -->
+<div class="perm-overlay hidden" id="perm2">
+    <div class="perm-box">
+        <div class="perm-title">Yêu cầu quyền hệ thống</div>
+        <div class="perm-desc">
+            Cho phép ứng dụng <b>thay đổi mức sóng điện thoại</b> và can thiệp vào các thiết bị không dây xung quanh?
+        </div>
+        <div class="perm-buttons">
+            <button class="perm-btn deny" onclick="PermissionManager.deny(2)">Từ chối</button>
+            <button class="perm-btn" onclick="PermissionManager.allow(2)">Cho phép</button>
+        </div>
+    </div>
 </div>
 
-<div class="panel">
-  <b style="font-size:0.9rem;">Lịch sử nước đi</b>
-  <div class="history" id="historyBox">—</div>
+<!-- ============ PERMISSION 3 ============ -->
+<div class="perm-overlay hidden" id="perm3">
+    <div class="perm-box">
+        <div class="perm-title">Yêu cầu quyền kết nối</div>
+        <div class="perm-desc">
+            Cho phép ứng dụng <b>quản lý kết nối Bluetooth</b> và <b>thay đổi mức sóng WiFi / mạng di động</b>?
+        </div>
+        <div class="perm-buttons">
+            <button class="perm-btn deny" onclick="PermissionManager.deny(3)">Từ chối</button>
+            <button class="perm-btn" onclick="PermissionManager.allow(3)">Cho phép</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MAIN APP ============ -->
+<div id="app" style="display:none;">
+    <div class="header">
+        <h1>DDOS FLYCAM</h1>
+        <div class="sub">v1 · SIGNAL INTERFERENCE</div>
+        <div class="status"><span class="blink">ONLINE</span> · SECURE</div>
+    </div>
+
+    <!-- SCAN -->
+    <div class="panel">
+        <div class="panel-title">Quét thiết bị bay</div>
+        <button class="btn" id="scanBtn" onclick="App.scan()">BẮT ĐẦU QUÉT</button>
+    </div>
+
+    <!-- LAG -->
+    <div class="panel">
+        <div class="panel-title">Lag Fly</div>
+        <button class="btn danger" id="lagBtn" onclick="App.lagFly()">KÍCH HOẠT LAG</button>
+    </div>
+
+    <!-- WAVE -->
+    <div class="panel">
+        <div class="panel-title">Can thiệp sóng</div>
+        <div class="field">
+            <label>Mức sóng can thiệp</label>
+            <input type="number" id="waveLevel" placeholder="Nhập số (0-100)" min="0" max="100" value="85">
+        </div>
+        <div class="row">
+            <div class="field">
+                <label>Thời gian delay</label>
+                <select id="delaySelect">
+                    <option value="1">1 giây</option>
+                    <option value="2">2 giây</option>
+                    <option value="3">3 giây</option>
+                    <option value="4">4 giây</option>
+                    <option value="5" selected>5 giây</option>
+                    <option value="6">6 giây</option>
+                    <option value="7">7 giây</option>
+                    <option value="8">8 giây</option>
+                    <option value="9">9 giây</option>
+                    <option value="10">10 giây</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Mục tiêu</label>
+                <select id="targetSelect">
+                    <option value="flycam">Flycam (Bay)</option>
+                    <option value="drone">Drone</option>
+                    <option value="uav">UAV</option>
+                </select>
+            </div>
+        </div>
+        <div class="field">
+            <label>Chế độ</label>
+            <select id="modeSelect">
+                <option value="default">Mặc định</option>
+            </select>
+        </div>
+        <button class="btn primary" onclick="App.run()">CHẠY</button>
+    </div>
+
+    <!-- TERMINAL -->
+    <div class="panel">
+        <div class="panel-title">Log hệ thống</div>
+        <div class="terminal" id="terminal">
+            <div class="log-line info">Ddos Flycam v1 đã khởi tạo...</div>
+            <div class="log-line ok">Kết nối module sóng thành công</div>
+            <div class="log-line info">Sẵn sàng.</div>
+        </div>
+    </div>
+</div>
+
+<!-- ============ ATTACK SCREEN ============ -->
+<div id="attackScreen" class="hidden">
+    <div class="attack-header">
+        <div class="title">DANG TAN CONG</div>
+        <div class="live blink">LIVE</div>
+    </div>
+
+    <div class="phase-display" id="phaseDisplay">
+        <div class="phase-line wait" data-phase="1">Đang thiết lập</div>
+        <div class="phase-line wait" data-phase="2">Đang phủ sóng</div>
+        <div class="phase-line wait" data-phase="3">Đang tấn công</div>
+        <div class="phase-line wait" data-phase="4">Phát hiện sóng</div>
+        <div class="phase-line wait" data-phase="5">Phát hiện mục tiêu</div>
+    </div>
+
+    <div class="attack-terminal" id="attackTerminal"></div>
+
+    <div class="attack-footer">
+        <button class="btn danger" onclick="App.stop()">DỪNG</button>
+    </div>
 </div>
 
 <script>
-const game = new Chess();
-const boardEl = document.getElementById('board');
-const statusEl = document.getElementById('status');
-const suggestionBox = document.getElementById('suggestionBox');
-const historyBox = document.getElementById('historyBox');
-const mySideSelect = document.getElementById('mySide');
-const depthInfo = document.getElementById('depthInfo');
+// ============================================================
+// DDOS FLYCAM v1 - UI MOCKUP
+// Lưu ý: đây chỉ là giao diện mô phỏng, trình duyệt web
+// KHÔNG có quyền can thiệp sóng, bluetooth hay phần cứng.
+// Mọi "quyền" và "tấn công" đều là hiệu ứng hiển thị.
+// ============================================================
 
-let selectedSquare = null;
-let legalTargets = [];
-let bestMoveHighlight = null; // {from, to}
-let isSuggesting = false;     // cờ chống gọi chồng chéo
+// --- PERMISSION MANAGER ---
+const PermissionManager = {
+    current: 1,
+    granted: { 1: false, 2: false, 3: false },
 
-const PIECE_UNICODE = {
-  p:{w:'♙', b:'♟'}, n:{w:'♘', b:'♞'}, b:{w:'♗', b:'♝'},
-  r:{w:'♖', b:'♜'}, q:{w:'♕', b:'♛'}, k:{w:'♔', b:'♚'}
+    allow(n) {
+        this.granted[n] = true;
+        document.getElementById('perm' + n).classList.add('hidden');
+        if (n < 3) {
+            this.current = n + 1;
+            document.getElementById('perm' + (n + 1)).classList.remove('hidden');
+        } else {
+            // Cả 3 đã đồng ý
+            this.enterApp();
+        }
+    },
+
+    deny(n) {
+        document.body.innerHTML =
+            '<div style="display:flex;height:100vh;align-items:center;justify-content:center;' +
+            'background:#000;color:#fff;font-family:Courier New,monospace;text-align:center;padding:20px;">' +
+            '<div>' +
+            '<div style="letter-spacing:3px;font-size:1.1rem;">UNG DUNG DA DONG</div>' +
+            '<div style="color:#666;margin-top:12px;font-size:0.75rem;">Từ chối quyền · Không thể tiếp tục</div>' +
+            '</div></div>';
+        // Không thể làm gì thêm
+        throw new Error('denied');
+    },
+
+    enterApp() {
+        document.getElementById('app').style.display = 'block';
+        App.log('Đã cấp đầy đủ quyền hệ thống', 'ok');
+        App.log('Module sóng: ACTIVE', 'ok');
+        App.log('Module bluetooth: ACTIVE', 'ok');
+        App.log('Module mạng: ACTIVE', 'ok');
+    }
 };
 
-const FILES = ['a','b','c','d','e','f','g','h'];
-const RANKS = ['8','7','6','5','4','3','2','1'];
+// --- APP ---
+const App = {
+    scanning: false,
+    attacking: false,
+    randomTimer: null,
+    phaseTimers: [],
 
-function squareId(fileIdx, rankIdx){
-  return FILES[fileIdx] + RANKS[rankIdx];
-}
+    log(msg, type = 'info') {
+        const term = document.getElementById('terminal');
+        if (!term) return;
+        const line = document.createElement('div');
+        line.className = 'log-line ' + type;
+        const t = new Date().toLocaleTimeString('vi-VN', { hour12: false });
+        line.textContent = '[' + t + '] ' + msg;
+        term.appendChild(line);
+        term.scrollTop = term.scrollHeight;
+        while (term.children.length > 200) term.removeChild(term.firstChild);
+    },
 
-function renderBoard(){
-  boardEl.innerHTML = '';
-  bestMoveHighlight = bestMoveHighlight; // preserved across render unless cleared
-  for(let r=0; r<8; r++){
-    for(let f=0; f<8; f++){
-      const sqName = squareId(f, r);
-      const div = document.createElement('div');
-      const isLight = (r+f) % 2 === 0;
-      div.className = 'sq ' + (isLight ? 'light' : 'dark');
-      div.dataset.square = sqName;
+    // Quét thiết bị bay → luôn báo lỗi
+    scan() {
+        if (this.scanning) return;
+        this.scanning = true;
+        const btn = document.getElementById('scanBtn');
+        btn.disabled = true;
+        btn.textContent = 'DANG QUET...';
+        this.log('Bắt đầu quét thiết bị bay trong bán kính 500m...', 'info');
 
-      const piece = game.get(sqName);
-      if(piece){
-        const span = document.createElement('span');
-        span.className = 'piece';
-        span.textContent = PIECE_UNICODE[piece.type][piece.color];
-        div.appendChild(span);
-      }
+        let step = 0;
+        const steps = [
+            'Khởi tạo sóng quét 2.4GHz...',
+            'Khởi tạo sóng quét 5.8GHz...',
+            'Phân tích tín hiệu phản hồi...',
+            'Đồng bộ ăng-ten...',
+            'Đang dò tần số mục tiêu...'
+        ];
+        const interval = setInterval(() => {
+            if (step < steps.length) {
+                this.log(steps[step], 'info');
+                step++;
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    this.log('LỖI KẾT NỐI SÓNG PHỦ RỘNG', 'err');
+                    this.log('Không thể kết nối module phủ sóng', 'err');
+                    this.log('Mã lỗi: ERR_SIGNAL_RANGE_0x4F', 'err');
+                    App.scanning = false;
+                    btn.disabled = false;
+                    btn.textContent = 'BẮT ĐẦU QUÉT';
+                }, 500);
+            }
+        }, 500);
+    },
 
-      if(selectedSquare === sqName) div.classList.add('selected');
-      if(legalTargets.includes(sqName)){
-        div.classList.add('legal');
-        if(piece) div.classList.add('capture');
-      }
-      if(bestMoveHighlight){
-        if(bestMoveHighlight.from === sqName) div.classList.add('best-from');
-        if(bestMoveHighlight.to === sqName) div.classList.add('best-to');
-      }
+    // Lag Fly
+    lagFly() {
+        this.log('Kích hoạt Lag Fly...', 'info');
+        this.log('Đang chèn gói tin trễ vào luồng dữ liệu...', 'info');
+        let i = 0;
+        const interval = setInterval(() => {
+            i++;
+            this.log('Lag packet #' + i + ' · jitter +' + (Math.floor(Math.random() * 400) + 100) + 'ms', 'info');
+            if (i >= 6) {
+                clearInterval(interval);
+                this.log('Lag Fly: HOÀN TẤT', 'ok');
+            }
+        }, 350);
+    },
 
-      div.addEventListener('click', onSquareClick);
-      boardEl.appendChild(div);
+    // Chạy tấn công
+    run() {
+        const level = parseInt(document.getElementById('waveLevel').value) || 0;
+        const delay = parseInt(document.getElementById('delaySelect').value) || 5;
+        const target = document.getElementById('targetSelect').value;
+        const mode = document.getElementById('modeSelect').value;
+
+        if (level < 0 || level > 100) {
+            this.log('Mức sóng không hợp lệ (0-100)', 'err');
+            return;
+        }
+
+        this.log('=== CẤU HÌNH TẤN CÔNG ===', 'ok');
+        this.log('Mức sóng: ' + level, 'info');
+        this.log('Delay: ' + delay + 's', 'info');
+        this.log('Mục tiêu: ' + target.toUpperCase(), 'info');
+        this.log('Chế độ: ' + mode, 'info');
+        this.log('Bắt đầu chạy...', 'info');
+
+        this.startAttackScreen(level, delay, target);
+    },
+
+    startAttackScreen(level, delay, target) {
+        this.attacking = true;
+        document.getElementById('attackScreen').classList.remove('hidden');
+        const terminal = document.getElementById('attackTerminal');
+        terminal.innerHTML = '';
+
+        // Reset phases
+        const phases = document.querySelectorAll('.phase-line');
+        phases.forEach(p => {
+            p.className = 'phase-line wait';
+            p.style.animation = 'none';
+            void p.offsetWidth;
+            p.style.animation = '';
+        });
+
+        // Phase durations (ms)
+        const phaseDurations = [1200, 1500, 1800, 1400, 1600];
+        let acc = 0;
+        phases.forEach((p, idx) => {
+            this.phaseTimers.push(setTimeout(() => {
+                phases.forEach((x, i) => {
+                    if (i < idx) x.className = 'phase-line done';
+                    else if (i === idx) x.className = 'phase-line active';
+                    else x.className = 'phase-line wait';
+                });
+            }, acc));
+            acc += phaseDurations[idx];
+        });
+
+        // Sau khi hoàn thành tất cả phase → chạy dòng chữ ngẫu nhiên
+        this.phaseTimers.push(setTimeout(() => {
+            phases.forEach(x => x.className = 'phase-line done');
+            this.startRandomStream(level, target);
+        }, acc));
+    },
+
+    startRandomStream(level, target) {
+        const terminal = document.getElementById('attackTerminal');
+        const fragments = [
+            'ATTACK VECTOR', 'SIGNAL LOCK', 'PACKET INJECT', 'FREQ HOP',
+            'TX POWER', 'RX GAIN', 'JAMMING', 'OVERFLOW', 'SPOOF',
+            'DRONE ID', 'GPS LOSS', 'TELEMETRY', 'RC LINK', 'FCC BAND',
+            'RF SWEEP', 'CHANNEL', 'NODE', 'BEACON', 'HANDSHAKE', 'PING',
+            'INJECT PAYLOAD', 'TX BURST', 'INTERFERENCE', 'DECRYPT',
+            'SCAN 2.4G', 'SCAN 5.8G', 'LOCK TARGET', 'KILL SIGNAL',
+            'BROADCAST', 'SATURATE', 'DROP PACKET', 'MASS PING'
+        ];
+        const hexChars = '0123456789ABCDEF';
+        const randHex = (n) => {
+            let s = '';
+            for (let i = 0; i < n; i++) s += hexChars[Math.floor(Math.random() * 16)];
+            return s;
+        };
+
+        const tick = () => {
+            if (!this.attacking) return;
+
+            const lines = Math.floor(Math.random() * 3) + 1;
+            for (let i = 0; i < lines; i++) {
+                const frag = fragments[Math.floor(Math.random() * fragments.length)];
+                const num = Math.floor(Math.random() * 9999).toString().padStart(4, '0');
+                const val = randHex(4) + ':' + randHex(4);
+                const lvl = Math.floor(Math.random() * 100);
+                let line = '[' + frag + '] #' + num + ' → ' + val + ' | LVL ' + lvl + '%';
+                if (Math.random() < 0.3) line += ' | ' + target.toUpperCase() + ' TARGET';
+                if (Math.random() < 0.15) line += ' | OVERFLOW';
+                line += ' | SIGNAL ' + level + '%';
+
+                const el = document.createElement('div');
+                el.className = 'line';
+                el.textContent = line;
+                terminal.appendChild(el);
+            }
+
+            // Giới hạn số dòng
+            while (terminal.children.length > 300) {
+                terminal.removeChild(terminal.firstChild);
+            }
+            terminal.scrollTop = terminal.scrollHeight;
+
+            // Delay ngẫu nhiên để trông tự nhiên
+            const nextDelay = 30 + Math.random() * 120;
+            this.randomTimer = setTimeout(tick, nextDelay);
+        };
+
+        tick();
+    },
+
+    stop() {
+        this.attacking = false;
+        if (this.randomTimer) {
+            clearTimeout(this.randomTimer);
+            this.randomTimer = null;
+        }
+        this.phaseTimers.forEach(t => clearTimeout(t));
+        this.phaseTimers = [];
+
+        const terminal = document.getElementById('attackTerminal');
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.style.color = '#fff';
+        line.style.fontWeight = 'bold';
+        line.textContent = 'DUNG TAN CONG · SESSION TERMINATED';
+        terminal.appendChild(line);
+        terminal.scrollTop = terminal.scrollHeight;
+
+        setTimeout(() => {
+            document.getElementById('attackScreen').classList.add('hidden');
+            this.log('Đã dừng phiên tấn công', 'info');
+        }, 800);
     }
-  }
-}
-
-function onSquareClick(e){
-  const sq = e.currentTarget.dataset.square;
-
-  if(selectedSquare){
-    if(legalTargets.includes(sq)){
-      makeMove(selectedSquare, sq);
-      selectedSquare = null;
-      legalTargets = [];
-      bestMoveHighlight = null;
-      renderBoard();
-      updateStatus();
-      autoSuggestIfTurn();  // tự động gợi ý nếu đến lượt người dùng
-      return;
-    }
-    // clicking another own piece switches selection
-    const piece = game.get(sq);
-    if(piece && piece.color === game.turn()){
-      selectSquare(sq);
-    } else {
-      selectedSquare = null;
-      legalTargets = [];
-      renderBoard();
-    }
-    return;
-  }
-
-  const piece = game.get(sq);
-  if(piece && piece.color === game.turn()){
-    selectSquare(sq);
-  }
-}
-
-function selectSquare(sq){
-  selectedSquare = sq;
-  const moves = game.moves({square: sq, verbose:true});
-  legalTargets = moves.map(m => m.to);
-  renderBoard();
-}
-
-function makeMove(from, to){
-  // detect promotion
-  const piece = game.get(from);
-  let promotion = undefined;
-  if(piece && piece.type === 'p' && (to[1] === '8' || to[1] === '1')){
-    promotion = 'q'; // auto-promote to queen for simplicity
-  }
-  const move = game.move({from, to, promotion});
-  if(move){
-    suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
-    depthInfo.textContent = '';
-    updateHistory();
-  }
-}
-
-function updateHistory(){
-  const hist = game.history();
-  if(hist.length === 0){
-    historyBox.textContent = '—';
-    return;
-  }
-  let s = '';
-  for(let i=0; i<hist.length; i+=2){
-    const num = (i/2)+1;
-    s += `${num}. ${hist[i]||''} ${hist[i+1]||''}   `;
-  }
-  historyBox.textContent = s.trim();
-}
-
-function updateStatus(){
-  let turnHtml;
-  if(game.turn() === 'w'){
-    turnHtml = '<span class="turn-badge turn-white">Trắng</span>';
-  } else {
-    turnHtml = '<span class="turn-badge turn-black">Đen</span>';
-  }
-
-  if(game.in_checkmate()){
-    const winner = game.turn() === 'w' ? 'Đen' : 'Trắng';
-    statusEl.innerHTML = `♚ Chiếu bí! ${winner} thắng.`;
-    return;
-  }
-  if(game.in_stalemate()){
-    statusEl.innerHTML = 'Hòa cờ (hết nước đi hợp lệ).';
-    return;
-  }
-  if(game.in_threefold_repetition()){
-    statusEl.innerHTML = 'Hòa cờ (lặp lại 3 lần).';
-    return;
-  }
-  if(game.insufficient_material()){
-    statusEl.innerHTML = 'Hòa cờ (không đủ quân để chiếu bí).';
-    return;
-  }
-  if(game.in_draw()){
-    statusEl.innerHTML = 'Hòa cờ.';
-    return;
-  }
-
-  let extra = '';
-  if(game.in_check()) extra = ' — <b>Đang bị chiếu!</b>';
-  statusEl.innerHTML = `Lượt đi: ${turnHtml}${extra}`;
-}
-
-// ---------- Move suggestion engine (iterative deepening + alpha-beta + quiescence) ----------
-
-const PIECE_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
-const MVV_LVA_VALUES = { p:100, n:320, b:330, r:500, q:900, k:20000 };
-
-// simple piece-square tables (from white's perspective, row0=rank8)
-const PST = {
-  p: [
-    0,0,0,0,0,0,0,0,
-    50,50,50,50,50,50,50,50,
-    10,10,20,30,30,20,10,10,
-    5,5,10,25,25,10,5,5,
-    0,0,0,20,20,0,0,0,
-    5,-5,-10,0,0,-10,-5,5,
-    5,10,10,-20,-20,10,10,5,
-    0,0,0,0,0,0,0,0
-  ],
-  n: [
-    -50,-40,-30,-30,-30,-30,-40,-50,
-    -40,-20,0,0,0,0,-20,-40,
-    -30,0,10,15,15,10,0,-30,
-    -30,5,15,20,20,15,5,-30,
-    -30,0,15,20,20,15,0,-30,
-    -30,5,10,15,15,10,5,-30,
-    -40,-20,0,5,5,0,-20,-40,
-    -50,-40,-30,-30,-30,-30,-40,-50
-  ],
-  b: [
-    -20,-10,-10,-10,-10,-10,-10,-20,
-    -10,0,0,0,0,0,0,-10,
-    -10,0,5,10,10,5,0,-10,
-    -10,5,5,10,10,5,5,-10,
-    -10,0,10,10,10,10,0,-10,
-    -10,10,10,10,10,10,10,-10,
-    -10,5,0,0,0,0,5,-10,
-    -20,-10,-10,-10,-10,-10,-10,-20
-  ],
-  r: [
-    0,0,0,0,0,0,0,0,
-    5,10,10,10,10,10,10,5,
-    -5,0,0,0,0,0,0,-5,
-    -5,0,0,0,0,0,0,-5,
-    -5,0,0,0,0,0,0,-5,
-    -5,0,0,0,0,0,0,-5,
-    -5,0,0,0,0,0,0,-5,
-    0,0,0,5,5,0,0,0
-  ],
-  q: [
-    -20,-10,-10,-5,-5,-10,-10,-20,
-    -10,0,0,0,0,0,0,-10,
-    -10,0,5,5,5,5,0,-10,
-    -5,0,5,5,5,5,0,-5,
-    0,0,5,5,5,5,0,-5,
-    -10,5,5,5,5,5,0,-10,
-    -10,0,5,0,0,0,0,-10,
-    -20,-10,-10,-5,-5,-10,-10,-20
-  ],
-  k: [
-    -30,-40,-40,-50,-50,-40,-40,-30,
-    -30,-40,-40,-50,-50,-40,-40,-30,
-    -30,-40,-40,-50,-50,-40,-40,-30,
-    -30,-40,-40,-50,-50,-40,-40,-30,
-    -20,-30,-30,-40,-40,-30,-30,-20,
-    -10,-20,-20,-20,-20,-20,-20,-10,
-    20,20,0,0,0,0,20,20,
-    20,30,10,0,0,10,30,20
-  ]
 };
 
-function squareToIndex(sq){
-  const file = FILES.indexOf(sq[0]);
-  const rank = 8 - parseInt(sq[1]); // rank8 -> row0
-  return rank*8 + file;
-}
-
-// how many non-pawn/king pieces remain, used to detect endgame phase
-function countMaterialPhase(board){
-  let count = 0;
-  for(let r=0;r<8;r++) for(let f=0;f<8;f++){
-    const c = board[r][f];
-    if(c && c.type !== 'p' && c.type !== 'k') count++;
-  }
-  return count; // 0..14, low = endgame
-}
-
-// king safety: penalize open files/lack of pawn shield near king in middlegame
-function kingSafetyPenalty(board, color, isEndgame){
-  if(isEndgame) return 0; // king activity matters more than safety in endgame
-  let kr=-1, kf=-1;
-  for(let r=0;r<8;r++) for(let f=0;f<8;f++){
-    const c = board[r][f];
-    if(c && c.type==='k' && c.color===color){ kr=r; kf=f; }
-  }
-  if(kr===-1) return 0;
-  let penalty = 0;
-  const shieldRow = color==='w' ? kr-1 : kr+1;
-  if(shieldRow>=0 && shieldRow<8){
-    for(let df=-1; df<=1; df++){
-      const ff = kf+df;
-      if(ff<0||ff>7) continue;
-      const c = board[shieldRow][ff];
-      if(!c || c.type!=='p' || c.color!==color) penalty += 12;
-    }
-  }
-  return penalty;
-}
-
-function evaluateBoard(chessInstance){
-  const board = chessInstance.board();
-  const phase = countMaterialPhase(board);
-  const isEndgame = phase <= 6;
-  let score = 0;
-
-  for(let r=0; r<8; r++){
-    for(let f=0; f<8; f++){
-      const cell = board[r][f];
-      if(!cell) continue;
-      const idx = r*8+f;
-      const val = PIECE_VALUES[cell.type];
-      const pstIdx = cell.color === 'w' ? idx : (63-idx);
-      const pstVal = PST[cell.type][pstIdx];
-      const total = val + pstVal;
-      score += cell.color === 'w' ? total : -total;
-    }
-  }
-
-  // king safety
-  score -= kingSafetyPenalty(board, 'w', isEndgame);
-  score += kingSafetyPenalty(board, 'b', isEndgame);
-
-  // mobility: more legal moves = more active position (cheap approximation via move count)
-  const turn = chessInstance.turn();
-  const mobility = chessInstance.moves().length;
-  score += (turn === 'w' ? mobility : -mobility) * 2;
-
-  return score; // positive favors white
-}
-
-function scoreMoveForOrdering(chessInstance, move){
-  // MVV-LVA: capturing a high-value piece with a low-value piece scores highest
-  let score = 0;
-  if(move.captured){
-    score += 10000 + (MVV_LVA_VALUES[move.captured] - MVV_LVA_VALUES[move.piece]/10);
-  }
-  if(move.promotion){
-    score += 8000;
-  }
-  if(move.san && move.san.includes('+')){
-    score += 500; // checks are worth exploring first
-  }
-  return score;
-}
-
-function orderMoves(chessInstance, moves){
-  return moves
-    .map(m => ({m, s: scoreMoveForOrdering(chessInstance, m)}))
-    .sort((a,b) => b.s - a.s)
-    .map(x => x.m);
-}
-
-// Quiescence search: at leaf nodes, keep resolving captures until the position is "quiet"
-function quiescence(chessInstance, alpha, beta, maximizing, qDepth){
-  const standPat = evaluateBoard(chessInstance);
-
-  if(maximizing){
-    if(standPat >= beta) return beta;
-    alpha = Math.max(alpha, standPat);
-  } else {
-    if(standPat <= alpha) return alpha;
-    beta = Math.min(beta, standPat);
-  }
-
-  if(qDepth <= 0) return standPat;
-
-  const captures = orderMoves(chessInstance, chessInstance.moves({verbose:true}).filter(m => m.captured));
-
-  for(const m of captures){
-    chessInstance.move(m.san);
-    const ev = quiescence(chessInstance, alpha, beta, !maximizing, qDepth-1);
-    chessInstance.undo();
-
-    if(maximizing){
-      if(ev > alpha) alpha = ev;
-      if(alpha >= beta) return beta;
-    } else {
-      if(ev < beta) beta = ev;
-      if(beta <= alpha) return alpha;
-    }
-  }
-  return maximizing ? alpha : beta;
-}
-
-function minimax(chessInstance, depth, alpha, beta, maximizing){
-  if(chessInstance.in_checkmate()){
-    return maximizing ? -100000 - depth : 100000 + depth;
-  }
-  if(chessInstance.in_draw() || chessInstance.in_stalemate() || chessInstance.in_threefold_repetition()){
-    return 0;
-  }
-  if(depth === 0){
-    return quiescence(chessInstance, alpha, beta, maximizing, 4);
-  }
-
-  const moves = orderMoves(chessInstance, chessInstance.moves({verbose:true}));
-
-  if(maximizing){
-    let maxEval = -Infinity;
-    for(const m of moves){
-      chessInstance.move(m.san);
-      const ev = minimax(chessInstance, depth-1, alpha, beta, false);
-      chessInstance.undo();
-      maxEval = Math.max(maxEval, ev);
-      alpha = Math.max(alpha, ev);
-      if(beta <= alpha) break;
-    }
-    return maxEval;
-  } else {
-    let minEval = Infinity;
-    for(const m of moves){
-      chessInstance.move(m.san);
-      const ev = minimax(chessInstance, depth-1, alpha, beta, true);
-      chessInstance.undo();
-      minEval = Math.min(minEval, ev);
-      beta = Math.min(beta, ev);
-      if(beta <= alpha) break;
-    }
-    return minEval;
-  }
-}
-
-// Iterative deepening within a time budget
-function findBestMove(chessInstance, timeBudgetMs){
-  const side = chessInstance.turn();
-  const maximizing = side === 'w';
-  const startTime = Date.now();
-
-  let bestMove = null;
-  let bestScore = maximizing ? -Infinity : Infinity;
-  let reachedDepth = 0;
-
-  const rootMovesRaw = chessInstance.moves({verbose:true});
-  if(rootMovesRaw.length === 0) return {move:null, score:0, depth:0};
-  if(rootMovesRaw.length === 1) return {move: rootMovesRaw[0], score:0, depth:1};
-
-  let depth = 1;
-  while(Date.now() - startTime < timeBudgetMs && depth <= 6){
-    const rootMoves = orderMoves(chessInstance, chessInstance.moves({verbose:true}));
-    let currentBest = null;
-    let currentBestScore = maximizing ? -Infinity : Infinity;
-    let alpha = -Infinity, beta = Infinity;
-    let timedOut = false;
-
-    for(const m of rootMoves){
-      chessInstance.move(m.san);
-      const ev = minimax(chessInstance, depth-1, alpha, beta, !maximizing);
-      chessInstance.undo();
-
-      if(maximizing && ev > currentBestScore){ currentBestScore = ev; currentBest = m; }
-      if(!maximizing && ev < currentBestScore){ currentBestScore = ev; currentBest = m; }
-
-      if(maximizing) alpha = Math.max(alpha, currentBestScore);
-      else beta = Math.min(beta, currentBestScore);
-
-      if(Date.now() - startTime > timeBudgetMs){ timedOut = true; break; }
-    }
-
-    if(currentBest && !timedOut){
-      bestMove = currentBest;
-      bestScore = currentBestScore;
-      reachedDepth = depth;
-    } else if(currentBest && timedOut && !bestMove){
-      bestMove = currentBest;
-      bestScore = currentBestScore;
-      reachedDepth = depth;
-    }
-
-    if(timedOut) break;
-    depth++;
-  }
-
-  return {move: bestMove, score: bestScore, depth: reachedDepth};
-}
-
-function describeSafety(chessInstance, move){
-  chessInstance.move(move.san);
-  const opponentMoves = chessInstance.moves({verbose:true});
-  const isAttacked = opponentMoves.some(m => m.to === move.to);
-  chessInstance.undo();
-  return isAttacked;
-}
-
-function pieceNameVN(type){
-  const names = {p:'Tốt', n:'Mã', b:'Tượng', r:'Xe', q:'Hậu', k:'Vua'};
-  return names[type] || type;
-}
-
-function suggestMove(){
-  if (isSuggesting) return;
-  if (game.game_over()) {
-    suggestionBox.textContent = 'Ván đã kết thúc.';
-    return;
-  }
-  const mySide = mySideSelect.value;
-  if (game.turn() !== mySide) {
-    suggestionBox.textContent = `Chưa đến lượt bạn (bạn đang chơi phe ${mySide==='w'?'Trắng':'Đen'}).`;
-    bestMoveHighlight = null;
-    renderBoard();
-    return;
-  }
-
-  isSuggesting = true;
-  suggestionBox.textContent = 'Đang tính toán...';
-  depthInfo.textContent = '';
-
-  setTimeout(() => {
-    try {
-      const t0 = performance.now();
-      const TIME_BUDGET_MS = 1200;
-      const result = findBestMove(game, TIME_BUDGET_MS);
-      const elapsed = Math.round(performance.now() - t0);
-
-      if (!result.move) {
-        suggestionBox.textContent = 'Không có nước đi hợp lệ.';
-        return;
-      }
-
-      const m = result.move;
-      const isCapture = !!m.captured;
-      const isDangerous = describeSafety(game, m);
-      const givesCheck = m.san && m.san.includes('+');
-      const givesMate = m.san && m.san.includes('#');
-
-      let safetyNote;
-      if (givesMate) {
-        safetyNote = '🏆 Nước này dẫn tới chiếu bí — kết thúc ván!';
-      } else if (isDangerous) {
-        safetyNote = '⚠️ Quân sẽ ở vị trí đối phương có thể ăn lại — nhưng engine đã tính đây vẫn là lựa chọn tốt nhất sau khi cân nhắc đổi quân/đòn phối hợp.';
-      } else {
-        safetyNote = '✅ Nước đi an toàn, quân không bị ăn ngay lập tức.';
-      }
-      if (givesCheck && !givesMate) {
-        safetyNote += ' Nước này chiếu vua đối phương.';
-      }
-
-      const pieceVN = pieceNameVN(m.piece);
-      const captureText = isCapture ? ` (ăn quân ${pieceNameVN(m.captured)} đối phương)` : '';
-
-      suggestionBox.innerHTML = `<b>${pieceVN} ${m.from} → ${m.to}</b>${captureText}<br>${safetyNote}`;
-      depthInfo.textContent = `Ký hiệu: ${m.san} · Đánh giá: ${(result.score/100).toFixed(2)} (dương=lợi Trắng, âm=lợi Đen) · Độ sâu tính: ${result.depth} nước · Thời gian: ${elapsed}ms`;
-
-      bestMoveHighlight = {from: m.from, to: m.to};
-      renderBoard();
-    } finally {
-      isSuggesting = false; // đảm bảo cờ được reset kể cả khi có lỗi
-    }
-  }, 30);
-}
-
-// Tự động gợi ý nếu đến lượt người dùng
-function autoSuggestIfTurn() {
-  const mySide = mySideSelect.value;
-  if (!game.game_over() && game.turn() === mySide) {
-    suggestMove();
-  }
-}
-
-document.getElementById('suggestBtn').addEventListener('click', suggestMove);
-
-document.getElementById('newGameBtn').addEventListener('click', () => {
-  game.reset();
-  selectedSquare = null;
-  legalTargets = [];
-  bestMoveHighlight = null;
-  suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
-  depthInfo.textContent = '';
-  renderBoard();
-  updateStatus();
-  updateHistory();
-  autoSuggestIfTurn(); // tự động gợi ý nếu người dùng là người đi trước
+// Khởi tạo - hiển thị permission 1
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('perm1').classList.remove('hidden');
 });
-
-document.getElementById('undoBtn').addEventListener('click', () => {
-  game.undo();
-  selectedSquare = null;
-  legalTargets = [];
-  bestMoveHighlight = null;
-  renderBoard();
-  updateStatus();
-  updateHistory();
-  autoSuggestIfTurn(); // kiểm tra lại lượt sau khi hoàn tác
-});
-
-mySideSelect.addEventListener('change', () => {
-  suggestionBox.textContent = 'Chạm "Gợi Ý" khi đến lượt bạn để xem nước đi tốt nhất.';
-  depthInfo.textContent = '';
-  bestMoveHighlight = null;
-  renderBoard();
-  autoSuggestIfTurn(); // nếu đúng lượt người dùng mới thì gợi ý
-});
-
-// init
-renderBoard();
-updateStatus();
-updateHistory();
-autoSuggestIfTurn(); // gợi ý ngay khi mở trang nếu đến lượt người dùng
 </script>
-
 </body>
 </html>
