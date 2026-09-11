@@ -2,999 +2,1112 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FLYCTRL v2</title>
-
-<!-- Font: một mono có cá tính + một display sans gọn -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Archivo:wght@600;800&display=swap" rel="stylesheet">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>T-Rex v3 — By YuongL</title>
 <style>
 /* ============================================================
-   FLYCTRL v2 — signal interface
-   Bảng màu: nền đen ngả xanh, chữ trắng ngà, 1 accent phosphor
-   Signature: cột số thứ tự serif-mono bên trái, lệch trục có chủ ý
+   RESET & BASE
    ============================================================ */
-
-:root{
-    --bg:        #07090b;
-    --bg-soft:   #0d1014;
-    --line:      #1a1f26;
-    --line-hi:   #2a323c;
-    --ink:       #e8e6df;
-    --ink-dim:   #8a8f95;
-    --ink-mute:  #4b525a;
-    --accent:    #b6ff3d;   /* phosphor, dùng rất tiết chế */
-    --warn:      #ffb347;
-    --bad:       #ff5c5c;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
 }
-
-*{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-
 html,body{
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 15px;
-    line-height: 1.55;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:'Inter','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:#F8FAFC;
+  color:#1E293B;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
-/* nền có texture rất nhẹ, không gradient màu mè */
-body::before{
-    content:"";
-    position: fixed; inset: 0;
-    background:
-        radial-gradient(ellipse at 15% 0%, rgba(182,255,61,0.035), transparent 55%),
-        radial-gradient(ellipse at 90% 100%, rgba(255,255,255,0.025), transparent 60%);
-    pointer-events: none;
-    z-index: 0;
+/* ============================================================
+   SPLASH SCREEN
+   ============================================================ */
+#splash{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:radial-gradient(ellipse at 50% 35%,#0F1B3D 0%,#0A0E1A 55%,#05070D 100%);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  transition:opacity 0.8s cubic-bezier(0.4,0,0.2,1),visibility 0.8s cubic-bezier(0.4,0,0.2,1);
+}
+#splash.hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
 }
 
-/* ---------- Layout ---------- */
-.wrap{
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 28px 20px 80px;
-    position: relative;
-    z-index: 1;
+/* Particle canvas */
+#particleCanvas{
+  position:absolute;
+  top:0;left:0;
+  width:100%;height:100%;
+  pointer-events:none;
 }
 
-/* ---------- Header ---------- */
-.top{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding-bottom: 18px;
-    border-bottom: 1px solid var(--line);
-    margin-bottom: 44px;
+/* Logo T-Rex */
+.splash-logo{
+  position:relative;
+  z-index:2;
+  width:110px;
+  height:110px;
+  margin-bottom:24px;
+  opacity:0;
+  transform:scale(0.3);
+  animation:logoIn 1s cubic-bezier(0.34,1.56,0.64,1) 0.2s forwards;
 }
-.brand{
-    font-family: 'Archivo', sans-serif;
-    font-weight: 800;
-    font-size: 1.65rem;
-    letter-spacing: -0.02em;
-    color: var(--ink);
-    line-height: 1;
+@keyframes logoIn{
+  to{opacity:1;transform:scale(1);}
 }
-.brand span{
-    color: var(--accent);
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: 500;
-    font-size: 0.9rem;
-    margin-left: 6px;
-    letter-spacing: 0;
-    vertical-align: 6px;
-}
-.meta{
-    font-size: 0.72rem;
-    color: var(--ink-mute);
-    text-align: right;
-    line-height: 1.4;
-}
-.meta b{ color: var(--ink-dim); font-weight: 500; }
-.meta .dot{
-    display: inline-block; width: 6px; height: 6px;
-    background: var(--accent); border-radius: 50%;
-    margin-right: 5px; vertical-align: 1px;
-    animation: pulse 2s infinite ease-in-out;
-}
-@keyframes pulse{ 50%{ opacity:0.25; } }
-
-/* ---------- Section: cột số signature ---------- */
-.sec{
-    position: relative;
-    padding-left: 52px;
-    margin-bottom: 56px;
-}
-.sec::before{
-    content: attr(data-num);
-    position: absolute;
-    left: 0; top: 2px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.75rem;
-    color: var(--ink-mute);
-    letter-spacing: 0.08em;
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    height: 60px;
-}
-.sec-title{
-    font-family: 'Archivo', sans-serif;
-    font-weight: 600;
-    font-size: 1.05rem;
-    letter-spacing: -0.01em;
-    color: var(--ink);
-    margin-bottom: 3px;
-}
-.sec-desc{
-    font-size: 0.72rem;
-    color: var(--ink-mute);
-    margin-bottom: 20px;
-    letter-spacing: 0.02em;
+.splash-logo svg{
+  width:100%;
+  height:100%;
+  filter:drop-shadow(0 0 20px rgba(59,130,246,0.8)) drop-shadow(0 0 40px rgba(59,130,246,0.4));
 }
 
-/* ---------- Buttons ---------- */
+/* App name */
+.splash-title{
+  position:relative;
+  z-index:2;
+  font-size:54px;
+  font-weight:900;
+  letter-spacing:2px;
+  background:linear-gradient(135deg,#3B82F6 0%,#60A5FA 50%,#F97316 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  text-shadow:0 0 30px rgba(59,130,246,0.5);
+  opacity:0;
+  transform:translateY(30px);
+  animation:titleIn 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.6s forwards;
+}
+@keyframes titleIn{
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* Loading bar */
+.splash-bar-wrap{
+  position:relative;
+  z-index:2;
+  width:220px;
+  height:3px;
+  background:rgba(59,130,246,0.15);
+  border-radius:3px;
+  margin-top:30px;
+  overflow:hidden;
+  opacity:0;
+  animation:fadeIn 0.5s ease 1s forwards;
+}
+.splash-bar{
+  height:100%;
+  width:0%;
+  border-radius:3px;
+  background:linear-gradient(90deg,#3B82F6,#60A5FA,#F97316);
+  box-shadow:0 0 12px rgba(59,130,246,0.8);
+  transition:width 0.3s ease;
+}
+@keyframes fadeIn{to{opacity:1;}}
+
+/* Author signature */
+.splash-author{
+  position:relative;
+  z-index:2;
+  font-size:14px;
+  color:#64748B;
+  letter-spacing:3px;
+  margin-top:26px;
+  font-weight:400;
+  opacity:0;
+  min-height:20px;
+}
+.splash-author .cursor{
+  display:inline-block;
+  width:2px;
+  height:14px;
+  background:#3B82F6;
+  margin-left:2px;
+  animation:blink 0.8s infinite;
+  vertical-align:middle;
+}
+@keyframes blink{
+  0%,50%{opacity:1;}
+  51%,100%{opacity:0;}
+}
+
+/* ============================================================
+   MAIN APP
+   ============================================================ */
+#app{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#F8FAFC;
+  display:none;
+  flex-direction:column;
+  overflow:hidden;
+}
+#app.show{display:flex;}
+
+/* Header */
+.header{
+  background:#FFFFFF;
+  padding:14px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 4px 20px rgba(37,99,235,0.08);
+  position:relative;
+  z-index:10;
+  flex-shrink:0;
+  transition:box-shadow 0.3s ease;
+}
+.header.scrolled{
+  box-shadow:0 6px 24px rgba(37,99,235,0.12);
+}
+.header h1{
+  font-size:22px;
+  font-weight:800;
+  color:#1E293B;
+  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:0.5px;
+}
+.header .ip-display{
+  font-size:12px;
+  color:#2563EB;
+  font-weight:600;
+  background:#EFF6FF;
+  padding:6px 14px;
+  border-radius:20px;
+  box-shadow:0 2px 8px rgba(37,99,235,0.1);
+  display:none;
+  transition:all 0.3s ease;
+}
+.header .ip-display.show{
+  display:block;
+  animation:slideIn 0.4s ease;
+}
+
+/* Main scroll area */
+.main-content{
+  flex:1;
+  overflow-y:auto;
+  padding:16px;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+
+/* Card */
+.card{
+  background:#FFFFFF;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:14px;
+  box-shadow:0 4px 20px rgba(37,99,235,0.08);
+  transition:box-shadow 0.3s ease,transform 0.2s ease;
+  animation:cardIn 0.5s ease backwards;
+}
+.card:nth-child(1){animation-delay:0.05s;}
+.card:nth-child(2){animation-delay:0.1s;}
+.card:nth-child(3){animation-delay:0.15s;}
+.card:nth-child(4){animation-delay:0.2s;}
+.card:nth-child(5){animation-delay:0.25s;}
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.card:hover{
+  box-shadow:0 8px 30px rgba(37,99,235,0.14);
+}
+.card h3{
+  font-size:15px;
+  font-weight:700;
+  color:#1E293B;
+  margin-bottom:14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.card h3 .dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#3B82F6;
+  box-shadow:0 0 8px rgba(59,130,246,0.6);
+  flex-shrink:0;
+}
+
+/* Toggle switch */
+.toggle-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+}
+.toggle-row span{
+  font-size:14px;
+  color:#475569;
+  font-weight:500;
+}
+.switch{
+  position:relative;
+  width:50px;
+  height:28px;
+  background:#CBD5E1;
+  border-radius:14px;
+  cursor:pointer;
+  transition:background 0.3s ease;
+  flex-shrink:0;
+}
+.switch.active{
+  background:#3B82F6;
+}
+.switch::after{
+  content:'';
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#fff;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 2px 6px rgba(0,0,0,0.15);
+}
+.switch.active::after{
+  transform:translateX(22px);
+}
+
+/* Range slider */
+.range-wrap{padding:10px 0;}
+.range-wrap label{
+  font-size:13px;
+  color:#64748B;
+  display:block;
+  margin-bottom:10px;
+  font-weight:500;
+}
+.range-wrap label span{
+  color:#2563EB;
+  font-weight:700;
+  font-size:15px;
+}
+input[type="range"]{
+  width:100%;
+  -webkit-appearance:none;
+  appearance:none;
+  height:6px;
+  border-radius:6px;
+  background:#E2E8F0;
+  outline:none;
+  cursor:pointer;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#3B82F6;
+  cursor:pointer;
+  box-shadow:0 2px 10px rgba(37,99,235,0.4);
+  transition:transform 0.15s ease,box-shadow 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover{
+  transform:scale(1.1);
+  box-shadow:0 4px 14px rgba(37,99,235,0.5);
+}
+input[type="range"]::-webkit-slider-thumb:active{
+  transform:scale(1.2);
+}
+input[type="range"]::-moz-range-thumb{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#3B82F6;
+  cursor:pointer;
+  border:none;
+  box-shadow:0 2px 10px rgba(37,99,235,0.4);
+}
+
+/* Input fields */
+.input-group{margin-bottom:12px;}
+.input-group label{
+  font-size:12px;
+  color:#64748B;
+  display:block;
+  margin-bottom:6px;
+  font-weight:500;
+}
+.input-group input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1.5px solid #E2E8F0;
+  background:#F8FAFC;
+  font-size:14px;
+  color:#1E293B;
+  outline:none;
+  transition:border-color 0.2s ease,box-shadow 0.2s ease,background 0.2s ease;
+  font-family:inherit;
+}
+.input-group input:focus{
+  border-color:#3B82F6;
+  background:#FFFFFF;
+  box-shadow:0 0 0 3px rgba(59,130,246,0.12);
+}
+.input-group input::placeholder{
+  color:#94A3B8;
+}
+
+/* Buttons */
 .btn{
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 11px 18px;
-    background: transparent;
-    color: var(--ink);
-    border: 1px solid var(--line-hi);
-    border-radius: 3px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.82rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background .15s, border-color .15s, color .15s;
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  letter-spacing:0.5px;
+  font-family:inherit;
 }
-.btn:hover{ border-color: var(--ink-dim); background: rgba(255,255,255,0.02); }
-.btn:active{ background: rgba(255,255,255,0.05); }
-.btn.solid{
-    background: var(--ink);
-    color: var(--bg);
-    border-color: var(--ink);
+.btn-primary{
+  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  color:#fff;
+  box-shadow:0 4px 16px rgba(37,99,235,0.3);
 }
-.btn.solid:hover{ background: var(--accent); border-color: var(--accent); }
-.btn.danger{ border-color: rgba(255,92,92,0.5); color: var(--bad); }
-.btn.danger:hover{ background: rgba(255,92,92,0.08); border-color: var(--bad); }
-.btn[disabled]{ opacity: 0.3; cursor: not-allowed; }
-.btn-row{ display: flex; gap: 10px; flex-wrap: wrap; }
+.btn-primary:hover{
+  box-shadow:0 6px 22px rgba(37,99,235,0.4);
+  transform:translateY(-1px);
+}
+.btn-primary:active{
+  transform:scale(0.97);
+  box-shadow:0 2px 8px rgba(37,99,235,0.3);
+}
+.btn-danger{
+  background:linear-gradient(135deg,#DC2626,#EF4444);
+  color:#fff;
+  box-shadow:0 4px 16px rgba(220,38,38,0.3);
+}
+.btn-danger:hover{
+  box-shadow:0 6px 22px rgba(220,38,38,0.4);
+  transform:translateY(-1px);
+}
+.btn-danger:active{
+  transform:scale(0.97);
+  box-shadow:0 2px 8px rgba(220,38,38,0.3);
+}
+.btn-outline{
+  background:#EFF6FF;
+  color:#2563EB;
+  border:1.5px solid #BFDBFE;
+}
+.btn-outline:hover{
+  background:#DBEAFE;
+  border-color:#93C5FD;
+}
+.btn-outline:active{
+  background:#BFDBFE;
+  transform:scale(0.98);
+}
+.btn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
 
-/* ---------- Radar ---------- */
-.radar-wrap{
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 22px;
-    align-items: start;
-    margin-bottom: 18px;
+/* Device scan result */
+.scan-result{
+  background:#EFF6FF;
+  border-radius:12px;
+  padding:14px 16px;
+  margin-top:12px;
+  display:none;
+  align-items:center;
+  gap:12px;
+  border-left:3px solid #3B82F6;
+  animation:slideIn 0.4s ease;
 }
-.radar{
-    position: relative;
-    width: 200px; height: 200px;
-    border-radius: 50%;
-    border: 1px solid var(--line-hi);
-    background: radial-gradient(circle, rgba(182,255,61,0.03), transparent 70%);
-    overflow: hidden;
+.scan-result.show{display:flex;}
+@keyframes slideIn{
+  from{opacity:0;transform:translateX(-20px);}
+  to{opacity:1;transform:translateX(0);}
 }
-.radar::before, .radar::after{
-    content:"";
-    position: absolute; inset: 0;
-    border-radius: 50%;
-    border: 1px solid var(--line);
+.scan-result .dev-icon{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#3B82F6,#60A5FA);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  color:#fff;
+  font-weight:700;
+  box-shadow:0 4px 12px rgba(59,130,246,0.3);
+  flex-shrink:0;
+  letter-spacing:0.5px;
 }
-.radar::before{ inset: 25%; }
-.radar::after{ inset: 45%; }
-.radar .cross-h, .radar .cross-v{
-    position: absolute;
-    background: var(--line);
+.scan-result .dev-info{flex:1;min-width:0;}
+.scan-result .dev-name{
+  font-size:14px;
+  font-weight:700;
+  color:#1E293B;
 }
-.radar .cross-h{ left:0; right:0; top: 50%; height:1px; }
-.radar .cross-v{ top:0; bottom:0; left: 50%; width:1px; }
-.radar .sweep{
-    position: absolute; inset: 0;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg,
-        rgba(182,255,61,0.35) 0deg,
-        rgba(182,255,61,0.02) 40deg,
-        transparent 60deg,
-        transparent 360deg);
-    animation: spin 3s linear infinite;
-    opacity: 0;
-    transition: opacity .3s;
+.scan-result .dev-status{
+  font-size:11px;
+  color:#EF4444;
+  font-weight:600;
+  margin-top:2px;
 }
-.radar.on .sweep{ opacity: 1; }
-@keyframes spin{ to{ transform: rotate(360deg); } }
-.radar .blip{
-    position: absolute;
-    width: 5px; height: 5px;
-    background: var(--accent);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--accent);
-    opacity: 0;
-    transform: translate(-50%,-50%);
-    transition: opacity .4s;
-}
-.radar.on .blip{ opacity: 1; animation: blip-fade 3s infinite; }
-@keyframes blip-fade{ 0%,20%{opacity:1;} 60%{opacity:0.2;} 100%{opacity:1;} }
 
-.radar-info{
-    font-size: 0.78rem;
-    color: var(--ink-dim);
-    line-height: 1.7;
+/* Attack log */
+.attack-log{
+  max-height:160px;
+  overflow-y:auto;
+  background:#0F172A;
+  border-radius:12px;
+  padding:12px 14px;
+  margin-top:12px;
+  font-family:'Courier New',Consolas,monospace;
+  font-size:11px;
+  line-height:1.6;
+  color:#22C55E;
+  display:none;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.3);
 }
-.radar-info .k{ color: var(--ink-mute); }
-.radar-info .v{ color: var(--ink); }
+.attack-log.show{display:block;}
+.attack-log .line{
+  opacity:0.9;
+  margin-bottom:2px;
+  word-break:break-all;
+}
+.attack-log .line.err{color:#EF4444;}
+.attack-log .line.warn{color:#F59E0B;}
+.attack-log .line.info{color:#60A5FA;}
 
-/* ---------- Device list ---------- */
+/* Device list */
 .device-list{
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    overflow: hidden;
-    background: var(--bg-soft);
+  display:none;
+  flex-direction:column;
+  gap:8px;
+  margin-top:12px;
 }
-.device-list .head{
-    display: grid;
-    grid-template-columns: 1fr 80px 70px;
-    padding: 8px 14px;
-    font-size: 0.68rem;
-    color: var(--ink-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    border-bottom: 1px solid var(--line);
-    background: rgba(255,255,255,0.01);
+.device-list.show{display:flex;}
+.device-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#F8FAFC;
+  border-radius:12px;
+  padding:12px 14px;
+  border:1.5px solid #E2E8F0;
+  animation:slideIn 0.4s ease;
+  transition:border-color 0.2s ease,box-shadow 0.2s ease;
 }
-.device-row{
-    display: grid;
-    grid-template-columns: 1fr 80px 70px;
-    padding: 11px 14px;
-    font-size: 0.83rem;
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-    transition: background .12s;
-    align-items: center;
+.device-item:hover{
+  border-color:#BFDBFE;
+  box-shadow:0 2px 10px rgba(37,99,235,0.08);
 }
-.device-row:last-child{ border-bottom: none; }
-.device-row:hover{ background: rgba(255,255,255,0.02); }
-.device-row.picked{
-    background: rgba(182,255,61,0.05);
-    border-left: 2px solid var(--accent);
-    padding-left: 12px;
+.device-item .icon{
+  width:38px;
+  height:38px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+  color:#fff;
+  font-weight:700;
+  flex-shrink:0;
+  letter-spacing:0.5px;
 }
-.device-row .name{ color: var(--ink); }
-.device-row .rssi{ color: var(--ink-dim); font-size: 0.75rem; }
-.device-row .stat{
-    color: var(--accent);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-align: right;
+.device-item .info{flex:1;min-width:0;}
+.device-item .name{
+  font-size:13px;
+  font-weight:600;
+  color:#1E293B;
 }
-.device-row.picked .stat::after{ content:" ◉"; }
-.device-row:not(.picked) .stat{ color: var(--ink-mute); }
-.device-list .empty{
-    padding: 22px 14px;
-    font-size: 0.78rem;
-    color: var(--ink-mute);
-    text-align: center;
+.device-item .sub{
+  font-size:11px;
+  color:#94A3B8;
+  margin-top:1px;
 }
 
-/* ---------- Forms ---------- */
-.field{ margin-bottom: 16px; }
-.field label{
-    display: block;
-    font-size: 0.68rem;
-    color: var(--ink-mute);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 6px;
+/* Stats counter */
+.stats-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-top:14px;
 }
-.field input[type=text],
-.field input[type=number],
-.field select,
-.field textarea{
-    width: 100%;
-    padding: 10px 12px;
-    background: var(--bg-soft);
-    border: 1px solid var(--line-hi);
-    border-radius: 3px;
-    color: var(--ink);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.88rem;
-    outline: none;
-    transition: border-color .15s;
+.stat-box{
+  background:#EFF6FF;
+  border-radius:12px;
+  padding:12px 8px;
+  text-align:center;
+  box-shadow:0 2px 10px rgba(37,99,235,0.06);
+  transition:transform 0.2s ease;
 }
-.field input:focus, .field select:focus, .field textarea:focus{
-    border-color: var(--accent);
+.stat-box:hover{
+  transform:translateY(-2px);
 }
-.field .hint{
-    font-size: 0.68rem;
-    color: var(--ink-mute);
-    margin-top: 5px;
+.stat-box .num{
+  font-size:20px;
+  font-weight:800;
+  color:#2563EB;
+  transition:color 0.2s ease;
 }
-.field .hint.warn{ color: var(--warn); }
-.grid-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-
-/* Radio group dạng thanh — không bo tròn đều */
-.radio-bar{
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0;
-    border: 1px solid var(--line-hi);
-    border-radius: 3px;
-    overflow: hidden;
-}
-.radio-bar label{
-    padding: 11px 12px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    background: var(--bg-soft);
-    color: var(--ink-dim);
-    border-right: 1px solid var(--line);
-    transition: background .12s, color .12s;
-    display: flex; align-items: center; gap: 8px;
-    letter-spacing: 0.02em;
-}
-.radio-bar label:nth-child(2n){ border-right: none; }
-.radio-bar label:nth-child(-n+2){ border-bottom: 1px solid var(--line); }
-.radio-bar input{ display: none; }
-.radio-bar input:checked + span{ color: var(--ink); }
-.radio-bar label:has(input:checked){
-    background: rgba(182,255,61,0.06);
-    color: var(--ink);
-    box-shadow: inset 3px 0 0 var(--accent);
+.stat-box .lbl{
+  font-size:10px;
+  color:#64748B;
+  margin-top:2px;
+  font-weight:600;
+  letter-spacing:0.5px;
 }
 
-/* ---------- Terminal ---------- */
-.term{
-    background: #050607;
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 14px 16px;
-    font-size: 0.78rem;
-    line-height: 1.6;
-    height: 210px;
-    overflow-y: auto;
-    color: var(--ink-dim);
-    margin-bottom: 12px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--line-hi) transparent;
+/* Footer */
+.footer{
+  text-align:center;
+  padding:20px 16px 24px;
+  font-size:11px;
+  color:#94A3B8;
+  font-weight:500;
 }
-.term::-webkit-scrollbar{ width: 6px; }
-.term::-webkit-scrollbar-thumb{ background: var(--line-hi); border-radius: 3px; }
-.term .l{ white-space: pre-wrap; word-break: break-all; }
-.term .l.ok::before{ content:"ok  "; color: var(--accent); }
-.term .l.i::before{ content:"..  "; color: var(--ink-mute); }
-.term .l.e::before{ content:"!!  "; color: var(--bad); }
-.term .l.e{ color: var(--bad); }
-.term.big{ height: 320px; font-size: 0.82rem; }
+.footer span{
+  color:#3B82F6;
+  font-weight:700;
+}
 
-/* ---------- Wave editor ---------- */
-.wave-editor{
-    background: #050607;
-    border: 1px solid var(--line);
-    border-radius: 3px;
-    padding: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    height: 260px;
-    color: var(--ink-dim);
-    width: 100%;
-    resize: vertical;
-    outline: none;
-    word-break: break-all;
-    letter-spacing: 0.02em;
-}
-.wave-editor:focus{ border-color: var(--accent); color: var(--ink); }
-
-/* ---------- Status pill ---------- */
-.pill{
-    display: inline-block;
-    padding: 3px 8px;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid var(--line-hi);
-    border-radius: 2px;
-    color: var(--ink-dim);
-}
-.pill.on{ border-color: var(--accent); color: var(--accent); }
-.pill.busy{ border-color: var(--warn); color: var(--warn); }
-
-/* ---------- Toast ---------- */
-#toasts{
-    position: fixed;
-    bottom: 20px; left: 50%;
-    transform: translateX(-50%);
-    z-index: 999;
-    display: flex; flex-direction: column; gap: 8px;
-    pointer-events: none;
-}
+/* Toast notification */
 .toast{
-    background: #0d1014;
-    border: 1px solid var(--line-hi);
-    border-left: 3px solid var(--accent);
-    padding: 10px 16px;
-    font-size: 0.8rem;
-    border-radius: 2px;
-    color: var(--ink);
-    animation: tin .25s ease;
-    min-width: 220px;
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:#1E293B;
+  color:#fff;
+  padding:12px 24px;
+  border-radius:12px;
+  font-size:13px;
+  font-weight:500;
+  box-shadow:0 8px 30px rgba(0,0,0,0.2);
+  opacity:0;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  z-index:10000;
+  pointer-events:none;
+  max-width:90%;
+  text-align:center;
 }
-.toast.e{ border-left-color: var(--bad); }
-.toast.w{ border-left-color: var(--warn); }
-@keyframes tin{ from{ transform: translateY(10px); opacity: 0; } }
-
-/* ---------- Separator mảnh ---------- */
-.hr{
-    height: 1px; background: var(--line);
-    margin: 34px 0;
-    position: relative;
-}
-.hr::after{
-    content:"";
-    position: absolute; left: 0; top: -2px;
-    width: 40px; height: 5px;
-    background: var(--accent);
+.toast.show{
+  transform:translateX(-50%) translateY(0);
+  opacity:1;
 }
 
-/* ---------- Responsive ---------- */
-@media (max-width: 560px){
-    .wrap{ padding: 20px 16px 70px; }
-    .radar-wrap{ grid-template-columns: 1fr; }
-    .radar{ margin: 0 auto; }
-    .sec{ padding-left: 42px; }
-    .grid-2{ grid-template-columns: 1fr; }
-    .radio-bar{ grid-template-columns: 1fr; }
-    .radio-bar label{ border-right: none; border-bottom: 1px solid var(--line); }
-    .radio-bar label:last-child{ border-bottom: none; }
-    .brand{ font-size: 1.35rem; }
-    .meta{ font-size: 0.66rem; }
-    .device-list .head,
-    .device-row{ grid-template-columns: 1fr 60px 50px; font-size: 0.76rem; }
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{
+  background:#CBD5E1;
+  border-radius:4px;
+}
+::-webkit-scrollbar-thumb:hover{
+  background:#94A3B8;
+}
+
+/* Responsive */
+@media (max-width:400px){
+  .splash-title{font-size:42px;}
+  .splash-logo{width:90px;height:90px;}
+  .header h1{font-size:19px;}
+  .card{padding:16px;}
+  .stat-box .num{font-size:17px;}
+}
+@media (min-height:800px){
+  .main-content{padding:20px;}
 }
 </style>
 </head>
 <body>
 
-<div id="toasts"></div>
-
-<div class="wrap">
-
-    <!-- ============ TOP ============ -->
-    <header class="top">
-        <div class="brand">FLYCTRL<span>v2</span></div>
-        <div class="meta">
-            <div><span class="dot"></span><b>SESSION</b> ACTIVE</div>
-            <div id="clock">--:--:--</div>
-        </div>
-    </header>
-
-    <!-- =====================================================
-         SECTION 01 — QUÉT & TÌM THIẾT BỊ
-         ===================================================== -->
-    <section class="sec" data-num="01">
-        <h2 class="sec-title">Quét & tìm thiết bị bay</h2>
-        <p class="sec-desc">Bật radar để dò tín hiệu quanh khu vực. Danh sách cập nhật theo thời gian thực.</p>
-
-        <div class="radar-wrap">
-            <div class="radar" id="radar">
-                <div class="cross-h"></div>
-                <div class="cross-v"></div>
-                <div class="sweep"></div>
-                <!-- blips sẽ được chèn bằng JS -->
-            </div>
-            <div class="radar-info">
-                <div><span class="k">RADAR &nbsp;</span><span class="v" id="radarState">IDLE</span></div>
-                <div><span class="k">BÁN KÍNH</span> <span class="v">500 m</span></div>
-                <div><span class="k">DẢI QUÉT</span> <span class="v">2.4 / 5.8 GHz</span></div>
-                <div><span class="k">THIẾT BỊ</span> <span class="v" id="devCount">0</span></div>
-                <div><span class="k">TÍN HIỆU</span> <span class="v" id="sigLevel">—</span></div>
-            </div>
-        </div>
-
-        <div class="btn-row" style="margin-bottom:16px;">
-            <button class="btn solid" id="btnRadar">Bật radar</button>
-            <button class="btn" id="btnScan">Quét thiết bị</button>
-        </div>
-
-        <div class="device-list" id="devList">
-            <div class="head">
-                <span>Tên thiết bị</span>
-                <span>RSSI</span>
-                <span>Trạng thái</span>
-            </div>
-            <div class="empty">Chưa có thiết bị nào. Bấm "Quét thiết bị" để bắt đầu.</div>
-        </div>
-    </section>
-
-    <div class="hr"></div>
-
-    <!-- =====================================================
-         SECTION 02 — TẤN CÔNG TẦN SỐ
-         ===================================================== -->
-    <section class="sec" data-num="02">
-        <h2 class="sec-title">Tấn công tần số</h2>
-        <p class="sec-desc">Chọn kiểu can thiệp, số luồng và thiết bị mục tiêu trước khi bắt đầu.</p>
-
-        <div class="field">
-            <label>Kiểu can thiệp</label>
-            <div class="radio-bar" id="freqType">
-                <label><input type="radio" name="ftype" value="spam" checked><span>Spam gói sóng</span></label>
-                <label><input type="radio" name="ftype" value="noise"><span>Nhiễu loạn sóng</span></label>
-                <label><input type="radio" name="ftype" value="shift"><span>Chuyển hóa sóng</span></label>
-                <label><input type="radio" name="ftype" value="split"><span>Bẻ đôi sóng</span></label>
-            </div>
-        </div>
-
-        <div class="field">
-            <label>Số luồng</label>
-            <input type="number" id="threads" min="1" max="9999" value="150">
-            <div class="hint warn">Khuyến nghị dưới 100 luồng để tránh quá tải thiết bị.</div>
-        </div>
-
-        <div class="field">
-            <label>Mục tiêu</label>
-            <div class="radio-bar" id="targetMode">
-                <label><input type="radio" name="tmode" value="single" checked><span>Tấn công riêng</span></label>
-                <label><input type="radio" name="tmode" value="all"><span>Tấn công tất cả</span></label>
-            </div>
-            <div class="hint" id="pickedHint">Chưa chọn thiết bị nào ở mục 01.</div>
-        </div>
-
-        <div class="btn-row" style="margin-bottom:18px;">
-            <button class="btn solid" id="btnWork">Bắt đầu làm việc</button>
-            <button class="btn danger" id="btnStop" disabled>Dừng</button>
-        </div>
-
-        <div class="term" id="term">
-            <div class="l i">hệ thống đã sẵn sàng</div>
-            <div class="l i">chờ lệnh…</div>
-        </div>
-    </section>
-
-    <div class="hr"></div>
-
-    <!-- =====================================================
-         SECTION 03 — XỬ LÝ SÓNG
-         ===================================================== -->
-    <section class="sec" data-num="03">
-        <h2 class="sec-title">Xử lý sóng Flycam</h2>
-        <p class="sec-desc">Quét để lấy mẫu sóng thô. Bạn có thể chỉnh sửa chuỗi và lưu lại dưới dạng profile.</p>
-
-        <div class="btn-row" style="margin-bottom:16px;">
-            <button class="btn solid" id="btnWaveScan">Quét sóng Flycam</button>
-            <button class="btn" id="btnWaveNew" disabled>Bắt sóng mới</button>
-            <button class="btn" id="btnWaveSave" disabled>Lưu</button>
-        </div>
-
-        <div class="field">
-            <label>Mẫu sóng thô <span class="pill" id="wavePill" style="margin-left:8px;">trống</span></label>
-            <textarea class="wave-editor" id="waveEditor" spellcheck="false" placeholder="Chưa có dữ liệu sóng. Nhấn 'Quét sóng Flycam'."></textarea>
-            <div class="hint"><span id="waveLen">0</span> ký tự · có thể chỉnh sửa trực tiếp</div>
-        </div>
-
-        <div class="term big" id="waveTerm">
-            <div class="l i">module xử lý sóng · chờ lệnh</div>
-        </div>
-    </section>
-
+<!-- ============================================================
+     SPLASH SCREEN
+     ============================================================ -->
+<div id="splash">
+  <canvas id="particleCanvas"></canvas>
+  <div class="splash-logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- T-Rex outline -->
+      <path d="M18 78 L18 56 Q18 46 26 43 L34 41 L34 30 Q34 22 42 20 L52 18 Q60 20 62 28 L64 38 L72 40 Q80 42 82 50 L84 60 L90 62 L90 70 L82 70 L82 80 L74 80 L74 70 L42 70 L42 80 L34 80 L34 70 L18 70 Z"
+        fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <!-- Eye -->
+      <circle cx="47" cy="28" r="2.5" fill="#3B82F6"/>
+      <!-- Teeth -->
+      <line x1="54" y1="38" x2="54" y2="34" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="58" y1="38" x2="58" y2="35" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
+      <!-- Arm -->
+      <path d="M40 54 L30 50 L28 54" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+      <!-- Tail -->
+      <path d="M18 62 L8 58 L12 64" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="splash-title">T-Rex v3</div>
+  <div class="splash-bar-wrap">
+    <div class="splash-bar" id="splashBar"></div>
+  </div>
+  <div class="splash-author" id="splashAuthor"></div>
 </div>
+
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<div id="app">
+  <div class="header" id="header">
+    <h1>T-Rex v3</h1>
+    <div class="ip-display" id="ipDisplay">0.0.0.0</div>
+  </div>
+
+  <div class="main-content" id="mainContent">
+
+    <!-- System toggle -->
+    <div class="card">
+      <h3><span class="dot"></span>Hệ thống</h3>
+      <div class="toggle-row">
+        <span>Bật / Tắt T-Rex</span>
+        <div class="switch" id="mainSwitch"></div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="num" id="statPackets">0</div>
+          <div class="lbl">PACKETS</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statRate">0</div>
+          <div class="lbl">P/S</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statTime">0s</div>
+          <div class="lbl">TIME</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan devices -->
+    <div class="card">
+      <h3><span class="dot"></span>Quét thiết bị bay</h3>
+      <div class="range-wrap">
+        <label>Phạm vi quét: <span id="rangeVal">50m</span></label>
+        <input type="range" id="rangeScan" min="1" max="100" value="50">
+      </div>
+      <button class="btn btn-primary" id="btnScan" style="margin-top:10px;">QUÉT THIẾT BỊ</button>
+      <div class="scan-result" id="scanResult">
+        <div class="dev-icon">FLY</div>
+        <div class="dev-info">
+          <div class="dev-name">Fly Không Xác Định</div>
+          <div class="dev-status">Đang hoạt động — Có thể tấn công</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attack panel -->
+    <div class="card">
+      <h3><span class="dot"></span>Tấn công Fly</h3>
+      <div class="input-group">
+        <label>Chọn thiết bị</label>
+        <input type="text" id="targetDevice" value="Fly Không Xác Định" readonly>
+      </div>
+      <div class="input-group">
+        <label>Số luồng tấn công</label>
+        <input type="number" id="threadCount" value="100" min="1" max="10000">
+      </div>
+      <button class="btn btn-danger" id="btnAttack">TẤN CÔNG</button>
+      <div class="attack-log" id="attackLog"></div>
+    </div>
+
+    <!-- WiFi connect -->
+    <div class="card">
+      <h3><span class="dot"></span>Kết nối WiFi</h3>
+      <div class="input-group">
+        <label>Địa chỉ IP WiFi</label>
+        <input type="text" id="wifiIP" placeholder="192.168.1.1" inputmode="decimal">
+      </div>
+      <div class="input-group">
+        <label>Mật khẩu WiFi</label>
+        <input type="password" id="wifiPass" placeholder="Nhập mật khẩu">
+      </div>
+      <button class="btn btn-primary" id="btnConnect">KẾT NỐI</button>
+    </div>
+
+    <!-- Search devices -->
+    <div class="card">
+      <h3><span class="dot"></span>Tìm kiếm thiết bị</h3>
+      <button class="btn btn-outline" id="btnSearch">QUÉT LIÊN TỤC</button>
+      <div class="device-list" id="deviceList"></div>
+    </div>
+
+    <div class="footer">T-Rex v3 — <span>By YuongL</span></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
-// FLYCTRL v2
-// Lưu ý kỹ thuật: toàn bộ "tấn công" và "quét sóng" dưới đây là
-// mô phỏng hiển thị (terminal stream + animation). Không có bất kỳ
-// network request nào được gửi tới máy chủ hay URL bên ngoài.
+// PHONE SYSTEM — CORE
 // ============================================================
+(function(){
+  'use strict';
 
-/* ---------- Toast ---------- */
-const Toast = (() => {
-    const box = document.getElementById('toasts');
-    return function(msg, kind=''){
-        const t = document.createElement('div');
-        t.className = 'toast ' + kind;
-        t.textContent = msg;
-        box.appendChild(t);
-        setTimeout(() => { t.style.opacity = '0'; t.style.transition='opacity .3s'; }, 2200);
-        setTimeout(() => t.remove(), 2600);
-    };
-})();
+  // ============================================================
+  // PARTICLE BACKGROUND
+  // ============================================================
+  const canvas = document.getElementById('particleCanvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  let w, h;
+  let animationId = null;
 
-/* ---------- Clock ---------- */
-(function clock(){
-    const el = document.getElementById('clock');
-    const pad = n => String(n).padStart(2,'0');
-    setInterval(() => {
-        const d = new Date();
-        el.textContent = pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-    }, 1000);
-})();
+  function resizeCanvas(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
 
-/* ============================================================
-   MODULE 01 — DEVICE SCANNER + RADAR
-   ============================================================ */
-const Scanner = (() => {
-    const radar = document.getElementById('radar');
-    const stateEl = document.getElementById('radarState');
-    const countEl = document.getElementById('devCount');
-    const sigEl = document.getElementById('sigLevel');
-    const listEl = document.getElementById('devList');
-    const btnRadar = document.getElementById('btnRadar');
-    const btnScan = document.getElementById('btnScan');
-
-    // Danh sách tên "cố định" theo yêu cầu — lặp lại có chủ ý để giống thực tế
-    const NAMES = ['FlyUnknow','Fly no name','Fly no name','Fly no name','Fly'];
-    let devices = [];
-    let radarOn = false;
-    let scanning = false;
-    let picked = null;       // index thiết bị được chọn
-    let blipTimer = null;
-
-    function setBlips(){
-        radar.querySelectorAll('.blip').forEach(b => b.remove());
-        devices.forEach(() => {
-            const b = document.createElement('div');
-            b.className = 'blip';
-            const ang = Math.random() * Math.PI * 2;
-            const rad = 30 + Math.random() * 55;
-            b.style.left = (50 + Math.cos(ang) * rad) + '%';
-            b.style.top  = (50 + Math.sin(ang) * rad) + '%';
-            radar.appendChild(b);
-        });
-    }
-
-    function renderList(){
-        if (!devices.length){
-            listEl.innerHTML =
-                '<div class="head"><span>Tên thiết bị</span><span>RSSI</span><span>Trạng thái</span></div>' +
-                '<div class="empty">Chưa có thiết bị nào. Bấm "Quét thiết bị" để bắt đầu.</div>';
-            return;
-        }
-        let html = '<div class="head"><span>Tên thiết bị</span><span>RSSI</span><span>Trạng thái</span></div>';
-        devices.forEach((d, i) => {
-            const cls = picked === i ? 'picked' : '';
-            html += `<div class="device-row ${cls}" data-i="${i}">
-                <span class="name">${d.name}</span>
-                <span class="rssi">${d.rssi} dBm</span>
-                <span class="stat">${d.status}</span>
-            </div>`;
-        });
-        listEl.innerHTML = html;
-
-        listEl.querySelectorAll('.device-row').forEach(row => {
-            row.addEventListener('click', () => {
-                const i = +row.dataset.i;
-                picked = (picked === i) ? null : i;
-                renderList();
-                Frequency.refreshHint();
-            });
-        });
-    }
-
-    function startRadar(){
-        radarOn = true;
-        radar.classList.add('on');
-        stateEl.textContent = 'QUÉT';
-        btnRadar.textContent = 'Tắt radar';
-        // nhấp nháy chỉ số tín hiệu
-        blipTimer = setInterval(() => {
-            const dbm = -(40 + Math.floor(Math.random() * 40));
-            sigEl.textContent = dbm + ' dBm';
-        }, 700);
-    }
-    function stopRadar(){
-        radarOn = false;
-        radar.classList.remove('on');
-        stateEl.textContent = 'IDLE';
-        btnRadar.textContent = 'Bật radar';
-        sigEl.textContent = '—';
-        if (blipTimer) clearInterval(blipTimer);
-    }
-
-    btnRadar.addEventListener('click', () => radarOn ? stopRadar() : startRadar());
-
-    btnScan.addEventListener('click', () => {
-        if (scanning) return;
-        scanning = true;
-        btnScan.disabled = true;
-        btnScan.textContent = 'Đang quét…';
-
-        // Mô phỏng: lần lượt "phát hiện" từng thiết bị
-        const discovered = [];
-        let i = 0;
-        const iv = setInterval(() => {
-            discovered.push({
-                name: NAMES[i],
-                rssi: -(35 + Math.floor(Math.random() * 55)),
-                status: 'detected'
-            });
-            devices = discovered.slice();
-            countEl.textContent = devices.length;
-            renderList();
-            setBlips();
-            i++;
-            if (i >= NAMES.length){
-                clearInterval(iv);
-                scanning = false;
-                btnScan.disabled = false;
-                btnScan.textContent = 'Quét thiết bị';
-                Toast('Đã quét xong ' + devices.length + ' thiết bị');
-            }
-        }, 380);
+  for(let i = 0; i < 45; i++){
+    particles.push({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      r: Math.random() * 2 + 0.5,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      a: Math.random() * 0.5 + 0.2
     });
+  }
 
-    return {
-        getDevices: () => devices,
-        getPicked: () => picked
-    };
-})();
+  function drawParticles(){
+    ctx.clearRect(0, 0, w, h);
+    for(let i = 0; i < particles.length; i++){
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if(p.x < 0) p.x = w;
+      if(p.x > w) p.x = 0;
+      if(p.y < 0) p.y = h;
+      if(p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(59,130,246,' + p.a + ')';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(59,130,246,0.5)';
+      ctx.fill();
+    }
+    animationId = requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
 
-/* ============================================================
-   MODULE 02 — FREQUENCY "ATTACK" (SIMULATION ONLY)
-   ============================================================ */
-const Frequency = (() => {
-    const term = document.getElementById('term');
-    const btnWork = document.getElementById('btnWork');
-    const btnStop = document.getElementById('btnStop');
-    const threads = document.getElementById('threads');
-    const pickedHint = document.getElementById('pickedHint');
-    const freqType = document.getElementById('freqType');
-    const targetMode = document.getElementById('targetMode');
+  // ============================================================
+  // SPLASH SCREEN LOGIC
+  // ============================================================
+  const splashBar = document.getElementById('splashBar');
+  const splashAuthor = document.getElementById('splashAuthor');
+  const splash = document.getElementById('splash');
+  const app = document.getElementById('app');
+  const authorText = 'By YuongL';
+  let authorIdx = 0;
+  let progress = 0;
 
-    const LABEL = {
-        spam:  'SPAM-GOI-SONG',
-        noise: 'NHIEU-LOAN-SONG',
-        shift: 'CHUYEN-HOA-SONG',
-        split: 'BE-DOI-SONG'
-    };
+  function typeWriter(){
+    if(authorIdx < authorText.length){
+      splashAuthor.innerHTML = authorText.substring(0, authorIdx + 1) + '<span class="cursor"></span>';
+      authorIdx++;
+      setTimeout(typeWriter, 80);
+    } else {
+      splashAuthor.innerHTML = authorText + '<span class="cursor"></span>';
+    }
+  }
+  setTimeout(typeWriter, 1200);
 
-    let running = false;
-    let streamTimer = null;
-    let uptimeTimer = null;
-    let startedAt = 0;
-    let sent = 0;
+  const progressInterval = setInterval(function(){
+    progress += Math.random() * 12 + 3;
+    if(progress >= 100){
+      progress = 100;
+      clearInterval(progressInterval);
+      setTimeout(function(){
+        splash.classList.add('hide');
+        if(animationId) cancelAnimationFrame(animationId);
+        setTimeout(function(){
+          app.classList.add('show');
+        }, 400);
+      }, 300);
+    }
+    splashBar.style.width = progress + '%';
+  }, 180);
 
-    function log(line, cls){
-        const el = document.createElement('div');
-        el.className = 'l ' + (cls || 'i');
-        el.textContent = line;
-        term.appendChild(el);
-        // giữ terminal không phình vô hạn
-        while (term.children.length > 220) term.removeChild(term.firstChild);
-        term.scrollTop = term.scrollHeight;
+  // ============================================================
+  // MAIN APP LOGIC
+  // ============================================================
+  const mainSwitch = document.getElementById('mainSwitch');
+  const rangeScan = document.getElementById('rangeScan');
+  const rangeVal = document.getElementById('rangeVal');
+  const btnScan = document.getElementById('btnScan');
+  const scanResult = document.getElementById('scanResult');
+  const btnAttack = document.getElementById('btnAttack');
+  const attackLog = document.getElementById('attackLog');
+  const threadCount = document.getElementById('threadCount');
+  const btnConnect = document.getElementById('btnConnect');
+  const wifiIP = document.getElementById('wifiIP');
+  const wifiPass = document.getElementById('wifiPass');
+  const ipDisplay = document.getElementById('ipDisplay');
+  const btnSearch = document.getElementById('btnSearch');
+  const deviceList = document.getElementById('deviceList');
+  const statPackets = document.getElementById('statPackets');
+  const statRate = document.getElementById('statRate');
+  const statTime = document.getElementById('statTime');
+  const toast = document.getElementById('toast');
+  const header = document.getElementById('header');
+  const mainContent = document.getElementById('mainContent');
+
+  let systemOn = false;
+  let attackInterval = null;
+  let attackStartTime = 0;
+  let packetCount = 0;
+  let searchInterval = null;
+  let isSearching = false;
+  let toastTimeout = null;
+
+  // ============================================================
+  // TOAST NOTIFICATION
+  // ============================================================
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    if(toastTimeout) clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(function(){
+      toast.classList.remove('show');
+    }, 2200);
+  }
+
+  // ============================================================
+  // HEADER SHADOW ON SCROLL
+  // ============================================================
+  mainContent.addEventListener('scroll', function(){
+    if(mainContent.scrollTop > 10){
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // ============================================================
+  // TOGGLE MAIN SWITCH
+  // ============================================================
+  mainSwitch.addEventListener('click', function(){
+    systemOn = !systemOn;
+    mainSwitch.classList.toggle('active', systemOn);
+    showToast(systemOn ? 'T-Rex đã bật' : 'T-Rex đã tắt');
+    if(!systemOn && attackInterval){
+      clearInterval(attackInterval);
+      attackInterval = null;
+      btnAttack.textContent = 'TẤN CÔNG';
+      attackLog.innerHTML += '<div class="line err">[!] Hệ thống tắt — dừng tấn công</div>';
+      attackLog.scrollTop = attackLog.scrollHeight;
+    }
+  });
+
+  // ============================================================
+  // RANGE SCAN SLIDER
+  // ============================================================
+  rangeScan.addEventListener('input', function(){
+    rangeVal.textContent = rangeScan.value + 'm';
+  });
+
+  // ============================================================
+  // SCAN DEVICE
+  // ============================================================
+  btnScan.addEventListener('click', function(){
+    if(!systemOn){
+      showToast('Bật hệ thống T-Rex trước!');
+      return;
+    }
+    btnScan.textContent = 'ĐANG QUÉT...';
+    btnScan.disabled = true;
+    scanResult.classList.remove('show');
+    setTimeout(function(){
+      btnScan.textContent = 'QUÉT THIẾT BỊ';
+      btnScan.disabled = false;
+      scanResult.classList.add('show');
+      showToast('Đã tìm thấy thiết bị bay!');
+    }, 1800);
+  });
+
+  // ============================================================
+  // ATTACK PANEL
+  // ============================================================
+  btnAttack.addEventListener('click', function(){
+    if(!systemOn){
+      showToast('Bật hệ thống T-Rex trước!');
+      return;
+    }
+    const threads = parseInt(threadCount.value) || 100;
+    if(threads < 1 || threads > 10000){
+      showToast('Số luồng phải từ 1-10000!');
+      return;
     }
 
-    function refreshHint(){
-        const p = Scanner.getPicked();
-        const devs = Scanner.getDevices();
-        if (!devs.length){
-            pickedHint.textContent = 'Chưa có thiết bị nào ở mục 01.';
-            return;
+    if(attackInterval){
+      clearInterval(attackInterval);
+      attackInterval = null;
+      btnAttack.textContent = 'TẤN CÔNG';
+      attackLog.innerHTML += '<div class="line warn">[!] Đã dừng tấn công</div>';
+      attackLog.scrollTop = attackLog.scrollHeight;
+      showToast('Đã dừng tấn công');
+      return;
+    }
+
+    btnAttack.textContent = 'DỪNG TẤN CÔNG';
+    attackLog.classList.add('show');
+    attackLog.innerHTML = '<div class="line info">[*] Bắt đầu tấn công Fly Không Xác Định...</div>';
+    attackLog.innerHTML += '<div class="line info">[*] Số luồng: ' + threads + '</div>';
+    attackStartTime = Date.now();
+    packetCount = 0;
+    showToast('Đang tấn công với ' + threads + ' luồng');
+
+    let logCounter = 0;
+    attackInterval = setInterval(function(){
+      packetCount += threads * 100;
+      statPackets.textContent = packetCount.toLocaleString('vi-VN');
+      statRate.textContent = (threads * 100).toLocaleString('vi-VN');
+      const elapsed = Math.floor((Date.now() - attackStartTime) / 1000);
+      statTime.textContent = elapsed + 's';
+
+      if(logCounter % 5 === 0){
+        const line = document.createElement('div');
+        line.className = 'line';
+        line.textContent = '[+] Sent ' + threads + ' packets';
+        attackLog.appendChild(line);
+        attackLog.scrollTop = attackLog.scrollHeight;
+        if(attackLog.children.length > 100){
+          attackLog.removeChild(attackLog.firstChild);
         }
-        if (targetMode.querySelector('input[value=all]').checked){
-            pickedHint.textContent = 'Sẽ áp dụng cho toàn bộ ' + devs.length + ' thiết bị trong danh sách.';
-        } else if (p === null){
-            pickedHint.textContent = 'Nhấp vào một dòng ở mục 01 để chọn thiết bị mục tiêu.';
-        } else {
-            pickedHint.textContent = 'Mục tiêu: ' + devs[p].name;
-        }
+      }
+      logCounter++;
+    }, 100);
+  });
+
+  // ============================================================
+  // CONNECT WIFI
+  // ============================================================
+  btnConnect.addEventListener('click', function(){
+    const ip = wifiIP.value.trim();
+    const pass = wifiPass.value.trim();
+    if(!ip){
+      showToast('Nhập địa chỉ IP WiFi!');
+      return;
     }
-    targetMode.addEventListener('change', refreshHint);
-
-    // Sinh dòng log ngẫu nhiên
-    const FRAGS = [
-        'spam-packet','freq-shift','carrier-lock','band-split',
-        'burst','rf-noise','tx-burst','phase-jam','ghost-link',
-        'channel-kill','packet-shuffle','signal-mask'
-    ];
-    const hex = '0123456789ABCDEF';
-    const randHex = n => Array.from({length:n}, () => hex[Math.floor(Math.random()*16)]).join('');
-
-    function tick(){
-        if (!running) return;
-        // mỗi "tick" mô phỏng 1 batch
-        const batch = 40 + Math.floor(Math.random() * 90);
-        sent += batch;
-
-        const f = FRAGS[Math.floor(Math.random() * FRAGS.length)];
-        const line = `[${LABEL[currentFreq()]}] ${f} #${randHex(4)}:${randHex(4)} · batch ${batch} · total ${sent}`;
-        log(line, '');
-
-        // thỉnh thoảng có dòng trạng thái
-        if (Math.random() < 0.07){
-            const stat = ['link stable','jitter +' + (50+Math.floor(Math.random()*300)) + 'ms',
-                          'carrier drift','echo suppressed','node ack'][Math.floor(Math.random()*5)];
-            log('· ' + stat, 'ok');
-        }
-
-        streamTimer = setTimeout(tick, 40 + Math.random() * 90);
+    if(!pass){
+      showToast('Nhập mật khẩu WiFi!');
+      return;
+    }
+    const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
+    if(!ipPattern.test(ip)){
+      showToast('Địa chỉ IP không hợp lệ!');
+      return;
+    }
+    const parts = ip.split('.');
+    for(let i = 0; i < parts.length; i++){
+      const num = parseInt(parts[i]);
+      if(num < 0 || num > 255){
+        showToast('Địa chỉ IP không hợp lệ!');
+        return;
+      }
     }
 
-    function currentFreq(){
-        const el = freqType.querySelector('input:checked');
-        return el ? el.value : 'spam';
+    btnConnect.textContent = 'ĐANG KẾT NỐI...';
+    btnConnect.disabled = true;
+    setTimeout(function(){
+      btnConnect.textContent = 'KẾT NỐI';
+      btnConnect.disabled = false;
+      ipDisplay.textContent = ip;
+      ipDisplay.classList.add('show');
+      showToast('Đã kết nối WiFi: ' + ip);
+    }, 1500);
+  });
+
+  // ============================================================
+  // SEARCH DEVICES
+  // ============================================================
+  const mockDevices = [
+    {name: 'Fly Unknow', sub: 'Thiết bị bay — Không xác định'},
+    {name: 'Android 2020', sub: 'Điện thoại Android — 2020'},
+    {name: 'Android 2018', sub: 'Điện thoại Android — 2018'},
+    {name: 'Fly Unknow', sub: 'Thiết bị bay — Không xác định'},
+    {name: 'Android 2021', sub: 'Điện thoại Android — 2021'},
+    {name: 'Android 2019', sub: 'Điện thoại Android — 2019'},
+    {name: 'Fly Unknow', sub: 'Thiết bị bay — Không xác định'},
+    {name: 'Android 2022', sub: 'Điện thoại Android — 2022'}
+  ];
+
+  btnSearch.addEventListener('click', function(){
+    if(isSearching){
+      isSearching = false;
+      clearInterval(searchInterval);
+      searchInterval = null;
+      btnSearch.textContent = 'QUÉT LIÊN TỤC';
+      showToast('Đã dừng tìm kiếm');
+      return;
     }
 
-    function start(){
-        if (running) return;
-        const devs = Scanner.getDevices();
-        if (!devs.length){
-            Toast('Chưa có thiết bị nào để tấn công', 'e');
-            return;
-        }
-        const mode = targetMode.querySelector('input:checked').value;
-        if (mode === 'single' && Scanner.getPicked() === null){
-            Toast('Chọn 1 thiết bị ở mục 01 hoặc đổi sang "Tấn công tất cả"', 'w');
-            return;
-        }
+    isSearching = true;
+    btnSearch.textContent = 'DỪNG TÌM KIẾM';
+    deviceList.classList.add('show');
+    deviceList.innerHTML = '';
+    showToast('Đang quét thiết bị...');
 
-        // số luồng hiển thị mang tính mô tả, không điều khiển gì thật
-        const flow = Math.max(1, Math.min(9999, +threads.value || 100));
+    let idx = 0;
+    searchInterval = setInterval(function(){
+      if(idx >= mockDevices.length) idx = 0;
+      const dev = mockDevices[idx];
+      const item = document.createElement('div');
+      item.className = 'device-item';
+      const iconEl = document.createElement('div');
+      iconEl.className = 'icon';
+      iconEl.textContent = 'DEV';
+      const infoEl = document.createElement('div');
+      infoEl.className = 'info';
+      const nameEl = document.createElement('div');
+      nameEl.className = 'name';
+      nameEl.textContent = dev.name;
+      const subEl = document.createElement('div');
+      subEl.className = 'sub';
+      subEl.textContent = dev.sub;
+      infoEl.appendChild(nameEl);
+      infoEl.appendChild(subEl);
+      item.appendChild(iconEl);
+      item.appendChild(infoEl);
+      deviceList.appendChild(item);
+      if(deviceList.children.length > 8){
+        deviceList.removeChild(deviceList.firstChild);
+      }
+      idx++;
+    }, 1200);
+  });
 
-        running = true;
-        sent = 0;
-        startedAt = Date.now();
-        btnWork.disabled = true;
-        btnStop.disabled = false;
-
-        log('── phiên làm việc bắt đầu ──', 'ok');
-        log('kiểu        : ' + LABEL[currentFreq()], '');
-        log('luồng       : ' + flow, '');
-        log('chế độ      : ' + (mode === 'all' ? 'TẤT CẢ' : 'RIÊNG'), '');
-        log('mục tiêu    : ' + (mode === 'all'
-            ? (devs.length + ' thiết bị')
-            : devs[Scanner.getPicked()].name), '');
-
-        uptimeTimer = setInterval(() => {
-            const s = Math.floor((Date.now() - startedAt) / 1000);
-            // cập nhật lại dòng đầu? đơn giản: log mỗi 5s
-            if (s && s % 5 === 0){
-                log('· uptime ' + s + 's · đã gửi ' + sent + ' batch', 'ok');
-            }
-        }, 1000);
-
-        tick();
-    }
-
-    function stop(){
-        if (!running) return;
-        running = false;
-        if (streamTimer) clearTimeout(streamTimer);
-        if (uptimeTimer) clearInterval(uptimeTimer);
-        btnWork.disabled = false;
-        btnStop.disabled = true;
-        log('── dừng phiên ──', 'e');
-        Toast('Đã dừng phiên làm việc', 'w');
-    }
-
-    btnWork.addEventListener('click', start);
-    btnStop.addEventListener('click', stop);
-
-    // khởi tạo hint
-    setTimeout(refreshHint, 100);
-
-    return { refreshHint };
-})();
-
-/* ============================================================
-   MODULE 03 — WAVE PROCESSING
-   ============================================================ */
-const WaveLab = (() => {
-    const editor = document.getElementById('waveEditor');
-    const lenEl = document.getElementById('waveLen');
-    const pill = document.getElementById('wavePill');
-    const term = document.getElementById('waveTerm');
-    const btnScan = document.getElementById('btnWaveScan');
-    const btnNew = document.getElementById('btnWaveNew');
-    const btnSave = document.getElementById('btnWaveSave');
-
-    const POOL = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}<>;:,.?/\\|~';
-    let hasWave = false;
-
-    function log(line, cls){
-        const el = document.createElement('div');
-        el.className = 'l ' + (cls || 'i');
-        el.textContent = line;
-        term.appendChild(el);
-        while (term.children.length > 80) term.removeChild(term.firstChild);
-        term.scrollTop = term.scrollHeight;
-    }
-
-    function updateLen(){
-        lenEl.textContent = editor.value.length;
-    }
-
-    function genWave(){
-        // sinh 1000 ký tự ngẫu nhiên
-        let out = '';
-        const buf = new Uint32Array(256);
-        crypto.getRandomValues(buf);
-        for (let i = 0; i < 1000; i++){
-            if (i && i % 50 === 0) out += '\n';
-            out += POOL[Math.floor(Math.random() * POOL.length)];
-        }
-        editor.value = out;
-        updateLen();
-    }
-
-    editor.addEventListener('input', updateLen);
-
-    btnScan.addEventListener('click', () => {
-        btnScan.disabled = true;
-        btnScan.textContent = 'Đang quét…';
-        log('─ bắt đầu quét sóng flycam ─', '');
-        const steps = [
-            'mở kênh thu 2.4 GHz',
-            'mở kênh thu 5.8 GHz',
-            'đồng bộ pha',
-            'lọc nhiễu nền',
-            'giải mã khung tín hiệu',
-            'trích xuất mẫu thô'
-        ];
-        let i = 0;
-        const iv = setInterval(() => {
-            if (i < steps.length){
-                log('· ' + steps[i], 'i');
-                i++;
-            } else {
-                clearInterval(iv);
-                genWave();
-                hasWave = true;
-                pill.textContent = 'có dữ liệu';
-                pill.classList.add('on');
-                btnScan.disabled = false;
-                btnScan.textContent = 'Quét sóng Flycam';
-                btnNew.disabled = false;
-                btnSave.disabled = false;
-                log('ok thu được 1000 ký tự mẫu', 'ok');
-                Toast('Đã lấy mẫu sóng (1000 ký tự)');
-            }
-        }, 350);
-    });
-
-    btnNew.addEventListener('click', () => {
-        if (!hasWave) return;
-        genWave();
-        log('· tạo mẫu sóng mới', 'ok');
-        Toast('Đã tạo mẫu sóng mới');
-    });
-
-    btnSave.addEventListener('click', () => {
-        if (!hasWave) return;
-        try {
-            localStorage.setItem('flyctrl_wave_profile', editor.value);
-            log('ok lưu profile (' + editor.value.length + ' ký tự)', 'ok');
-            Toast('Đã lưu profile');
-        } catch(e){
-            log('!! không thể lưu: ' + e.message, 'e');
-            Toast('Không lưu được profile', 'e');
-        }
-    });
-
-    // tự nạp profile cũ nếu có
-    try {
-        const saved = localStorage.getItem('flyctrl_wave_profile');
-        if (saved){
-            editor.value = saved;
-            updateLen();
-            hasWave = true;
-            pill.textContent = 'đã nạp';
-            pill.classList.add('on');
-            btnNew.disabled = false;
-            btnSave.disabled = false;
-            log('· nạp profile đã lưu', 'ok');
-        }
-    } catch(e){}
-
-    updateLen();
-    return {};
 })();
 </script>
 </body>
