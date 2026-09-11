@@ -3,10 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>T-Rex v3 — By YuongL</title>
+<meta name="theme-color" content="#16A34A">
+<meta name="description" content="T-Rex v4 Beta — Phiên bản mạnh nhất của v4. By YuongL.">
+<meta name="author" content="YuongL">
+<title>T-Rex v4 Beta — By YuongL</title>
 <style>
 /* ============================================================
-   RESET & BASE
+   T-REX V4 BETA — GLOBAL STYLESHEET
+   Author: YuongL
+   Version: v4 Beta (MAX Edition)
+   ============================================================ */
+
+/* ============================================================
+   SECTION 01 — RESET & BASE
    ============================================================ */
 *{
   margin:0;
@@ -14,25 +23,294 @@
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
-html,body{
+*::before,
+*::after{
+  box-sizing:border-box;
+}
+html{
   width:100%;
   height:100%;
   overflow:hidden;
-  font-family:'Inter','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:#F8FAFC;
-  color:#1E293B;
+  font-size:16px;
+  -webkit-text-size-adjust:100%;
+  -ms-text-size-adjust:100%;
+}
+body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:'Inter','Poppins',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:#F0FDF4;
+  color:#14532D;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+  line-height:1.5;
+  touch-action:manipulation;
+}
+button{
+  font-family:inherit;
+  cursor:pointer;
+  border:none;
+  outline:none;
+  background:none;
+}
+input{
+  font-family:inherit;
+  outline:none;
+  border:none;
+}
+canvas{
+  display:block;
+}
+::selection{
+  background:#22C55E;
+  color:#fff;
+}
+::-moz-selection{
+  background:#22C55E;
+  color:#fff;
 }
 
 /* ============================================================
-   SPLASH SCREEN
+   SECTION 02 — KEY GATE
+   ============================================================ */
+#keyGate{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:radial-gradient(ellipse at 50% 35%,#052E16 0%,#0A0E1A 55%,#05070D 100%);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:10001;
+  padding:24px;
+  transition:opacity 0.5s ease,visibility 0.5s ease;
+}
+#keyGate.hide{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.key-gate-box{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(34,197,94,0.2);
+  border-radius:20px;
+  padding:32px 24px;
+  width:100%;
+  max-width:360px;
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  animation:keyGateIn 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes keyGateIn{
+  from{opacity:0;transform:scale(0.9) translateY(20px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+.key-gate-title{
+  font-size:28px;
+  font-weight:900;
+  letter-spacing:2px;
+  background:linear-gradient(135deg,#22C55E,#4ADE80,#F97316);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:8px;
+  text-shadow:0 0 20px rgba(34,197,94,0.5);
+}
+.key-gate-sub{
+  font-size:12px;
+  color:#86EFAC;
+  letter-spacing:2px;
+  margin-bottom:26px;
+  text-transform:uppercase;
+  font-weight:600;
+}
+.key-gate-label{
+  display:block;
+  font-size:13px;
+  color:#86EFAC;
+  margin-bottom:10px;
+  text-align:left;
+  font-weight:500;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+.key-gate-input{
+  width:100%;
+  padding:14px 16px;
+  border-radius:12px;
+  border:1.5px solid rgba(34,197,94,0.3);
+  background:rgba(0,0,0,0.3);
+  color:#fff;
+  font-size:16px;
+  letter-spacing:3px;
+  text-align:center;
+  outline:none;
+  font-weight:700;
+  transition:border-color 0.2s ease,box-shadow 0.2s ease;
+  margin-bottom:16px;
+}
+.key-gate-input:focus{
+  border-color:#22C55E;
+  box-shadow:0 0 0 3px rgba(34,197,94,0.2);
+}
+.key-gate-input.error{
+  border-color:#EF4444;
+  animation:shake 0.3s ease;
+}
+.key-gate-input::placeholder{
+  color:rgba(134,239,172,0.4);
+  letter-spacing:1px;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-8px);}
+  75%{transform:translateX(8px);}
+}
+.key-gate-btn{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:linear-gradient(135deg,#16A34A,#22C55E);
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  box-shadow:0 4px 16px rgba(34,197,94,0.3);
+}
+.key-gate-btn:hover{
+  box-shadow:0 6px 22px rgba(34,197,94,0.4);
+  transform:translateY(-1px);
+}
+.key-gate-btn:active{
+  transform:scale(0.97);
+}
+.key-gate-error{
+  color:#EF4444;
+  font-size:12px;
+  margin-top:12px;
+  min-height:16px;
+  font-weight:600;
+}
+
+/* ============================================================
+   SECTION 03 — BETA NOTICE
+   ============================================================ */
+#betaNotice{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:10000;
+  padding:20px;
+  overflow-y:auto;
+}
+#betaNotice.show{display:flex;}
+.beta-notice-box{
+  background:#fff;
+  border-radius:20px;
+  padding:24px 22px;
+  max-width:440px;
+  width:100%;
+  text-align:left;
+  box-shadow:0 30px 80px rgba(0,0,0,0.4);
+  animation:noticeIn 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  max-height:90vh;
+  overflow-y:auto;
+}
+@keyframes noticeIn{
+  from{opacity:0;transform:scale(0.85);}
+  to{opacity:1;transform:scale(1);}
+}
+.beta-notice-box h2{
+  font-size:18px;
+  font-weight:900;
+  color:#14532D;
+  margin-bottom:14px;
+  letter-spacing:0.5px;
+  text-align:center;
+  padding-bottom:12px;
+  border-bottom:2px solid #DCFCE7;
+}
+.beta-notice-content{
+  font-size:12.5px;
+  color:#166534;
+  line-height:1.75;
+  margin-bottom:10px;
+}
+.beta-notice-content p{
+  margin-bottom:10px;
+  padding-left:16px;
+  position:relative;
+}
+.beta-notice-content p::before{
+  content:'▸';
+  position:absolute;
+  left:0;
+  color:#22C55E;
+  font-weight:900;
+  font-size:12px;
+}
+.beta-notice-content .highlight{
+  color:#EA580C;
+  font-weight:800;
+  background:#FEF3C7;
+  padding:1px 5px;
+  border-radius:4px;
+  font-size:11px;
+}
+.beta-notice-content .emoji{
+  font-size:14px;
+  letter-spacing:2px;
+}
+.beta-notice-btn{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:linear-gradient(135deg,#16A34A,#22C55E);
+  color:#fff;
+  font-size:15px;
+  font-weight:700;
+  letter-spacing:1px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+  box-shadow:0 4px 16px rgba(34,197,94,0.3);
+  margin-top:16px;
+  position:sticky;
+  bottom:0;
+}
+.beta-notice-btn:hover{
+  box-shadow:0 6px 22px rgba(34,197,94,0.4);
+  transform:translateY(-1px);
+}
+.beta-notice-btn:active{transform:scale(0.97);}
+
+/* ============================================================
+   SECTION 04 — SPLASH SCREEN
    ============================================================ */
 #splash{
   position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:radial-gradient(ellipse at 50% 35%,#0F1B3D 0%,#0A0E1A 55%,#05070D 100%);
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:radial-gradient(ellipse at 50% 35%,#052E16 0%,#0A0E1A 55%,#05070D 100%);
   display:flex;
   flex-direction:column;
   justify-content:center;
@@ -45,16 +323,14 @@ html,body{
   visibility:hidden;
   pointer-events:none;
 }
-
-/* Particle canvas */
 #particleCanvas{
   position:absolute;
-  top:0;left:0;
-  width:100%;height:100%;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
   pointer-events:none;
 }
-
-/* Logo T-Rex */
 .splash-logo{
   position:relative;
   z-index:2;
@@ -71,36 +347,42 @@ html,body{
 .splash-logo svg{
   width:100%;
   height:100%;
-  filter:drop-shadow(0 0 20px rgba(59,130,246,0.8)) drop-shadow(0 0 40px rgba(59,130,246,0.4));
+  filter:drop-shadow(0 0 20px rgba(34,197,94,0.8)) drop-shadow(0 0 40px rgba(34,197,94,0.4));
 }
-
-/* App name */
 .splash-title{
   position:relative;
   z-index:2;
-  font-size:54px;
+  font-size:48px;
   font-weight:900;
   letter-spacing:2px;
-  background:linear-gradient(135deg,#3B82F6 0%,#60A5FA 50%,#F97316 100%);
+  background:linear-gradient(135deg,#22C55E 0%,#4ADE80 50%,#F97316 100%);
   -webkit-background-clip:text;
   background-clip:text;
   -webkit-text-fill-color:transparent;
-  text-shadow:0 0 30px rgba(59,130,246,0.5);
+  text-shadow:0 0 30px rgba(34,197,94,0.5);
   opacity:0;
   transform:translateY(30px);
   animation:titleIn 0.8s cubic-bezier(0.34,1.56,0.64,1) 0.6s forwards;
 }
+.splash-title .beta-tag{
+  font-size:16px;
+  background:linear-gradient(135deg,#F97316,#FBBF24);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  vertical-align:super;
+  margin-left:6px;
+  letter-spacing:1px;
+}
 @keyframes titleIn{
   to{opacity:1;transform:translateY(0);}
 }
-
-/* Loading bar */
 .splash-bar-wrap{
   position:relative;
   z-index:2;
   width:220px;
   height:3px;
-  background:rgba(59,130,246,0.15);
+  background:rgba(34,197,94,0.15);
   border-radius:3px;
   margin-top:30px;
   overflow:hidden;
@@ -111,18 +393,16 @@ html,body{
   height:100%;
   width:0%;
   border-radius:3px;
-  background:linear-gradient(90deg,#3B82F6,#60A5FA,#F97316);
-  box-shadow:0 0 12px rgba(59,130,246,0.8);
+  background:linear-gradient(90deg,#22C55E,#4ADE80,#F97316);
+  box-shadow:0 0 12px rgba(34,197,94,0.8);
   transition:width 0.3s ease;
 }
 @keyframes fadeIn{to{opacity:1;}}
-
-/* Author signature */
 .splash-author{
   position:relative;
   z-index:2;
   font-size:14px;
-  color:#64748B;
+  color:#86EFAC;
   letter-spacing:3px;
   margin-top:26px;
   font-weight:400;
@@ -133,7 +413,7 @@ html,body{
   display:inline-block;
   width:2px;
   height:14px;
-  background:#3B82F6;
+  background:#22C55E;
   margin-left:2px;
   animation:blink 0.8s infinite;
   vertical-align:middle;
@@ -144,53 +424,66 @@ html,body{
 }
 
 /* ============================================================
-   MAIN APP
+   SECTION 05 — MAIN APP
    ============================================================ */
 #app{
   position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:#F8FAFC;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#F0FDF4;
   display:none;
   flex-direction:column;
   overflow:hidden;
 }
 #app.show{display:flex;}
 
-/* Header */
+/* ============================================================
+   SECTION 06 — HEADER
+   ============================================================ */
 .header{
   background:#FFFFFF;
   padding:14px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  box-shadow:0 4px 20px rgba(37,99,235,0.08);
+  box-shadow:0 4px 20px rgba(34,197,94,0.08);
   position:relative;
   z-index:10;
   flex-shrink:0;
   transition:box-shadow 0.3s ease;
 }
 .header.scrolled{
-  box-shadow:0 6px 24px rgba(37,99,235,0.12);
+  box-shadow:0 6px 24px rgba(34,197,94,0.12);
 }
 .header h1{
-  font-size:22px;
+  font-size:20px;
   font-weight:800;
-  color:#1E293B;
-  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  color:#14532D;
+  background:linear-gradient(135deg,#16A34A,#22C55E);
   -webkit-background-clip:text;
   background-clip:text;
   -webkit-text-fill-color:transparent;
   letter-spacing:0.5px;
 }
+.header h1 .beta{
+  font-size:11px;
+  background:linear-gradient(135deg,#F97316,#FBBF24);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  vertical-align:super;
+  margin-left:3px;
+}
 .header .ip-display{
   font-size:12px;
-  color:#2563EB;
+  color:#16A34A;
   font-weight:600;
-  background:#EFF6FF;
+  background:#DCFCE7;
   padding:6px 14px;
   border-radius:20px;
-  box-shadow:0 2px 8px rgba(37,99,235,0.1);
+  box-shadow:0 2px 8px rgba(34,197,94,0.1);
   display:none;
   transition:all 0.3s ease;
 }
@@ -198,23 +491,33 @@ html,body{
   display:block;
   animation:slideIn 0.4s ease;
 }
+@keyframes slideIn{
+  from{opacity:0;transform:translateX(-20px);}
+  to{opacity:1;transform:translateX(0);}
+}
 
-/* Main scroll area */
+/* ============================================================
+   SECTION 07 — MAIN CONTENT
+   ============================================================ */
 .main-content{
   flex:1;
   overflow-y:auto;
   padding:16px;
   -webkit-overflow-scrolling:touch;
   scroll-behavior:smooth;
+  scrollbar-width:thin;
+  scrollbar-color:#86EFAC transparent;
 }
 
-/* Card */
+/* ============================================================
+   SECTION 08 — CARD
+   ============================================================ */
 .card{
   background:#FFFFFF;
   border-radius:16px;
   padding:20px;
   margin-bottom:14px;
-  box-shadow:0 4px 20px rgba(37,99,235,0.08);
+  box-shadow:0 4px 20px rgba(34,197,94,0.08);
   transition:box-shadow 0.3s ease,transform 0.2s ease;
   animation:cardIn 0.5s ease backwards;
 }
@@ -223,17 +526,21 @@ html,body{
 .card:nth-child(3){animation-delay:0.15s;}
 .card:nth-child(4){animation-delay:0.2s;}
 .card:nth-child(5){animation-delay:0.25s;}
+.card:nth-child(6){animation-delay:0.3s;}
+.card:nth-child(7){animation-delay:0.35s;}
+.card:nth-child(8){animation-delay:0.4s;}
+.card:nth-child(9){animation-delay:0.45s;}
 @keyframes cardIn{
   from{opacity:0;transform:translateY(20px);}
   to{opacity:1;transform:translateY(0);}
 }
 .card:hover{
-  box-shadow:0 8px 30px rgba(37,99,235,0.14);
+  box-shadow:0 8px 30px rgba(34,197,94,0.14);
 }
 .card h3{
   font-size:15px;
   font-weight:700;
-  color:#1E293B;
+  color:#14532D;
   margin-bottom:14px;
   display:flex;
   align-items:center;
@@ -243,12 +550,18 @@ html,body{
   width:8px;
   height:8px;
   border-radius:50%;
-  background:#3B82F6;
-  box-shadow:0 0 8px rgba(59,130,246,0.6);
+  background:#22C55E;
+  box-shadow:0 0 8px rgba(34,197,94,0.6);
   flex-shrink:0;
 }
+.card h3 .dot.warn{
+  background:#F97316;
+  box-shadow:0 0 8px rgba(249,115,22,0.6);
+}
 
-/* Toggle switch */
+/* ============================================================
+   SECTION 09 — TOGGLE SWITCH
+   ============================================================ */
 .toggle-row{
   display:flex;
   justify-content:space-between;
@@ -257,7 +570,7 @@ html,body{
 }
 .toggle-row span{
   font-size:14px;
-  color:#475569;
+  color:#166534;
   font-weight:500;
 }
 .switch{
@@ -271,7 +584,10 @@ html,body{
   flex-shrink:0;
 }
 .switch.active{
-  background:#3B82F6;
+  background:#22C55E;
+}
+.switch.active.warn{
+  background:#F97316;
 }
 .switch::after{
   content:'';
@@ -289,17 +605,19 @@ html,body{
   transform:translateX(22px);
 }
 
-/* Range slider */
+/* ============================================================
+   SECTION 10 — RANGE SLIDER
+   ============================================================ */
 .range-wrap{padding:10px 0;}
 .range-wrap label{
   font-size:13px;
-  color:#64748B;
+  color:#15803D;
   display:block;
   margin-bottom:10px;
   font-weight:500;
 }
 .range-wrap label span{
-  color:#2563EB;
+  color:#16A34A;
   font-weight:700;
   font-size:15px;
 }
@@ -309,7 +627,7 @@ input[type="range"]{
   appearance:none;
   height:6px;
   border-radius:6px;
-  background:#E2E8F0;
+  background:#DCFCE7;
   outline:none;
   cursor:pointer;
 }
@@ -319,14 +637,14 @@ input[type="range"]::-webkit-slider-thumb{
   width:22px;
   height:22px;
   border-radius:50%;
-  background:#3B82F6;
+  background:#22C55E;
   cursor:pointer;
-  box-shadow:0 2px 10px rgba(37,99,235,0.4);
+  box-shadow:0 2px 10px rgba(34,197,94,0.4);
   transition:transform 0.15s ease,box-shadow 0.15s ease;
 }
 input[type="range"]::-webkit-slider-thumb:hover{
   transform:scale(1.1);
-  box-shadow:0 4px 14px rgba(37,99,235,0.5);
+  box-shadow:0 4px 14px rgba(34,197,94,0.5);
 }
 input[type="range"]::-webkit-slider-thumb:active{
   transform:scale(1.2);
@@ -335,17 +653,19 @@ input[type="range"]::-moz-range-thumb{
   width:22px;
   height:22px;
   border-radius:50%;
-  background:#3B82F6;
+  background:#22C55E;
   cursor:pointer;
   border:none;
-  box-shadow:0 2px 10px rgba(37,99,235,0.4);
+  box-shadow:0 2px 10px rgba(34,197,94,0.4);
 }
 
-/* Input fields */
+/* ============================================================
+   SECTION 11 — INPUT FIELDS
+   ============================================================ */
 .input-group{margin-bottom:12px;}
 .input-group label{
   font-size:12px;
-  color:#64748B;
+  color:#15803D;
   display:block;
   margin-bottom:6px;
   font-weight:500;
@@ -354,24 +674,25 @@ input[type="range"]::-moz-range-thumb{
   width:100%;
   padding:12px 14px;
   border-radius:12px;
-  border:1.5px solid #E2E8F0;
-  background:#F8FAFC;
+  border:1.5px solid #DCFCE7;
+  background:#F0FDF4;
   font-size:14px;
-  color:#1E293B;
+  color:#14532D;
   outline:none;
   transition:border-color 0.2s ease,box-shadow 0.2s ease,background 0.2s ease;
-  font-family:inherit;
 }
 .input-group input:focus{
-  border-color:#3B82F6;
+  border-color:#22C55E;
   background:#FFFFFF;
-  box-shadow:0 0 0 3px rgba(59,130,246,0.12);
+  box-shadow:0 0 0 3px rgba(34,197,94,0.12);
 }
 .input-group input::placeholder{
-  color:#94A3B8;
+  color:#86EFAC;
 }
 
-/* Buttons */
+/* ============================================================
+   SECTION 12 — BUTTONS
+   ============================================================ */
 .btn{
   width:100%;
   padding:14px;
@@ -382,20 +703,19 @@ input[type="range"]::-moz-range-thumb{
   cursor:pointer;
   transition:all 0.2s ease;
   letter-spacing:0.5px;
-  font-family:inherit;
 }
 .btn-primary{
-  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  background:linear-gradient(135deg,#16A34A,#22C55E);
   color:#fff;
-  box-shadow:0 4px 16px rgba(37,99,235,0.3);
+  box-shadow:0 4px 16px rgba(34,197,94,0.3);
 }
 .btn-primary:hover{
-  box-shadow:0 6px 22px rgba(37,99,235,0.4);
+  box-shadow:0 6px 22px rgba(34,197,94,0.4);
   transform:translateY(-1px);
 }
 .btn-primary:active{
   transform:scale(0.97);
-  box-shadow:0 2px 8px rgba(37,99,235,0.3);
+  box-shadow:0 2px 8px rgba(34,197,94,0.3);
 }
 .btn-danger{
   background:linear-gradient(135deg,#DC2626,#EF4444);
@@ -411,17 +731,29 @@ input[type="range"]::-moz-range-thumb{
   box-shadow:0 2px 8px rgba(220,38,38,0.3);
 }
 .btn-outline{
-  background:#EFF6FF;
-  color:#2563EB;
-  border:1.5px solid #BFDBFE;
+  background:#DCFCE7;
+  color:#16A34A;
+  border:1.5px solid #BBF7D0;
 }
 .btn-outline:hover{
-  background:#DBEAFE;
-  border-color:#93C5FD;
+  background:#BBF7D0;
+  border-color:#86EFAC;
 }
 .btn-outline:active{
-  background:#BFDBFE;
+  background:#86EFAC;
   transform:scale(0.98);
+}
+.btn-warn{
+  background:linear-gradient(135deg,#EA580C,#F97316);
+  color:#fff;
+  box-shadow:0 4px 16px rgba(249,115,22,0.3);
+}
+.btn-warn:hover{
+  box-shadow:0 6px 22px rgba(249,115,22,0.4);
+  transform:translateY(-1px);
+}
+.btn-warn:active{
+  transform:scale(0.97);
 }
 .btn:disabled{
   opacity:0.6;
@@ -429,35 +761,33 @@ input[type="range"]::-moz-range-thumb{
   transform:none;
 }
 
-/* Device scan result */
+/* ============================================================
+   SECTION 13 — SCAN RESULT
+   ============================================================ */
 .scan-result{
-  background:#EFF6FF;
+  background:#DCFCE7;
   border-radius:12px;
   padding:14px 16px;
   margin-top:12px;
   display:none;
   align-items:center;
   gap:12px;
-  border-left:3px solid #3B82F6;
+  border-left:3px solid #22C55E;
   animation:slideIn 0.4s ease;
 }
 .scan-result.show{display:flex;}
-@keyframes slideIn{
-  from{opacity:0;transform:translateX(-20px);}
-  to{opacity:1;transform:translateX(0);}
-}
 .scan-result .dev-icon{
   width:42px;
   height:42px;
   border-radius:50%;
-  background:linear-gradient(135deg,#3B82F6,#60A5FA);
+  background:linear-gradient(135deg,#22C55E,#4ADE80);
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:11px;
   color:#fff;
   font-weight:700;
-  box-shadow:0 4px 12px rgba(59,130,246,0.3);
+  box-shadow:0 4px 12px rgba(34,197,94,0.3);
   flex-shrink:0;
   letter-spacing:0.5px;
 }
@@ -465,7 +795,7 @@ input[type="range"]::-moz-range-thumb{
 .scan-result .dev-name{
   font-size:14px;
   font-weight:700;
-  color:#1E293B;
+  color:#14532D;
 }
 .scan-result .dev-status{
   font-size:11px;
@@ -474,18 +804,20 @@ input[type="range"]::-moz-range-thumb{
   margin-top:2px;
 }
 
-/* Attack log */
+/* ============================================================
+   SECTION 14 — ATTACK LOG
+   ============================================================ */
 .attack-log{
   max-height:160px;
   overflow-y:auto;
-  background:#0F172A;
+  background:#052E16;
   border-radius:12px;
   padding:12px 14px;
   margin-top:12px;
   font-family:'Courier New',Consolas,monospace;
   font-size:11px;
   line-height:1.6;
-  color:#22C55E;
+  color:#4ADE80;
   display:none;
   box-shadow:inset 0 2px 8px rgba(0,0,0,0.3);
 }
@@ -497,9 +829,11 @@ input[type="range"]::-moz-range-thumb{
 }
 .attack-log .line.err{color:#EF4444;}
 .attack-log .line.warn{color:#F59E0B;}
-.attack-log .line.info{color:#60A5FA;}
+.attack-log .line.info{color:#86EFAC;}
 
-/* Device list */
+/* ============================================================
+   SECTION 15 — DEVICE LIST
+   ============================================================ */
 .device-list{
   display:none;
   flex-direction:column;
@@ -511,22 +845,22 @@ input[type="range"]::-moz-range-thumb{
   display:flex;
   align-items:center;
   gap:12px;
-  background:#F8FAFC;
+  background:#F0FDF4;
   border-radius:12px;
   padding:12px 14px;
-  border:1.5px solid #E2E8F0;
+  border:1.5px solid #DCFCE7;
   animation:slideIn 0.4s ease;
   transition:border-color 0.2s ease,box-shadow 0.2s ease;
 }
 .device-item:hover{
-  border-color:#BFDBFE;
-  box-shadow:0 2px 10px rgba(37,99,235,0.08);
+  border-color:#BBF7D0;
+  box-shadow:0 2px 10px rgba(34,197,94,0.08);
 }
 .device-item .icon{
   width:38px;
   height:38px;
   border-radius:10px;
-  background:linear-gradient(135deg,#2563EB,#3B82F6);
+  background:linear-gradient(135deg,#16A34A,#22C55E);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -540,15 +874,17 @@ input[type="range"]::-moz-range-thumb{
 .device-item .name{
   font-size:13px;
   font-weight:600;
-  color:#1E293B;
+  color:#14532D;
 }
 .device-item .sub{
   font-size:11px;
-  color:#94A3B8;
+  color:#86EFAC;
   margin-top:1px;
 }
 
-/* Stats counter */
+/* ============================================================
+   SECTION 16 — STATS
+   ============================================================ */
 .stats-row{
   display:grid;
   grid-template-columns:1fr 1fr 1fr;
@@ -556,50 +892,164 @@ input[type="range"]::-moz-range-thumb{
   margin-top:14px;
 }
 .stat-box{
-  background:#EFF6FF;
+  background:#DCFCE7;
   border-radius:12px;
   padding:12px 8px;
   text-align:center;
-  box-shadow:0 2px 10px rgba(37,99,235,0.06);
+  box-shadow:0 2px 10px rgba(34,197,94,0.06);
   transition:transform 0.2s ease;
 }
 .stat-box:hover{
   transform:translateY(-2px);
 }
+.stat-box.warn{
+  background:#FEF3C7;
+}
 .stat-box .num{
   font-size:20px;
   font-weight:800;
-  color:#2563EB;
+  color:#16A34A;
   transition:color 0.2s ease;
+}
+.stat-box.warn .num{
+  color:#EA580C;
 }
 .stat-box .lbl{
   font-size:10px;
-  color:#64748B;
+  color:#15803D;
   margin-top:2px;
   font-weight:600;
   letter-spacing:0.5px;
 }
+.stat-box.warn .lbl{
+  color:#92400E;
+}
 
-/* Footer */
+/* ============================================================
+   SECTION 17 — LAG METER
+   ============================================================ */
+.lag-meter{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:10px;
+  padding:12px;
+  background:#DCFCE7;
+  border-radius:12px;
+}
+.lag-meter.warn{
+  background:#FEF3C7;
+}
+.lag-meter .bar-bg{
+  flex:1;
+  height:8px;
+  background:#BBF7D0;
+  border-radius:8px;
+  overflow:hidden;
+  position:relative;
+}
+.lag-meter.warn .bar-bg{
+  background:#FDE68A;
+}
+.lag-meter .bar-fill{
+  height:100%;
+  width:0%;
+  border-radius:8px;
+  background:linear-gradient(90deg,#22C55E,#F97316,#DC2626);
+  transition:width 0.3s ease;
+}
+.lag-meter .bar-label{
+  font-size:12px;
+  font-weight:700;
+  color:#14532D;
+  min-width:44px;
+  text-align:right;
+}
+
+/* ============================================================
+   SECTION 18 — WAVE VISUAL
+   ============================================================ */
+.wave-visual{
+  position:relative;
+  height:80px;
+  background:#052E16;
+  border-radius:12px;
+  margin-top:12px;
+  overflow:hidden;
+  display:none;
+}
+.wave-visual.show{display:block;}
+.wave-visual canvas{
+  width:100%;
+  height:100%;
+  display:block;
+}
+.wave-visual .wave-label{
+  position:absolute;
+  top:8px;
+  left:12px;
+  font-size:10px;
+  color:#4ADE80;
+  font-weight:600;
+  letter-spacing:1px;
+  z-index:2;
+  text-shadow:0 0 8px rgba(74,222,128,0.5);
+}
+.wave-visual .wave-freq{
+  position:absolute;
+  top:8px;
+  right:12px;
+  font-size:10px;
+  color:#4ADE80;
+  font-weight:600;
+  letter-spacing:1px;
+  z-index:2;
+  text-shadow:0 0 8px rgba(74,222,128,0.5);
+}
+
+/* ============================================================
+   SECTION 19 — WARN BOX
+   ============================================================ */
+.warn-box{
+  background:#FEF3C7;
+  border-left:3px solid #F97316;
+  border-radius:10px;
+  padding:12px 14px;
+  margin-top:10px;
+  font-size:11px;
+  color:#92400E;
+  line-height:1.6;
+  font-weight:500;
+}
+.warn-box strong{
+  color:#EA580C;
+  font-weight:800;
+}
+
+/* ============================================================
+   SECTION 20 — FOOTER
+   ============================================================ */
 .footer{
   text-align:center;
   padding:20px 16px 24px;
   font-size:11px;
-  color:#94A3B8;
+  color:#86EFAC;
   font-weight:500;
 }
 .footer span{
-  color:#3B82F6;
+  color:#22C55E;
   font-weight:700;
 }
 
-/* Toast notification */
+/* ============================================================
+   SECTION 21 — TOAST
+   ============================================================ */
 .toast{
   position:fixed;
   bottom:30px;
   left:50%;
   transform:translateX(-50%) translateY(100px);
-  background:#1E293B;
+  background:#14532D;
   color:#fff;
   padding:12px 24px;
   border-radius:12px;
@@ -618,24 +1068,142 @@ input[type="range"]::-moz-range-thumb{
   opacity:1;
 }
 
-/* Scrollbar */
+/* ============================================================
+   SECTION 22 — EMERGENCY STOP
+   ============================================================ */
+.emergency-stop{
+  position:fixed;
+  bottom:80px;
+  right:16px;
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#DC2626,#EF4444);
+  color:#fff;
+  font-size:10px;
+  font-weight:800;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 6px 24px rgba(220,38,38,0.5);
+  z-index:9998;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1.2;
+  padding:6px;
+  animation:pulseStop 1.5s infinite;
+  letter-spacing:0.5px;
+}
+.emergency-stop.show{display:flex;}
+@keyframes pulseStop{
+  0%,100%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+}
+.emergency-stop:active{transform:scale(0.9);}
+
+/* ============================================================
+   SECTION 23 — SELF-DESTRUCT SCREEN
+   ============================================================ */
+#selfDestruct{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:radial-gradient(ellipse at 50% 50%,#1a0000 0%,#0a0000 60%,#000 100%);
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:99999;
+  padding:24px;
+  text-align:center;
+  animation:selfDestructIn 0.5s ease;
+}
+#selfDestruct.show{display:flex;}
+@keyframes selfDestructIn{
+  from{opacity:0;transform:scale(1.1);}
+  to{opacity:1;transform:scale(1);}
+}
+.self-destruct-emoji{
+  font-size:80px;
+  margin-bottom:20px;
+  animation:emojiShake 0.4s infinite;
+  filter:drop-shadow(0 0 30px rgba(220,38,38,0.8));
+}
+@keyframes emojiShake{
+  0%,100%{transform:rotate(-10deg) scale(1);}
+  50%{transform:rotate(10deg) scale(1.15);}
+}
+.self-destruct-title{
+  font-size:32px;
+  font-weight:900;
+  color:#EF4444;
+  letter-spacing:3px;
+  margin-bottom:20px;
+  text-shadow:0 0 30px rgba(220,38,38,0.8),0 0 60px rgba(220,38,38,0.4);
+  animation:titlePulse 1s infinite;
+}
+@keyframes titlePulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.7;transform:scale(1.05);}
+}
+.self-destruct-msg{
+  font-size:18px;
+  color:#FCA5A5;
+  line-height:1.8;
+  max-width:400px;
+  font-weight:600;
+  text-shadow:0 0 20px rgba(220,38,38,0.5);
+}
+.self-destruct-msg .highlight{
+  color:#EF4444;
+  font-weight:900;
+  font-size:24px;
+  display:block;
+  margin-top:12px;
+  letter-spacing:2px;
+}
+.self-destruct-progress{
+  width:280px;
+  height:6px;
+  background:rgba(220,38,38,0.2);
+  border-radius:6px;
+  margin-top:30px;
+  overflow:hidden;
+}
+.self-destruct-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#DC2626,#EF4444,#F97316);
+  box-shadow:0 0 20px rgba(220,38,38,0.8);
+  transition:width 0.1s linear;
+}
+
+/* ============================================================
+   SECTION 24 — SCROLLBAR
+   ============================================================ */
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{
-  background:#CBD5E1;
+  background:#86EFAC;
   border-radius:4px;
 }
 ::-webkit-scrollbar-thumb:hover{
-  background:#94A3B8;
+  background:#4ADE80;
 }
 
-/* Responsive */
+/* ============================================================
+   SECTION 25 — RESPONSIVE
+   ============================================================ */
 @media (max-width:400px){
-  .splash-title{font-size:42px;}
+  .splash-title{font-size:38px;}
   .splash-logo{width:90px;height:90px;}
-  .header h1{font-size:19px;}
+  .header h1{font-size:17px;}
   .card{padding:16px;}
   .stat-box .num{font-size:17px;}
+  .key-gate-title{font-size:24px;}
 }
 @media (min-height:800px){
   .main-content{padding:20px;}
@@ -645,27 +1213,54 @@ input[type="range"]::-moz-range-thumb{
 <body>
 
 <!-- ============================================================
-     SPLASH SCREEN
+     HTML SECTION 01 — KEY GATE
      ============================================================ -->
-<div id="splash">
+<div id="keyGate">
+  <div class="key-gate-box">
+    <div class="key-gate-title">T-Rex v4 Beta</div>
+    <div class="key-gate-sub">NHẬP KEY ĐỂ TRUY CẬP</div>
+    <label class="key-gate-label">KEY:</label>
+    <input type="text" class="key-gate-input" id="keyInput" placeholder="Nhập key..." autocomplete="off" spellcheck="false">
+    <button class="key-gate-btn" id="keyBtn">XÁC NHẬN</button>
+    <div class="key-gate-error" id="keyError"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HTML SECTION 02 — BETA NOTICE
+     ============================================================ -->
+<div id="betaNotice">
+  <div class="beta-notice-box">
+    <h2>THÔNG BÁO</h2>
+    <div class="beta-notice-content">
+      <p>Lưu ý: Phiên Bản hiện tại của bạn là <span class="highlight">v4 Beta</span> — một phiên bản thử nghiệm của v4 chính thức. V4 Beta có các chức năng sẽ ra mắt vào phiên bản chính thức.</p>
+      <p>Có thể vài chức năng sẽ <span class="highlight">Bay Màu!</span> Hoặc được nâng cấp.</p>
+      <p>Phiên Bản v4 Beta là phiên bản <span class="highlight">Mạnh nhất</span> của v4. Nơi mọi thứ được nâng cấp và hiệu năng tối đa.</p>
+      <p>V4 chính thức sẽ tối ưu và cải thiện hiệu năng.</p>
+      <p>V4 Beta có khả năng bị <span class="highlight">crash máy</span> hoặc <span class="highlight">Treo app</span> do hiệu năng của app bị nâng lên mức tối đa.</p>
+      <p>Vui lòng chỉnh phù hợp<span class="emoji"> 😈😈😈😈</span></p>
+    </div>
+    <button class="beta-notice-btn" id="betaBtn">ĐÃ HIỂU</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     HTML SECTION 03 — SPLASH SCREEN
+     ============================================================ -->
+<div id="splash" style="display:none;">
   <canvas id="particleCanvas"></canvas>
   <div class="splash-logo">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- T-Rex outline -->
       <path d="M18 78 L18 56 Q18 46 26 43 L34 41 L34 30 Q34 22 42 20 L52 18 Q60 20 62 28 L64 38 L72 40 Q80 42 82 50 L84 60 L90 62 L90 70 L82 70 L82 80 L74 80 L74 70 L42 70 L42 80 L34 80 L34 70 L18 70 Z"
-        fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-      <!-- Eye -->
-      <circle cx="47" cy="28" r="2.5" fill="#3B82F6"/>
-      <!-- Teeth -->
+        fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      <circle cx="47" cy="28" r="2.5" fill="#22C55E"/>
       <line x1="54" y1="38" x2="54" y2="34" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
       <line x1="58" y1="38" x2="58" y2="35" stroke="#F97316" stroke-width="1.5" stroke-linecap="round"/>
-      <!-- Arm -->
-      <path d="M40 54 L30 50 L28 54" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
-      <!-- Tail -->
-      <path d="M18 62 L8 58 L12 64" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"/>
+      <path d="M40 54 L30 50 L28 54" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18 62 L8 58 L12 64" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round"/>
     </svg>
   </div>
-  <div class="splash-title">T-Rex v3</div>
+  <div class="splash-title">T-Rex v4<span class="beta-tag">Beta</span></div>
   <div class="splash-bar-wrap">
     <div class="splash-bar" id="splashBar"></div>
   </div>
@@ -673,17 +1268,17 @@ input[type="range"]::-moz-range-thumb{
 </div>
 
 <!-- ============================================================
-     MAIN APP
+     HTML SECTION 04 — MAIN APP
      ============================================================ -->
 <div id="app">
   <div class="header" id="header">
-    <h1>T-Rex v3</h1>
+    <h1>T-Rex v4<span class="beta">Beta</span></h1>
     <div class="ip-display" id="ipDisplay">0.0.0.0</div>
   </div>
 
   <div class="main-content" id="mainContent">
 
-    <!-- System toggle -->
+    <!-- CARD 01 — SYSTEM -->
     <div class="card">
       <h3><span class="dot"></span>Hệ thống</h3>
       <div class="toggle-row">
@@ -706,7 +1301,7 @@ input[type="range"]::-moz-range-thumb{
       </div>
     </div>
 
-    <!-- Scan devices -->
+    <!-- CARD 02 — SCAN DEVICES -->
     <div class="card">
       <h3><span class="dot"></span>Quét thiết bị bay</h3>
       <div class="range-wrap">
@@ -723,7 +1318,7 @@ input[type="range"]::-moz-range-thumb{
       </div>
     </div>
 
-    <!-- Attack panel -->
+    <!-- CARD 03 — ATTACK -->
     <div class="card">
       <h3><span class="dot"></span>Tấn công Fly</h3>
       <div class="input-group">
@@ -738,7 +1333,79 @@ input[type="range"]::-moz-range-thumb{
       <div class="attack-log" id="attackLog"></div>
     </div>
 
-    <!-- WiFi connect -->
+    <!-- CARD 04 — LAG FLYCAM -->
+    <div class="card">
+      <h3><span class="dot"></span>Hiệu năng</h3>
+      <div class="toggle-row">
+        <span>Lag Flycam</span>
+        <div class="switch" id="lagSwitch"></div>
+      </div>
+      <div class="range-wrap">
+        <label>Cường độ: <span id="lagIntensityVal">70%</span></label>
+        <input type="range" id="lagIntensity" min="10" max="100" value="70">
+      </div>
+      <div class="lag-meter">
+        <span class="bar-label" id="lagLabel">0%</span>
+        <div class="bar-bg">
+          <div class="bar-fill" id="lagBarFill"></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="num" id="statCPU">0%</div>
+          <div class="lbl">CPU</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statPing">0</div>
+          <div class="lbl">PING</div>
+        </div>
+        <div class="stat-box">
+          <div class="num" id="statTemp">0°</div>
+          <div class="lbl">TEMP</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 05 — NHIỄU SÓNG -->
+    <div class="card">
+      <h3><span class="dot warn"></span>Nhiễu Sóng</h3>
+      <div class="toggle-row">
+        <span>Phát sóng âm cực cao</span>
+        <div class="switch warn" id="waveSwitch"></div>
+      </div>
+      <div class="range-wrap">
+        <label>Tần số: <span id="waveFreqVal">18000 Hz</span></label>
+        <input type="range" id="waveFreq" min="15000" max="22000" value="18000" step="100">
+      </div>
+      <div class="range-wrap">
+        <label>Cường độ: <span id="waveAmpVal">70%</span></label>
+        <input type="range" id="waveAmp" min="10" max="100" value="70">
+      </div>
+      <div class="wave-visual" id="waveVisual">
+        <div class="wave-label">SIGNAL ACTIVE</div>
+        <div class="wave-freq" id="waveFreqDisplay">18.0 kHz</div>
+        <canvas id="waveCanvas"></canvas>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box warn">
+          <div class="num" id="waveFreqNum">18.0k</div>
+          <div class="lbl">Hz</div>
+        </div>
+        <div class="stat-box warn">
+          <div class="num" id="waveAmpNum">70%</div>
+          <div class="lbl">AMP</div>
+        </div>
+        <div class="stat-box warn">
+          <div class="num" id="waveTimeNum">0s</div>
+          <div class="lbl">TIME</div>
+        </div>
+      </div>
+      <div class="warn-box">
+        <strong>LƯU Ý:</strong> Chức năng này phát sóng âm tần số cực cao (15-22 kHz) qua loa thiết bị. Có thể gây đau tai, ảnh hưởng thính giác, và làm nhiễu micro của thiết bị xung quanh. Không dùng liên tục quá 60 giây.
+      </div>
+    </div>
+
+    <!-- CARD 06 — WIFI -->
     <div class="card">
       <h3><span class="dot"></span>Kết nối WiFi</h3>
       <div class="input-group">
@@ -752,115 +1419,201 @@ input[type="range"]::-moz-range-thumb{
       <button class="btn btn-primary" id="btnConnect">KẾT NỐI</button>
     </div>
 
-    <!-- Search devices -->
+    <!-- CARD 07 — SEARCH DEVICES -->
     <div class="card">
       <h3><span class="dot"></span>Tìm kiếm thiết bị</h3>
       <button class="btn btn-outline" id="btnSearch">QUÉT LIÊN TỤC</button>
       <div class="device-list" id="deviceList"></div>
     </div>
 
-    <div class="footer">T-Rex v3 — <span>By YuongL</span></div>
+    <!-- CARD 08 — SELF-DESTRUCT -->
+    <div class="card">
+      <h3><span class="dot warn"></span>Tự Hủy</h3>
+      <div class="toggle-row">
+        <span>Kích hoạt tự hủy</span>
+        <div class="switch warn" id="selfDestructSwitch"></div>
+      </div>
+      <div class="warn-box">
+        <strong>CẢNH BÁO:</strong> Khi bật, hệ thống sẽ tự đóng và đá bạn khỏi web. Không thể hoàn tác.
+      </div>
+    </div>
+
+    <div class="footer">T-Rex v4 Beta — <span>By YuongL</span></div>
   </div>
 </div>
 
-<!-- Toast -->
+<!-- ============================================================
+     HTML SECTION 05 — EMERGENCY STOP
+     ============================================================ -->
+<button class="emergency-stop" id="emergencyStop">DỪNG<br>KHẨN</button>
+
+<!-- ============================================================
+     HTML SECTION 06 — SELF-DESTRUCT SCREEN
+     ============================================================ -->
+<div id="selfDestruct">
+  <div class="self-destruct-emoji">😈</div>
+  <div class="self-destruct-title">TỰ HỦY</div>
+  <div class="self-destruct-msg">
+    Tự Hủy thì đợi v5 đi nhóc
+    <span class="highlight">😈😈😈</span>
+  </div>
+  <div class="self-destruct-progress">
+    <div class="self-destruct-bar" id="selfDestructBar"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     HTML SECTION 07 — TOAST
+     ============================================================ -->
 <div class="toast" id="toast"></div>
 
 <script>
 // ============================================================
-// PHONE SYSTEM — CORE
+// T-REX V4 BETA — MAIN SYSTEM
+// Author: YuongL
+// Version: v4 Beta (MAX Edition)
 // ============================================================
 (function(){
   'use strict';
 
   // ============================================================
-  // PARTICLE BACKGROUND
+  // JS SECTION 01 — KEY GATE
   // ============================================================
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  let w, h;
-  let animationId = null;
-
-  function resizeCanvas(){
-    w = canvas.width = window.innerWidth;
-    h = canvas.height = window.innerHeight;
-  }
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-
-  for(let i = 0; i < 45; i++){
-    particles.push({
-      x: Math.random() * w,
-      y: Math.random() * h,
-      r: Math.random() * 2 + 0.5,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      a: Math.random() * 0.5 + 0.2
-    });
-  }
-
-  function drawParticles(){
-    ctx.clearRect(0, 0, w, h);
-    for(let i = 0; i < particles.length; i++){
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      if(p.x < 0) p.x = w;
-      if(p.x > w) p.x = 0;
-      if(p.y < 0) p.y = h;
-      if(p.y > h) p.y = 0;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(59,130,246,' + p.a + ')';
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = 'rgba(59,130,246,0.5)';
-      ctx.fill();
-    }
-    animationId = requestAnimationFrame(drawParticles);
-  }
-  drawParticles();
-
-  // ============================================================
-  // SPLASH SCREEN LOGIC
-  // ============================================================
-  const splashBar = document.getElementById('splashBar');
-  const splashAuthor = document.getElementById('splashAuthor');
+  const keyGate = document.getElementById('keyGate');
+  const keyInput = document.getElementById('keyInput');
+  const keyBtn = document.getElementById('keyBtn');
+  const keyError = document.getElementById('keyError');
+  const betaNotice = document.getElementById('betaNotice');
+  const betaBtn = document.getElementById('betaBtn');
   const splash = document.getElementById('splash');
   const app = document.getElementById('app');
-  const authorText = 'By YuongL';
-  let authorIdx = 0;
-  let progress = 0;
+  const CORRECT_KEY = 'LONG';
 
-  function typeWriter(){
-    if(authorIdx < authorText.length){
-      splashAuthor.innerHTML = authorText.substring(0, authorIdx + 1) + '<span class="cursor"></span>';
-      authorIdx++;
-      setTimeout(typeWriter, 80);
+  function checkKey(){
+    const val = keyInput.value.trim();
+    if(val === CORRECT_KEY){
+      keyError.textContent = '';
+      keyGate.classList.add('hide');
+      setTimeout(function(){
+        betaNotice.classList.add('show');
+      }, 400);
     } else {
-      splashAuthor.innerHTML = authorText + '<span class="cursor"></span>';
+      keyError.textContent = 'KEY không đúng!';
+      keyInput.classList.add('error');
+      setTimeout(function(){
+        keyInput.classList.remove('error');
+      }, 400);
+      keyInput.value = '';
+      keyInput.focus();
     }
   }
-  setTimeout(typeWriter, 1200);
 
-  const progressInterval = setInterval(function(){
-    progress += Math.random() * 12 + 3;
-    if(progress >= 100){
-      progress = 100;
-      clearInterval(progressInterval);
-      setTimeout(function(){
-        splash.classList.add('hide');
-        if(animationId) cancelAnimationFrame(animationId);
-        setTimeout(function(){
-          app.classList.add('show');
-        }, 400);
-      }, 300);
-    }
-    splashBar.style.width = progress + '%';
-  }, 180);
+  keyBtn.addEventListener('click', checkKey);
+  keyInput.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') checkKey();
+  });
+  keyInput.addEventListener('input', function(){
+    keyError.textContent = '';
+  });
+
+  betaBtn.addEventListener('click', function(){
+    betaNotice.classList.remove('show');
+    splash.style.display = 'flex';
+    startSplash();
+  });
 
   // ============================================================
-  // MAIN APP LOGIC
+  // JS SECTION 02 — PARTICLE BACKGROUND
+  // ============================================================
+  let animationId = null;
+  function startParticles(){
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let w, h;
+
+    function resizeCanvas(){
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    for(let i = 0; i < 60; i++){
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 2 + 0.5,
+        vx: (Math.random() - 0.5) * 0.6,
+        vy: (Math.random() - 0.5) * 0.6,
+        a: Math.random() * 0.5 + 0.2
+      });
+    }
+
+    function drawParticles(){
+      ctx.clearRect(0, 0, w, h);
+      for(let i = 0; i < particles.length; i++){
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.x < 0) p.x = w;
+        if(p.x > w) p.x = 0;
+        if(p.y < 0) p.y = h;
+        if(p.y > h) p.y = 0;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(34,197,94,' + p.a + ')';
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = 'rgba(34,197,94,0.5)';
+        ctx.fill();
+      }
+      animationId = requestAnimationFrame(drawParticles);
+    }
+    drawParticles();
+  }
+
+  // ============================================================
+  // JS SECTION 03 — SPLASH SCREEN
+  // ============================================================
+  function startSplash(){
+    startParticles();
+
+    const splashBar = document.getElementById('splashBar');
+    const splashAuthor = document.getElementById('splashAuthor');
+    const authorText = 'By YuongL';
+    let authorIdx = 0;
+    let progress = 0;
+
+    function typeWriter(){
+      if(authorIdx < authorText.length){
+        splashAuthor.innerHTML = authorText.substring(0, authorIdx + 1) + '<span class="cursor"></span>';
+        authorIdx++;
+        setTimeout(typeWriter, 80);
+      } else {
+        splashAuthor.innerHTML = authorText + '<span class="cursor"></span>';
+      }
+    }
+    setTimeout(typeWriter, 1200);
+
+    const progressInterval = setInterval(function(){
+      progress += Math.random() * 12 + 3;
+      if(progress >= 100){
+        progress = 100;
+        clearInterval(progressInterval);
+        setTimeout(function(){
+          splash.classList.add('hide');
+          if(animationId) cancelAnimationFrame(animationId);
+          setTimeout(function(){
+            app.classList.add('show');
+          }, 400);
+        }, 300);
+      }
+      splashBar.style.width = progress + '%';
+    }, 180);
+  }
+
+  // ============================================================
+  // JS SECTION 04 — DOM REFERENCES
   // ============================================================
   const mainSwitch = document.getElementById('mainSwitch');
   const rangeScan = document.getElementById('rangeScan');
@@ -882,7 +1635,33 @@ input[type="range"]::-moz-range-thumb{
   const toast = document.getElementById('toast');
   const header = document.getElementById('header');
   const mainContent = document.getElementById('mainContent');
+  const lagSwitch = document.getElementById('lagSwitch');
+  const lagIntensity = document.getElementById('lagIntensity');
+  const lagIntensityVal = document.getElementById('lagIntensityVal');
+  const lagBarFill = document.getElementById('lagBarFill');
+  const lagLabel = document.getElementById('lagLabel');
+  const statCPU = document.getElementById('statCPU');
+  const statPing = document.getElementById('statPing');
+  const statTemp = document.getElementById('statTemp');
+  const emergencyStop = document.getElementById('emergencyStop');
+  const waveSwitch = document.getElementById('waveSwitch');
+  const waveFreq = document.getElementById('waveFreq');
+  const waveFreqVal = document.getElementById('waveFreqVal');
+  const waveAmp = document.getElementById('waveAmp');
+  const waveAmpVal = document.getElementById('waveAmpVal');
+  const waveVisual = document.getElementById('waveVisual');
+  const waveCanvas = document.getElementById('waveCanvas');
+  const waveFreqDisplay = document.getElementById('waveFreqDisplay');
+  const waveFreqNum = document.getElementById('waveFreqNum');
+  const waveAmpNum = document.getElementById('waveAmpNum');
+  const waveTimeNum = document.getElementById('waveTimeNum');
+  const selfDestructSwitch = document.getElementById('selfDestructSwitch');
+  const selfDestruct = document.getElementById('selfDestruct');
+  const selfDestructBar = document.getElementById('selfDestructBar');
 
+  // ============================================================
+  // JS SECTION 05 — STATE
+  // ============================================================
   let systemOn = false;
   let attackInterval = null;
   let attackStartTime = 0;
@@ -890,9 +1669,28 @@ input[type="range"]::-moz-range-thumb{
   let searchInterval = null;
   let isSearching = false;
   let toastTimeout = null;
+  let lagOn = false;
+  let lagWorkers = [];
+  let lagRAF = null;
+  let lagMemory = [];
+  let lagStartTime = 0;
+  let lagIntensityValue = 70;
+  let lagMonitorInterval = null;
+  let lagCpuBurnRunning = false;
+  let lagMemLeakRunning = false;
+  let waveOn = false;
+  let audioCtx = null;
+  let oscillator = null;
+  let gainNode = null;
+  let waveCanvasCtx = null;
+  let waveCanvasRAF = null;
+  let waveStartTime = 0;
+  let waveTimerInterval = null;
+  let waveFreqValue = 18000;
+  let waveAmpValue = 70;
 
   // ============================================================
-  // TOAST NOTIFICATION
+  // JS SECTION 06 — TOAST
   // ============================================================
   function showToast(msg){
     toast.textContent = msg;
@@ -904,7 +1702,7 @@ input[type="range"]::-moz-range-thumb{
   }
 
   // ============================================================
-  // HEADER SHADOW ON SCROLL
+  // JS SECTION 07 — HEADER SCROLL
   // ============================================================
   mainContent.addEventListener('scroll', function(){
     if(mainContent.scrollTop > 10){
@@ -915,30 +1713,34 @@ input[type="range"]::-moz-range-thumb{
   });
 
   // ============================================================
-  // TOGGLE MAIN SWITCH
+  // JS SECTION 08 — MAIN SWITCH
   // ============================================================
   mainSwitch.addEventListener('click', function(){
     systemOn = !systemOn;
     mainSwitch.classList.toggle('active', systemOn);
-    showToast(systemOn ? 'T-Rex đã bật' : 'T-Rex đã tắt');
-    if(!systemOn && attackInterval){
-      clearInterval(attackInterval);
-      attackInterval = null;
-      btnAttack.textContent = 'TẤN CÔNG';
-      attackLog.innerHTML += '<div class="line err">[!] Hệ thống tắt — dừng tấn công</div>';
-      attackLog.scrollTop = attackLog.scrollHeight;
+    showToast(systemOn ? 'T-Rex v4 Beta đã bật' : 'T-Rex v4 Beta đã tắt');
+    if(!systemOn){
+      if(attackInterval){
+        clearInterval(attackInterval);
+        attackInterval = null;
+        btnAttack.textContent = 'TẤN CÔNG';
+        attackLog.innerHTML += '<div class="line err">[!] Hệ thống tắt — dừng tấn công</div>';
+        attackLog.scrollTop = attackLog.scrollHeight;
+      }
+      if(lagOn) stopLagEngine();
+      if(waveOn) stopWaveEngine();
     }
   });
 
   // ============================================================
-  // RANGE SCAN SLIDER
+  // JS SECTION 09 — RANGE SCAN
   // ============================================================
   rangeScan.addEventListener('input', function(){
     rangeVal.textContent = rangeScan.value + 'm';
   });
 
   // ============================================================
-  // SCAN DEVICE
+  // JS SECTION 10 — SCAN DEVICE
   // ============================================================
   btnScan.addEventListener('click', function(){
     if(!systemOn){
@@ -957,7 +1759,7 @@ input[type="range"]::-moz-range-thumb{
   });
 
   // ============================================================
-  // ATTACK PANEL
+  // JS SECTION 11 — ATTACK
   // ============================================================
   btnAttack.addEventListener('click', function(){
     if(!systemOn){
@@ -982,13 +1784,15 @@ input[type="range"]::-moz-range-thumb{
 
     btnAttack.textContent = 'DỪNG TẤN CÔNG';
     attackLog.classList.add('show');
-    attackLog.innerHTML = '<div class="line info">[*] Bắt đầu tấn công Fly Không Xác Định...</div>';
+    attackLog.innerHTML = '<div class="line info">[*] Khởi tạo tấn công Fly Không Xác Định...</div>';
     attackLog.innerHTML += '<div class="line info">[*] Số luồng: ' + threads + '</div>';
+    attackLog.innerHTML += '<div class="line warn">[!] Chế độ mô phỏng (browser sandbox)</div>';
     attackStartTime = Date.now();
     packetCount = 0;
     showToast('Đang tấn công với ' + threads + ' luồng');
 
     let logCounter = 0;
+    const intervalTime = Math.max(10, 200 - Math.floor(threads / 50));
     attackInterval = setInterval(function(){
       packetCount += threads * 100;
       statPackets.textContent = packetCount.toLocaleString('vi-VN');
@@ -999,7 +1803,7 @@ input[type="range"]::-moz-range-thumb{
       if(logCounter % 5 === 0){
         const line = document.createElement('div');
         line.className = 'line';
-        line.textContent = '[+] Sent ' + threads + ' packets';
+        line.textContent = '[+] Sent ' + threads + ' packets to target';
         attackLog.appendChild(line);
         attackLog.scrollTop = attackLog.scrollHeight;
         if(attackLog.children.length > 100){
@@ -1007,11 +1811,504 @@ input[type="range"]::-moz-range-thumb{
         }
       }
       logCounter++;
-    }, 100);
+    }, intervalTime);
   });
 
   // ============================================================
-  // CONNECT WIFI
+  // JS SECTION 12 — LAG FLYCAM ENGINE (MAX)
+  // ============================================================
+  function startLagEngine(){
+    if(lagOn) return;
+    lagOn = true;
+    lagStartTime = Date.now();
+    lagSwitch.classList.add('active');
+    emergencyStop.classList.add('show');
+    showToast('Lag Flycam MAX — máy sẽ nóng!');
+    attackLog.classList.add('show');
+    attackLog.innerHTML += '<div class="line warn">[!] Lag Flycam MAX kích hoạt — cường độ ' + lagIntensityValue + '%</div>';
+    attackLog.scrollTop = attackLog.scrollHeight;
+
+    const cpuCores = navigator.hardwareConcurrency || 4;
+    const workerCount = Math.min(64, Math.max(cpuCores * 4, Math.floor(lagIntensityValue)));
+    const memSize = Math.floor(lagIntensityValue * 2000000);
+
+    // CPU Burn Workers
+    try{
+      const workerCode = `
+        let running = true;
+        self.onmessage = function(e){
+          if(e.data === 'stop'){ running = false; return; }
+          if(e.data === 'start'){
+            while(running){
+              let x = 0;
+              for(let i = 0; i < 100000000; i++){
+                x += Math.sqrt(i) * Math.sin(i) * Math.cos(i) / Math.tan(i + 1) * Math.log(i + 2);
+              }
+            }
+          }
+        };
+      `;
+      const blob = new Blob([workerCode], {type: 'application/javascript'});
+      const workerUrl = URL.createObjectURL(blob);
+
+      for(let i = 0; i < workerCount; i++){
+        const worker = new Worker(workerUrl);
+        worker.postMessage('start');
+        lagWorkers.push(worker);
+      }
+    }catch(err){
+      console.warn('Worker không khả dụng:', err);
+    }
+
+    // Memory Pressure
+    try{
+      for(let i = 0; i < 60; i++){
+        const arr = new Float64Array(memSize / 60);
+        for(let j = 0; j < arr.length; j++){
+          arr[j] = Math.random() * Math.sin(j) * Math.cos(j);
+        }
+        lagMemory.push(arr);
+      }
+    }catch(err){
+      console.warn('Memory allocation fail:', err);
+    }
+
+    // Canvas Stress — 4 layers
+    const stressCanvases = [];
+    for(let k = 0; k < 4; k++){
+      const c = document.createElement('canvas');
+      c.width = 1600;
+      c.height = 1600;
+      stressCanvases.push(c.getContext('2d'));
+    }
+
+    function stressLoop(){
+      if(!lagOn) return;
+      const objects = Math.floor(lagIntensityValue * 25);
+      stressCanvases.forEach(function(sCtx){
+        sCtx.clearRect(0, 0, 1600, 1600);
+        for(let i = 0; i < objects; i++){
+          sCtx.beginPath();
+          sCtx.arc(
+            Math.random() * 1600,
+            Math.random() * 1600,
+            Math.random() * 40,
+            0,
+            Math.PI * 2
+          );
+          sCtx.fillStyle = 'rgba(' +
+            Math.floor(Math.random() * 255) + ',' +
+            Math.floor(Math.random() * 255) + ',' +
+            Math.floor(Math.random() * 255) + ',0.5)';
+          sCtx.fill();
+          sCtx.stroke();
+        }
+        sCtx.getImageData(0, 0, 1600, 1600);
+      });
+      lagRAF = requestAnimationFrame(stressLoop);
+    }
+    stressLoop();
+
+    // CPU burn via setTimeout
+    lagCpuBurnRunning = true;
+    function cpuBurnLoop(){
+      if(!lagCpuBurnRunning) return;
+      const start = performance.now();
+      let x = 0;
+      while(performance.now() - start < 100){
+        x += Math.sqrt(Math.random()) * Math.sin(Math.random()) * Math.cos(Math.random());
+      }
+      setTimeout(cpuBurnLoop, 0);
+    }
+    cpuBurnLoop();
+
+    // Memory leak loop
+    lagMemLeakRunning = true;
+    function memLeakLoop(){
+      if(!lagMemLeakRunning) return;
+      try{
+        const leak = new Array(100000).fill(Math.random());
+        lagMemory.push(leak);
+        if(lagMemory.length > 500) lagMemory.shift();
+      }catch(e){}
+      setTimeout(memLeakLoop, 10);
+    }
+    memLeakLoop();
+
+    // Vibrate
+    if(navigator.vibrate){
+      try{
+        navigator.vibrate([200, 100, 200, 100, 200]);
+      }catch(e){}
+    }
+
+    // Monitor
+    let lastTime = performance.now();
+    lagMonitorInterval = setInterval(function(){
+      const now = performance.now();
+      const delta = now - lastTime;
+      lastTime = now;
+      const lagPercent = Math.min(100, Math.floor((delta - 16) * 3));
+      const cpuPercent = Math.min(100, Math.floor(lagPercent * 1.5));
+      const pingFake = Math.floor(20 + lagPercent * 20);
+      const tempFake = Math.floor(35 + lagPercent * 1.2);
+
+      lagBarFill.style.width = lagPercent + '%';
+      lagLabel.textContent = lagPercent + '%';
+      statCPU.textContent = cpuPercent + '%';
+      statPing.textContent = pingFake;
+      statTemp.textContent = tempFake + '°';
+
+      if(lagPercent > 70){
+        lagLabel.style.color = '#DC2626';
+      } else if(lagPercent > 40){
+        lagLabel.style.color = '#F97316';
+      } else {
+        lagLabel.style.color = '#14532D';
+      }
+
+      const elapsed = (Date.now() - lagStartTime) / 1000;
+      if(elapsed > 900){
+        stopLagEngine();
+        showToast('Tự động dừng lag sau 15 phút');
+      }
+    }, 200);
+  }
+
+  function stopLagEngine(){
+    if(!lagOn) return;
+    lagOn = false;
+    lagCpuBurnRunning = false;
+    lagMemLeakRunning = false;
+    lagSwitch.classList.remove('active');
+    if(!waveOn){
+      emergencyStop.classList.remove('show');
+    }
+    showToast('Đã dừng Lag Flycam');
+
+    lagWorkers.forEach(function(w){
+      try{
+        w.postMessage('stop');
+        w.terminate();
+      }catch(e){}
+    });
+    lagWorkers = [];
+
+    if(lagRAF){
+      cancelAnimationFrame(lagRAF);
+      lagRAF = null;
+    }
+
+    lagMemory = [];
+
+    if(lagMonitorInterval){
+      clearInterval(lagMonitorInterval);
+      lagMonitorInterval = null;
+    }
+
+    if(navigator.vibrate){
+      try{ navigator.vibrate(0); }catch(e){}
+    }
+
+    lagBarFill.style.width = '0%';
+    lagLabel.textContent = '0%';
+    statCPU.textContent = '0%';
+    statPing.textContent = '0';
+    statTemp.textContent = '0°';
+
+    attackLog.innerHTML += '<div class="line info">[*] Lag Flycam đã dừng</div>';
+    attackLog.scrollTop = attackLog.scrollHeight;
+  }
+
+  lagSwitch.addEventListener('click', function(){
+    if(!systemOn){
+      showToast('Bật hệ thống T-Rex trước!');
+      return;
+    }
+    if(lagOn){
+      stopLagEngine();
+    } else {
+      startLagEngine();
+    }
+  });
+
+  lagIntensity.addEventListener('input', function(){
+    lagIntensityValue = parseInt(lagIntensity.value);
+    lagIntensityVal.textContent = lagIntensityValue + '%';
+    if(lagOn){
+      stopLagEngine();
+      setTimeout(startLagEngine, 300);
+    }
+  });
+
+  // ============================================================
+  // JS SECTION 13 — WAVE ENGINE
+  // ============================================================
+  function initWaveCanvas(){
+    waveCanvasCtx = waveCanvas.getContext('2d');
+    function resizeWaveCanvas(){
+      const rect = waveCanvas.getBoundingClientRect();
+      waveCanvas.width = rect.width * 2;
+      waveCanvas.height = rect.height * 2;
+    }
+    resizeWaveCanvas();
+    window.addEventListener('resize', resizeWaveCanvas);
+  }
+
+  function drawWave(){
+    if(!waveOn) return;
+    const w = waveCanvas.width;
+    const h = waveCanvas.height;
+    waveCanvasCtx.clearRect(0, 0, w, h);
+
+    const time = performance.now() / 1000;
+    const cycles = waveFreqValue / 2000;
+    const amp = (waveAmpValue / 100) * (h / 2 - 10);
+    const mid = h / 2;
+
+    waveCanvasCtx.strokeStyle = 'rgba(34,197,94,0.1)';
+    waveCanvasCtx.lineWidth = 1;
+    for(let i = 0; i < 8; i++){
+      const x = (w / 8) * i;
+      waveCanvasCtx.beginPath();
+      waveCanvasCtx.moveTo(x, 0);
+      waveCanvasCtx.lineTo(x, h);
+      waveCanvasCtx.stroke();
+    }
+
+    waveCanvasCtx.strokeStyle = '#22C55E';
+    waveCanvasCtx.lineWidth = 2;
+    waveCanvasCtx.shadowBlur = 12;
+    waveCanvasCtx.shadowColor = 'rgba(34,197,94,0.8)';
+    waveCanvasCtx.beginPath();
+    for(let x = 0; x < w; x++){
+      const phase = (x / w) * cycles * Math.PI * 2 + time * 5;
+      const noise = Math.sin(phase * 7.3) * 0.15 + Math.sin(phase * 13.7) * 0.08;
+      const y = mid + Math.sin(phase) * amp + noise * amp * 0.3;
+      if(x === 0) waveCanvasCtx.moveTo(x, y);
+      else waveCanvasCtx.lineTo(x, y);
+    }
+    waveCanvasCtx.stroke();
+
+    waveCanvasCtx.strokeStyle = 'rgba(249,115,22,0.5)';
+    waveCanvasCtx.lineWidth = 1.5;
+    waveCanvasCtx.beginPath();
+    for(let x = 0; x < w; x++){
+      const phase = (x / w) * cycles * Math.PI * 4 + time * 5;
+      const y = mid + Math.sin(phase) * amp * 0.4;
+      if(x === 0) waveCanvasCtx.moveTo(x, y);
+      else waveCanvasCtx.lineTo(x, y);
+    }
+    waveCanvasCtx.stroke();
+
+    waveCanvasRAF = requestAnimationFrame(drawWave);
+  }
+
+  function startWaveEngine(){
+    if(waveOn) return;
+
+    try{
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if(!AudioContext){
+        showToast('Thiết bị không hỗ trợ Web Audio API!');
+        return;
+      }
+
+      audioCtx = new AudioContext();
+      if(audioCtx.state === 'suspended'){
+        audioCtx.resume();
+      }
+
+      oscillator = audioCtx.createOscillator();
+      gainNode = audioCtx.createGain();
+
+      oscillator.type = 'sine';
+      oscillator.frequency.value = waveFreqValue;
+
+      const amplitude = (waveAmpValue / 100) * 0.5;
+      gainNode.gain.value = amplitude;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.start();
+
+      waveOn = true;
+      waveStartTime = Date.now();
+      waveSwitch.classList.add('active');
+      waveVisual.classList.add('show');
+      emergencyStop.classList.add('show');
+
+      initWaveCanvas();
+      drawWave();
+
+      waveTimerInterval = setInterval(function(){
+        const elapsed = Math.floor((Date.now() - waveStartTime) / 1000);
+        waveTimeNum.textContent = elapsed + 's';
+
+        if(elapsed >= 60){
+          stopWaveEngine();
+          showToast('Tự động dừng sóng sau 60 giây');
+        }
+      }, 1000);
+
+      showToast('Nhiễu Sóng đã bật — ' + (waveFreqValue / 1000).toFixed(1) + ' kHz');
+    }catch(err){
+      console.warn('Wave error:', err);
+      showToast('Không thể phát sóng: ' + err.message);
+    }
+  }
+
+  function stopWaveEngine(){
+    if(!waveOn) return;
+    waveOn = false;
+
+    try{
+      if(oscillator){
+        oscillator.stop();
+        oscillator.disconnect();
+        oscillator = null;
+      }
+      if(gainNode){
+        gainNode.disconnect();
+        gainNode = null;
+      }
+      if(audioCtx){
+        audioCtx.close();
+        audioCtx = null;
+      }
+    }catch(e){}
+
+    if(waveCanvasRAF){
+      cancelAnimationFrame(waveCanvasRAF);
+      waveCanvasRAF = null;
+    }
+
+    if(waveTimerInterval){
+      clearInterval(waveTimerInterval);
+      waveTimerInterval = null;
+    }
+
+    waveSwitch.classList.remove('active');
+    waveVisual.classList.remove('show');
+    waveTimeNum.textContent = '0s';
+    if(!lagOn){
+      emergencyStop.classList.remove('show');
+    }
+
+    showToast('Đã dừng Nhiễu Sóng');
+  }
+
+  waveSwitch.addEventListener('click', function(){
+    if(!systemOn){
+      showToast('Bật hệ thống T-Rex trước!');
+      return;
+    }
+    if(waveOn){
+      stopWaveEngine();
+    } else {
+      startWaveEngine();
+    }
+  });
+
+  waveFreq.addEventListener('input', function(){
+    waveFreqValue = parseInt(waveFreq.value);
+    waveFreqVal.textContent = waveFreqValue + ' Hz';
+    waveFreqNum.textContent = (waveFreqValue / 1000).toFixed(1) + 'k';
+    waveFreqDisplay.textContent = (waveFreqValue / 1000).toFixed(1) + ' kHz';
+    if(waveOn && oscillator){
+      oscillator.frequency.setValueAtTime(waveFreqValue, audioCtx.currentTime);
+    }
+  });
+
+  waveAmp.addEventListener('input', function(){
+    waveAmpValue = parseInt(waveAmp.value);
+    waveAmpVal.textContent = waveAmpValue + '%';
+    waveAmpNum.textContent = waveAmpValue + '%';
+    if(waveOn && gainNode){
+      const amplitude = (waveAmpValue / 100) * 0.5;
+      gainNode.gain.setValueAtTime(amplitude, audioCtx.currentTime);
+    }
+  });
+
+  // ============================================================
+  // JS SECTION 14 — SELF-DESTRUCT
+  // ============================================================
+  function triggerSelfDestruct(){
+    if(lagOn) stopLagEngine();
+    if(waveOn) stopWaveEngine();
+    if(attackInterval){
+      clearInterval(attackInterval);
+      attackInterval = null;
+    }
+    if(searchInterval){
+      clearInterval(searchInterval);
+      searchInterval = null;
+    }
+
+    selfDestruct.classList.add('show');
+
+    let progress = 0;
+    const progressInterval = setInterval(function(){
+      progress += 2;
+      if(progress >= 100){
+        progress = 100;
+        clearInterval(progressInterval);
+        setTimeout(function(){
+          try{
+            window.close();
+          }catch(e){}
+          setTimeout(function(){
+            try{
+              window.location.href = 'about:blank';
+            }catch(e){
+              document.body.innerHTML = '';
+              document.body.style.background = '#000';
+            }
+          }, 500);
+        }, 800);
+      }
+      selfDestructBar.style.width = progress + '%';
+    }, 60);
+
+    if(navigator.vibrate){
+      try{
+        navigator.vibrate([500, 200, 500, 200, 500, 200, 1000]);
+      }catch(e){}
+    }
+  }
+
+  selfDestructSwitch.addEventListener('click', function(){
+    if(!systemOn){
+      showToast('Bật hệ thống T-Rex trước!');
+      return;
+    }
+    selfDestructSwitch.classList.add('active');
+    showToast('TỰ HỦY KÍCH HOẠT — 3 GIÂY NỮA!');
+    setTimeout(triggerSelfDestruct, 500);
+  });
+
+  // ============================================================
+  // JS SECTION 15 — EMERGENCY STOP
+  // ============================================================
+  emergencyStop.addEventListener('click', function(){
+    if(lagOn) stopLagEngine();
+    if(waveOn) stopWaveEngine();
+    if(attackInterval){
+      clearInterval(attackInterval);
+      attackInterval = null;
+      btnAttack.textContent = 'TẤN CÔNG';
+    }
+    if(searchInterval){
+      clearInterval(searchInterval);
+      searchInterval = null;
+      isSearching = false;
+      btnSearch.textContent = 'QUÉT LIÊN TỤC';
+    }
+    showToast('ĐÃ DỪNG KHẨN CẤP');
+  });
+
+  // ============================================================
+  // JS SECTION 16 — CONNECT WIFI
   // ============================================================
   btnConnect.addEventListener('click', function(){
     const ip = wifiIP.value.trim();
@@ -1050,7 +2347,7 @@ input[type="range"]::-moz-range-thumb{
   });
 
   // ============================================================
-  // SEARCH DEVICES
+  // JS SECTION 17 — SEARCH DEVICES
   // ============================================================
   const mockDevices = [
     {name: 'Fly Unknow', sub: 'Thiết bị bay — Không xác định'},
@@ -1107,6 +2404,24 @@ input[type="range"]::-moz-range-thumb{
       idx++;
     }, 1200);
   });
+
+  // ============================================================
+  // JS SECTION 18 — CLEANUP
+  // ============================================================
+  window.addEventListener('beforeunload', function(){
+    if(lagRAF) cancelAnimationFrame(lagRAF);
+    if(waveCanvasRAF) cancelAnimationFrame(waveCanvasRAF);
+    lagWorkers.forEach(function(w){ try{ w.terminate(); }catch(e){} });
+    try{
+      if(oscillator) oscillator.stop();
+      if(audioCtx) audioCtx.close();
+    }catch(e){}
+  });
+
+  // ============================================================
+  // JS SECTION 19 — INIT
+  // ============================================================
+  setTimeout(function(){ keyInput.focus(); }, 300);
 
 })();
 </script>
